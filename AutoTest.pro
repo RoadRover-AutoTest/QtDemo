@@ -101,7 +101,9 @@ RESOURCES += \
     Images/images.qrc
 
 DISTFILES += \
-    history.txt
+    history.txt \
+    record.txt \
+    Backups/tempfile.txt
 
 #未使用变量不予警告
 #方法二：在提示警告函数里面添加Q_UNUSED(arg1);

@@ -1,209 +1,96 @@
-﻿
-一、技术总结：
-1. 在使用类文件时可定义私有数据，单不要常用静态数据，多个对象时有可能更改，相当于全局数据；
+﻿=======================================================================================================
+================================================项目说明================================================
+=======================================================================================================
+项目名称:	Auto test
 
-2. 在使用对话框处理数据时，可传入指针，直接对指针数据进行修改，之后返回调用区数据也同步更改；
-
-3. 若对某一控件使用较为频繁，可将相应处理重写，如treewidget等，公共函数可在调用的父窗口直接使用，可自定义信号与槽函数供与父窗口传递数据使用；
-
-4. 将硬件资源传递给测试小板时，数组不可使用指针，因未分配内存照成数据混乱，定义固定大小的数组，对数组进行赋值；对于字符串可用strcpy将数据拷贝过来；
-
-5. 窗口不常用设定
-（1）只对主窗口的中心区显示背景色
-    ui->centralWidget->setObjectName("mainWidget");
-    ui->centralWidget->setStyleSheet("#mainWidget{background-color: rgb(0, 0, 0)}");
-（2）定义窗口属性
-    ui->toolBar_Fun->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);//工具栏显示图标和字符
-    this->setWindowState(Qt::WindowMaximized);
-（3）子窗口依附主窗口显示
-    setWindowFlags(Qt::CustomizeWindowHint|Qt::FramelessWindowHint);//设置子窗口属性
-    this->setParent(parent);//设置依附的窗口
-    this->setAttribute(Qt::WA_DeleteOnClose);//设置了该属性，删除子窗口的同时删除内部窗口SubWid
-
-6.使用队列形式的数据传递：应用：命令执行+串口发送
-    将需要处理数据填充到链表中，定时器检测，链表有数据执行，执行后删除，一步一步进行。该方式避免了数据堆积处理，能有效的执行。
-
-7.定时器处理：在需要的地方开启定时器，结束时killtimer，但注意处理时多个地方出口kill时避免冲突。
-
-8.ui->dockWidgetRuning->raise();//raise()函数显示当前widget，用于在dock折叠后显示指定窗口时使用
-
-9.//QString::fromLocal8Bit();//any：最新版本的QT无需转换，可直接输出中文，转换了反而出错
-
-10.进度条样式
-QProgressBar *pBar=new QProgressBar();
-pBar->setRange(0,100);
-pBar->setValue(value);
-
-if(color==GREEN)//00D100
-{
-    pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
-                    QProgressBar::chunk {   background-color: #66ff66;   width: 20px;}\
-                    QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
-}
-else if(color==BLUE)//0055FF
-{
-    pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
-                    QProgressBar::chunk {   background-color: #05B8CC;   width: 20px;}\
-                    QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
-}
-else if(color==RED)
-{
-    pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
-                    QProgressBar::chunk {   background-color: #FF0505;   width: 20px;}\
-                    QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
-}
-else if(color==WHITE)
-{
-    pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
-                    QProgressBar::chunk {   background-color: #000000;   width: 20px;}\
-                    QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
-}
+MCU版本:
 
-ui->tableWidget->setCellWidget(Num,colPBar,pBar);
+创建人:		李书会
+创建日期:	2019.02.15
 
 
+特别说明:	此为PC端上位机软件源码，依赖脚本运行，PC请先行配置ADB与PYTHON环境
+=======================================================================================================
+================================================修改记录================================================
 
+修改原因:创建代码库
 
-//读文件流：当读为空时证明上面循环已经循环到文件末尾，但是无log成功的标志，因此判断为失败
-//if(in.readAll().isEmpty())
-//    result = false;//cout << ("提示：无脚本LOG，请检测设备是否断开！");
+修改内容:
+    V1.00:未上传
+    搭建测试框架；
+    实现测试流运行自动化测试；
+    测试结果生成报告；
+    V1.01:经试用，反馈修改，创建仓库，上传
+    1.修改开机检测界面的处理，未获取界面时不断去读取界面；
+    2.处理任何情况下报告的生成，主要处理设备不在线时要不断获取信息，不然报告生成失败；
+    3.修改测试循环次数范围；
+    4.修改参数配置树，将设备序列号改为实时扫描，去掉WIFI连接；
+    5.修改硬件资源下载与保存文件的同步问题；
+    追加：
+    6.将工具配置参数创建界面处理，并储存数据在配置文件中，下次打开自动调取；
 
+修改后的版本:	V1.01
 
+修改人:		李书会
 
-11.git创库处理
-https://blog.csdn.net/hebbely/article/details/52495073
+修改日期:	2019.02.15
+=======================================================================================================
 
+修改原因:
 
+修改内容:
 
 
-any-待使用
-#if 0
-    if((this->windowTitle().contains("*"))||(this->windowTitle() == "ATtool"))
-    {
-        if(QMessageBox::information(NULL, "提示", "是否保存序列文件？？", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::Yes)
-        {
-            //on_save_triggered();
-        }
-        else
-            goto toErrReturn;
-    }
+修改后的版本:
 
+修改人:
 
-/*
-if(chk & CHKCurrent)
-{
-    appendTxList(CMDWorkCurrent,&buf,1,CMD_NEEDNACK);
-}
+修改日期:
+=======================================================================================================
 
-if(chk & CHKVlot)
-{
-    appendTxList(CMDVoltParam,&buf,1,CMD_NEEDNACK);
-}
 
-if(chk & CHKSound)
-{
-    appendTxList(CMDSoundCheck,&buf,1,CMD_NEEDNACK);
-}
-*/
-#endif
+修改原因:
 
+修改内容:
 
-//此处也接收除了该进程外的其他显示信息，因此只在接收到需要信息时修改状态：
-if(ShowList.isEmpty()==false)
-{
-    if(ShowList.first().contains("mFocusedActivity: ActivityRecord"))
-    {
 
-        if(onoff)
-            onFace = faceStr.mid(faceStr.indexOf("com.roadrover.") + 14).remove("}\r\r\n");
-        else
-            offFace = faceStr.mid(faceStr.indexOf("com.roadrover.") + 14).remove("}\r\r\n");
-        isMemoryDeal = haddeal;
-    }
-    else if(ShowList.first().contains("not found"))
-    {
-        onFace.clear();
-        isMemoryDeal = haddeal;
-    }
-    else
-    {
+修改后的版本:
 
-    }
+修改人:
 
+修改日期:
+=======================================================================================================
 
 
-二、遇到BUG解决方式：
-1.主窗口串口重复开关，打印的发送或接收信息累加？？
-    串口打开的同时建立了链接用于显示串口发送接收信息，但在关闭时未关闭，再次打开照成重复建立链接，也就重复执行信号数据。
-    解决方式：在关闭串口的同时关闭链接。
-any: uart rewrite problem? When Uart to Close,And disconnect signal.
+修改原因:
 
-2.chart处理时遇到layout重复问题？？错误提示：QLayout: Attempting to add QLayout "" to ChartWidget "ChartWidget", which already has a layout
-    因不小心定义了2个UI照成的，如：ui->setupUi(this);，去掉即可；
+修改内容:
 
-3：测试动作结束判断，非测试动作不进行赋值，否则将多次进入多次进行检测处理；
 
-4:测试项目更换时，恢复机器工作状态的处理？？
-    判断恢复的结果，电流达到正常工作电流方进行下一项测试，若启动不了，提示并结束测试。此处动作可以为ACC也可为BAT，因此设定特定按键处理变量
+修改后的版本:
 
+修改人:
 
+修改日期:
+=======================================================================================================
 
 
+修改原因:
 
+修改内容:
 
 
+修改后的版本:
 
+修改人:
 
+修改日期:
+=======================================================================================================
 
 
 
-三、更新记录：
-14.更新日期：2018.12.03
-(1).Com refresh：串口端口号刷新
-(2).Uart rewrite：串口重写BUG
-(3).Hardware reset：硬件资源重置
-(4).Hardware NULLDat：定义NULL项目数据，用于初始化部分按键信息
-(5).Action param defined：动作参数重新定义：Name+type(Key/Script)+String(Key1:ACC:On/Script)
-(6).Unit EditAndNew：定义测试单元编辑界面和新建界面
 
-15.更新日期：2018.12.04
-（1）修改动作结构体：添加测试名，测试类型改为key统一处理；
-（2）测试流执行key点击按键，实时获取电流，处理脚本测试单元，定义其ACC、BAT点击的按键；
-（3）串口处理接收函数，传递字符串指针处理不完全，传递QByteArray类型，在做数据比较时将其强制转换为（uint8_t）
-遗留问题：
-A3-6.测试流执行脚本，带休眠与断电时，交替测试，需将前一个测试动作恢复，但是处理自定义测试时会不会。。。？？
-A1-7.定时查询物理参数，数据较多时照成堵塞，执行不过来，但又有那么多数据待获取？？
 
-16.更新日期：2018.12.05
-（1）处理chart，显示接收小板的电流；
-（2）整理进程处理函数，使满足当前测试需求；
-（3）绘制tree指示栏显示；
-遗留问题：增加需求：序列测试间隔时间(A1)----通过恢复机器工作来处理
 
-21.更新日期：2018.12.17
-（1）处理切换测试时机器状态恢复；
-（2）执行失误时复位测试按键的处理；
 
 
-
-
-
-
-
-
-
-
-
-
-
-四、待解决问题（A/B/C/D/E-重要程度、1/2/3/4/5-紧迫性）：
-C5-1.CAN Config is to hardware（串口配置是否放置在硬件资源界面处理），硬件资源不保存在小板中，上传按键及功能去掉?
-E5-2.Hardware processbar length is Deal（硬件资源下载时进度条的准确性）?
-C5-3.Hardware only save xmlfile（只将数据保存在xml文件中）?
-    Over-A1-4.Action param to deal? Name+type(Key/Script)+String(Key1:ACC:On/Script)（重新定义测试参数）？
-    Over-A1-5.KeyInfo add tabNumber（按键信息添加序号，以便点击调用）?
-A3-4:右键运行测试后终止执行的处理
-
-BUG：
-1.硬件资源导出时，在this->close时，析构函数调用串口关闭函数，会照成界面异常，暂时比较端口号未发现问题，但并未解决问题；
-2. curItem->child(devIP)->setText(colItem,"fshdgj");//->setTextColor(colItem,GRAY);  IP切换显示状态时，项目处理异常
