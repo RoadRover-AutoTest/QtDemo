@@ -1,0 +1,62 @@
+
+
+any-待使用
+#if 0
+    if((this->windowTitle().contains("*"))||(this->windowTitle() == "ATtool"))
+    {
+        if(QMessageBox::information(NULL, "提示", "是否保存序列文件？？", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::Yes)
+        {
+            //on_save_triggered();
+        }
+        else
+            goto toErrReturn;
+    }
+
+
+/*
+if(chk & CHKCurrent)
+{
+    appendTxList(CMDWorkCurrent,&buf,1,CMD_NEEDNACK);
+}
+
+if(chk & CHKVlot)
+{
+    appendTxList(CMDVoltParam,&buf,1,CMD_NEEDNACK);
+}
+
+if(chk & CHKSound)
+{
+    appendTxList(CMDSoundCheck,&buf,1,CMD_NEEDNACK);
+}
+*/
+#endif
+
+
+//此处也接收除了该进程外的其他显示信息，因此只在接收到需要信息时修改状态：
+if(ShowList.isEmpty()==false)
+{
+    if(ShowList.first().contains("mFocusedActivity: ActivityRecord"))
+    {
+
+        if(onoff)
+            onFace = faceStr.mid(faceStr.indexOf("com.roadrover.") + 14).remove("}\r\r\n");
+        else
+            offFace = faceStr.mid(faceStr.indexOf("com.roadrover.") + 14).remove("}\r\r\n");
+        isMemoryDeal = haddeal;
+    }
+    else if(ShowList.first().contains("not found"))
+    {
+        onFace.clear();
+        isMemoryDeal = haddeal;
+    }
+    else
+    {
+
+    }
+}
+
+
+
+
+
+
