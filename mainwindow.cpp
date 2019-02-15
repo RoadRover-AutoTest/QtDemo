@@ -16,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
     timer1SID=startTimer(1000);
     initkeyList();
 
-    fTimer=1;
     isRunning=false;
     testState=overtest;
     isDelayReport=false;
@@ -396,13 +395,14 @@ void MainWindow::on_treeWidget_canClose()
 }
 
 /*************************************************************
-/函数功能：设置循环次数槽函数
-/函数参数：次数
+/函数功能：设备启用状态
+/函数参数：状态
 /函数返回：无
+//any:待使用
 *************************************************************/
-void MainWindow::on_treeWidget_cycleNum(int value)
+void MainWindow::on_treeWidget_devUseState(bool isUse)
 {
-    fTimer = value;
+    cout <<isUse;
 }
 
 /*************************************************************
@@ -577,6 +577,7 @@ void MainWindow::timerTestIDDeal()
         {
             isProOK=false;
             //机器版本信息:
+            //any:Error-经常性出现获取版本信息失败，照成生成报告失败
             ui->textBrowser_EXEShow->append("获取机器版本信息，请稍后... ...");
             appendThePropertiesToFile("clear");
 
@@ -701,7 +702,7 @@ void MainWindow::testProcessOverDeal()
     }
     case script:
     {
-        //测试脚本运行：
+        //测试脚本运行：any:Error-脚本运行未结束时赋值，照成下一步的关执行失效
         if(actIsRunning)
         {
             actIsRunning=false;
@@ -714,11 +715,11 @@ void MainWindow::testProcessOverDeal()
         if(isProOK)
         {
             //添加时间
+            cout ;
             appendThePropertiesToFile("start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
             appendThePropertiesToFile("end_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
             testState = report;
         }
-
         break;
     }
     case report:
@@ -1175,7 +1176,7 @@ void MainWindow::onProcessOutputSlot(int pNum,QString String)
         }
         else
         {
-            //获取版本信息与报告生成不显示过程
+            //获取版本信息与报告生成不显示过程:any
             if((testState!=getprop)&&(testState!=report))
                 ui->textBrowser_EXEShow->append(String);
         }
@@ -1329,5 +1330,6 @@ void MainWindow::on_btnReadCurrent_clicked()
 {
     chkParamFromHardware(0x00);
 }
+
 
 

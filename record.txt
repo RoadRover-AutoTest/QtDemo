@@ -8,16 +8,16 @@
 4. 将硬件资源传递给测试小板时，数组不可使用指针，因未分配内存照成数据混乱，定义固定大小的数组，对数组进行赋值；对于字符串可用strcpy将数据拷贝过来；
 
 5. 窗口不常用设定
-（1）只对主窗口的中心区显示背景色
-    ui->centralWidget->setObjectName("mainWidget");
-    ui->centralWidget->setStyleSheet("#mainWidget{background-color: rgb(0, 0, 0)}");
-（2）定义窗口属性
-    ui->toolBar_Fun->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);//工具栏显示图标和字符
-    this->setWindowState(Qt::WindowMaximized);
-（3）子窗口依附主窗口显示
-    setWindowFlags(Qt::CustomizeWindowHint|Qt::FramelessWindowHint);//设置子窗口属性
-    this->setParent(parent);//设置依附的窗口
-    this->setAttribute(Qt::WA_DeleteOnClose);//设置了该属性，删除子窗口的同时删除内部窗口SubWid
+    （1）只对主窗口的中心区显示背景色
+        ui->centralWidget->setObjectName("mainWidget");
+        ui->centralWidget->setStyleSheet("#mainWidget{background-color: rgb(0, 0, 0)}");
+    （2）定义窗口属性
+        ui->toolBar_Fun->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);//工具栏显示图标和字符
+        this->setWindowState(Qt::WindowMaximized);
+    （3）子窗口依附主窗口显示
+        setWindowFlags(Qt::CustomizeWindowHint|Qt::FramelessWindowHint);//设置子窗口属性
+        this->setParent(parent);//设置依附的窗口
+        this->setAttribute(Qt::WA_DeleteOnClose);//设置了该属性，删除子窗口的同时删除内部窗口SubWid
 
 6.使用队列形式的数据传递：应用：命令执行+串口发送
     将需要处理数据填充到链表中，定时器检测，链表有数据执行，执行后删除，一步一步进行。该方式避免了数据堆积处理，能有效的执行。
@@ -29,54 +29,47 @@
 9.//QString::fromLocal8Bit();//any：最新版本的QT无需转换，可直接输出中文，转换了反而出错
 
 10.进度条样式
-QProgressBar *pBar=new QProgressBar();
-pBar->setRange(0,100);
-pBar->setValue(value);
+    QProgressBar *pBar=new QProgressBar();
+    pBar->setRange(0,100);
+    pBar->setValue(value);
 
-if(color==GREEN)//00D100
-{
-    pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
-                    QProgressBar::chunk {   background-color: #66ff66;   width: 20px;}\
-                    QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
-}
-else if(color==BLUE)//0055FF
-{
-    pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
-                    QProgressBar::chunk {   background-color: #05B8CC;   width: 20px;}\
-                    QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
-}
-else if(color==RED)
-{
-    pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
-                    QProgressBar::chunk {   background-color: #FF0505;   width: 20px;}\
-                    QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
-}
-else if(color==WHITE)
-{
-    pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
-                    QProgressBar::chunk {   background-color: #000000;   width: 20px;}\
-                    QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
-}
+    if(color==GREEN)//00D100  GREEN：66ff66    BLUE：05B8CC  RED：FF0505  WHITE：000000
+    {
+        pBar->setStyleSheet("QProgressBar {   border: 2px solid grey;   border-radius: 5px;   background-color: #FFFFFF;}\
+                        QProgressBar::chunk {   background-color: #66ff66;   width: 20px;}\
+                        QProgressBar {   border: 2px solid grey;   border-radius: 5px;   text-align: center;}");
+    }
 
-ui->tableWidget->setCellWidget(Num,colPBar,pBar);
-
-
-
-
-//读文件流：当读为空时证明上面循环已经循环到文件末尾，但是无log成功的标志，因此判断为失败
-//if(in.readAll().isEmpty())
-//    result = false;//cout << ("提示：无脚本LOG，请检测设备是否断开！");
-
-
+    ui->tableWidget->setCellWidget(Num,colPBar,pBar);
 
 11.git创库处理
-git创库处理:https://blog.csdn.net/hebbely/article/details/52495073
-Qt 中git工具使用：https://blog.csdn.net/hcx25909/article/details/8991642
-初次提交需按“git创库处理”在文件目录下进行初次创建，之后可在工程中push推送，
-若是直接在工程内创建时推送到远程时无法关联，使用的是该命令“git push --set-upstream origin master”，应使用“git push -u origin master”
+    git创库处理:https://blog.csdn.net/hebbely/article/details/52495073
+    Qt 中git工具使用：https://blog.csdn.net/hcx25909/article/details/8991642
+    初次提交需按“git创库处理”在文件目录下进行初次创建，之后可在工程中push推送，
+    若是直接在工程内创建时推送到远程时无法关联，使用的是该命令“git push --set-upstream origin master”，应使用“git push -u origin master”
+    命令上传示例：
+    $ git init
+    $ ls -al
+    $ git add -A
+    $ git commit -m 'first commit'
+    $ git remote add origin https://github.com/anylishuhui/QtDemo  （修改远程路径： git remote set-url origin  https://github.com/anylishuhui/Qtuntitled）
+    $ git push -u origin master
+
+    修改中文乱码问题：git config --global gui.encoding utf-8
+    本地配置用户及邮箱：
+    $ git config --global user.name "lishuhui"
+    $ git config --global user.email "lishuhui@roadrover.cn"
+    生成本地密匙（其中密码无需填写）： ssh-keygen -t rsa -C"lishuhui@roadrover.cn"   该密匙路径：C:\Users\LISHUHUI\.ssh\id_rsa.pub 复制后设置在仓库中ssh密匙中即可接收该本机上传的代码。
 
 
-二、遇到BUG解决方式：
+12.采集界面操作：
+    动作执行前后采集图片：0x00(不采集),0x01（采集动作执行前）,0x02（采集动作执行后）,0x03（采集动作执行前后）
+    采集之前先扫描设备，扫描到后，获取界面信息；
+
+
+
+
+二、遇到BUG解决方式（A/B/C/D/E-重要程度、1/2/3/4/5-紧迫性）：
 1.主窗口串口重复开关，打印的发送或接收信息累加？？
     串口打开的同时建立了链接用于显示串口发送接收信息，但在关闭时未关闭，再次打开照成重复建立链接，也就重复执行信号数据。
     解决方式：在关闭串口的同时关闭链接。
@@ -90,18 +83,12 @@ any: uart rewrite problem? When Uart to Close,And disconnect signal.
 4:测试项目更换时，恢复机器工作状态的处理？？
     判断恢复的结果，电流达到正常工作电流方进行下一项测试，若启动不了，提示并结束测试。此处动作可以为ACC也可为BAT，因此设定特定按键处理变量
 
+5.硬件资源导出时，在this->close时，析构函数调用串口关闭函数，会照成界面异常，暂时比较端口号未发现问题，但并未解决问题；
+6. curItem->child(devIP)->setText(colItem,"fshdgj");//->setTextColor(colItem,GRAY);  IP切换显示状态时，项目处理异常
 
-
-
-四、待解决问题（A/B/C/D/E-重要程度、1/2/3/4/5-紧迫性）：
 C5-1.CAN Config is to hardware（串口配置是否放置在硬件资源界面处理），硬件资源不保存在小板中，上传按键及功能去掉?
 E5-2.Hardware processbar length is Deal（硬件资源下载时进度条的准确性）?
 C5-3.Hardware only save xmlfile（只将数据保存在xml文件中）?
     Over-A1-4.Action param to deal? Name+type(Key/Script)+String(Key1:ACC:On/Script)（重新定义测试参数）？
     Over-A1-5.KeyInfo add tabNumber（按键信息添加序号，以便点击调用）?
 A3-4:右键运行测试后终止执行的处理
-
-BUG：
-1.硬件资源导出时，在this->close时，析构函数调用串口关闭函数，会照成界面异常，暂时比较端口号未发现问题，但并未解决问题；
-2. curItem->child(devIP)->setText(colItem,"fshdgj");//->setTextColor(colItem,GRAY);  IP切换显示状态时，项目处理异常
-

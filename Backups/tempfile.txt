@@ -56,7 +56,29 @@ if(ShowList.isEmpty()==false)
 }
 
 
+//读文件流：当读为空时证明上面循环已经循环到文件末尾，但是无log成功的标志，因此判断为失败
+//if(in.readAll().isEmpty())
+//    result = false;//cout << ("提示：无脚本LOG，请检测设备是否断开！");
 
+#if 0
+        if(curItem->text(0) == "无线")
+        {
+            if(curItem->checkState(column) == Qt::Checked)
+            {
+                this->itemWidget(curItem->child(devCONNECT),colItem)->setEnabled(true);
+                this->itemWidget(topItem->child(devUSB),colItem)->setEnabled(false);
+            }
+            else
+            {
+                this->itemWidget(curItem->child(devCONNECT),colItem)->setEnabled(false);
+                this->itemWidget(topItem->child(devUSB),colItem)->setEnabled(true);
+                QComboBox *comboBox=(QComboBox *)this->itemWidget(topItem->child(devUSB),colItem);
+
+                if(comboBox->currentText().isEmpty()==false)
+                    clickedUSBPort(comboBox->currentIndex());
+            }
+        }
+#endif
 
 
 

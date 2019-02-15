@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    qInstallMessageHandler(customMessageHandler); //注册MsgHandler回调函数
+    //qInstallMessageHandler(customMessageHandler); //注册MsgHandler回调函数
     MainWindow w;
     w.show();
 

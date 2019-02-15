@@ -117,32 +117,10 @@ void reTreeWidget::itemChangedCheckedState(QTreeWidgetItem *curItem ,int column)
 
     if(topString == "设备")
     {
-#if 0
-        if(curItem->text(0) == "无线")
-        {
-            if(curItem->checkState(column) == Qt::Checked)
-            {
-                this->itemWidget(curItem->child(devCONNECT),colItem)->setEnabled(true);
-                this->itemWidget(topItem->child(devUSB),colItem)->setEnabled(false);
-            }
-            else
-            {
-                this->itemWidget(curItem->child(devCONNECT),colItem)->setEnabled(false);
-                this->itemWidget(topItem->child(devUSB),colItem)->setEnabled(true);
-                QComboBox *comboBox=(QComboBox *)this->itemWidget(topItem->child(devUSB),colItem);
-
-                if(comboBox->currentText().isEmpty()==false)
-                    clickedUSBPort(comboBox->currentIndex());
-            }
-        }
-        else if(curItem->text(0) == "启用")
-        {
-            if(curItem->checkState(column) == Qt::Checked)
-                devUse(topItem->child(devNum)->text(colItem));
-            else
-                devNoUse();
-        }
-#endif
+        if(curItem->checkState(column) == Qt::Checked)
+            devUseState(true);
+        else
+            devUseState(false);
     }
     else if(topString == "串口")
     {

@@ -89,29 +89,35 @@ void CfgSParam::createACCOffAction(tAction *offAction)
 {
     QTreeWidgetItem *topItem = ui->treeACC->topLevelItem(acc_topOff);
 
+    int waitMin  = topItem->child(acc_Off_WaitTime)->child(acc_Off_Change_min)->text(acc_colItem).toUInt();
+    int waitMax = topItem->child(acc_Off_WaitTime)->child(acc_Off_Change_max)->text(acc_colItem).toUInt();
+    int waitStep = topItem->child(acc_Off_WaitTime)->child(acc_Off_Change_step)->text(acc_colItem).toUInt();
+
     offAction->actName = "ACCOFF";
     offAction->actStr =  getAccKey()+":off";
 
-    offAction->timeDeal.wait = topItem->child(acc_Off_WaitTime)->text(acc_colItem).toUInt();
+    offAction->timeDeal.wait = waitMin;
     offAction->timeDeal.check = 0;
     offAction->timeDeal.end = 60000;
 
-    if(topItem->child(acc_Off_TimeChange)->checkState(acc_colItem) == Qt::Checked)
+    //添加变动参数：存在步进值，且最大和最小值不相等
+    if((waitStep != 0) && (waitMax != waitMin))
     {
         changedParam changeTime;
 
         changeTime.changed = WaitTime;
-        if(topItem->child(acc_Off_TimeChange)->child(acc_Off_Change_dir)->checkState(acc_colItem) == Qt::Checked)
+        if(waitMax > waitMin)
             changeTime.dir = true;
         else
             changeTime.dir = false;
-        changeTime.min = topItem->child(acc_Off_TimeChange)->child(acc_Off_Change_min)->text(acc_colItem).toUInt();
-        changeTime.max = topItem->child(acc_Off_TimeChange)->child(acc_Off_Change_max)->text(acc_colItem).toUInt();
-        changeTime.step = topItem->child(acc_Off_TimeChange)->child(acc_Off_Change_step)->text(acc_colItem).toUInt();
+        changeTime.min  = waitMin;
+        changeTime.max  = waitMax;
+        changeTime.step = waitStep;
 
         offAction->changedDeal.append(changeTime);
     }
 
+    //休眠检测：
     if(topItem->child(acc_Off_Check)->checkState(acc_colItem) == Qt::Checked)
     {
         checkParam checkSleep;
@@ -141,6 +147,7 @@ void CfgSParam::createACCOnAction(tAction *onAction)
     onAction->timeDeal.check = 0;
     onAction->timeDeal.end = topItem->child(acc_On_EndTime)->text(acc_colItem).toUInt();
 
+    //电流检测：
     if(topItem->child(acc_On_CheckCurrent)->checkState(acc_colItem) == Qt::Checked)
     {
         checkParam checkCurrent;
@@ -151,15 +158,18 @@ void CfgSParam::createACCOnAction(tAction *onAction)
         onAction->checkDeal.append(checkCurrent);
     }
 
-    checkParam checkMemoey;
-
-    checkMemoey.check = CHKMEMORY;
+    //界面检测：
     if(topItem->child(acc_On_CheckMemory)->checkState(acc_colItem) == Qt::Checked)
-        checkMemoey.isMemory = true;
-    else
-        checkMemoey.isMemory = false;
-    onAction->checkDeal.append(checkMemoey);
+    {
+        checkParam checkMemoey;
 
+        checkMemoey.check = CHKMEMORY;
+        if(topItem->child(acc_On_CheckMemory)->child(acc_On_MemoryBool)->checkState(acc_colItem) == Qt::Checked)
+            checkMemoey.isMemory = true;
+        else
+            checkMemoey.isMemory = false;
+        onAction->checkDeal.append(checkMemoey);
+    }
 }
 
 /*************************************************************
@@ -229,12 +239,34 @@ void CfgSParam::createBatOffAction(tAction *offAction)
 {
     QTreeWidgetItem *topItem = ui->treeBAT->topLevelItem(bat_topOff);
 
+    int waitMin  = topItem->child(bat_Off_WaitTime)->child(bat_Off_ChangeMin)->text(acc_colItem).toUInt();
+    int waitMax = topItem->child(bat_Off_WaitTime)->child(bat_Off_ChangeMax)->text(acc_colItem).toUInt();
+    int waitStep = topItem->child(bat_Off_WaitTime)->child(bat_Off_ChangeStep)->text(acc_colItem).toUInt();
+
     offAction->actName = "BATOFF";
     offAction->actStr =  getBatKey()+":off";
 
-    offAction->timeDeal.wait = topItem->child(bat_Off_WaitTime)->text(bat_colItem).toUInt();
+    offAction->timeDeal.wait = waitMin;
     offAction->timeDeal.check = 0;
     offAction->timeDeal.end = 60000;
+
+    //添加变动参数：存在步进值，且最大和最小值不相等
+    if((waitStep != 0) && (waitMax != waitMin))
+    {
+        changedParam changeTime;
+
+        changeTime.changed = WaitTime;
+        if(waitMax > waitMin)
+            changeTime.dir = true;
+        else
+            changeTime.dir = false;
+        changeTime.min  = waitMin;
+        changeTime.max  = waitMax;
+        changeTime.step = waitStep;
+
+        offAction->changedDeal.append(changeTime);
+    }
+
 }
 
 /*************************************************************
@@ -253,6 +285,7 @@ void CfgSParam::createBATOnAction(tAction *onAction)
     onAction->timeDeal.check = 0;
     onAction->timeDeal.end = topItem->child(bat_On_EndTime)->text(bat_colItem).toUInt();
 
+    //电流检测：
     if(topItem->child(bat_On_CheckCurrent)->checkState(bat_colItem) == Qt::Checked)
     {
         checkParam checkCurrent;
@@ -263,15 +296,18 @@ void CfgSParam::createBATOnAction(tAction *onAction)
         onAction->checkDeal.append(checkCurrent);
     }
 
-    checkParam checkMemoey;
-
-    checkMemoey.check = CHKMEMORY;
+    //界面检测：
     if(topItem->child(bat_On_CheckMemory)->checkState(bat_colItem) == Qt::Checked)
-        checkMemoey.isMemory = true;
-    else
-        checkMemoey.isMemory = false;
-    onAction->checkDeal.append(checkMemoey);
+    {
+        checkParam checkMemoey;
 
+        checkMemoey.check = CHKMEMORY;
+        if(topItem->child(bat_On_CheckMemory)->child(bat_On_MemoryBool)->checkState(bat_colItem) == Qt::Checked)
+            checkMemoey.isMemory = true;
+        else
+            checkMemoey.isMemory = false;
+        onAction->checkDeal.append(checkMemoey);
+    }
 }
 
 /*************************************************************

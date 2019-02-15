@@ -255,6 +255,9 @@ typedef struct
     //action Deal:
     QString actStr;
 
+    //action picture:any-待处理
+    //uint8_t actGetPic;
+
     //time Deal:
     timeParam timeDeal;
 

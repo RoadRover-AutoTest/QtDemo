@@ -49,31 +49,29 @@ private:
     {
         acc_colItem = 1,
 
-        acc_topKey = 0,
+        acc_topKey = 0,             //top栏
         acc_topOff,
         acc_topOn,
         acc_topScript,
 
-        acc_Off_WaitTime = 0,
-        acc_Off_TimeChange,
+        acc_Off_WaitTime = 0,       //off1
         acc_Off_Check,
 
-        acc_Off_Change_dir = 0,
-        acc_Off_Change_min,
+        acc_Off_Change_min=0,         //off2-waittime
         acc_Off_Change_max,
         acc_Off_Change_step,
 
-        acc_Off_Check_time = 0,
+        acc_Off_Check_time = 0,         //off2-check
         acc_Off_Check_Current,
 
-        acc_On_WaitTime =0,
+        acc_On_WaitTime =0,             //on1
+        acc_On_EndTime,
         acc_On_CheckCurrent,
         acc_On_CheckMemory,
-        acc_On_EndTime,
 
-        acc_On_CurrentValue = 0,
-
-        acc_Script_log=0,
+        acc_On_CurrentValue = 0,        //on2-current
+        acc_On_MemoryBool=0,                //on2-memory
+        acc_Script_log=0,               //script1
 
     }acctree_e;
 
@@ -87,14 +85,17 @@ private:
         bat_topScript,
 
         bat_Off_WaitTime=0,
+        bat_Off_ChangeMin=0,
+        bat_Off_ChangeMax,
+        bat_Off_ChangeStep,
 
         bat_On_Waittime=0,
+        bat_On_EndTime,
         bat_On_CheckCurrent,
         bat_On_CheckMemory,
-        bat_On_EndTime,
 
         bat_On_CurrentValue=0,
-
+        bat_On_MemoryBool=0,
         bat_Script_log=0,
     }battree_e;
 

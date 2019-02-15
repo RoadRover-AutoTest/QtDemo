@@ -91,8 +91,7 @@ signals:
     void canOpen(QString type,QString baud);
     void canClose();
 
-    void devUse(QString devNumber);
-    void devNoUse();
+    void devUseState(bool isUse);
 
 
     //void wifiIsConnect(bool isCNT,QString ip);

@@ -55,7 +55,6 @@ private slots:
     void on_treeWidget_uartClose();
     void on_treeWidget_canOpen(const QString &type, const QString &baud);
     void on_treeWidget_canClose();
-    void on_treeWidget_cycleNum(int value);
 
     void on_pushButton_2_clicked();
 
@@ -73,6 +72,8 @@ private slots:
     void on_actHelp_triggered();
 
     void on_actATtool_triggered();
+
+    void on_treeWidget_devUseState(bool isUse);
 
 private:
     Ui::MainWindow *ui;
@@ -118,7 +119,6 @@ private:
     QList <uartFrame> txList;      //将待发送的命令填充列表，然后在定时器中调用发送
     int timerUartID;
     uint8_t ackWait;
-    uint8_t fTimer;
 
     void appendTxList(char cmd,char* dat,char len,uint8_t ack);
 

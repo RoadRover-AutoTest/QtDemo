@@ -207,7 +207,10 @@ bool appendThePropertiesToFile(QString SaveStr)
     if(!dir.exists())
     {
         if(dir.mkpath(path) == false) //创建多级目录
+        {
+            cout << "创建属性文件夹失败！创建路径为："<<path;
             return false;
+        }
     }
 
     QFile file(path+"properties.txt");
@@ -223,6 +226,8 @@ bool appendThePropertiesToFile(QString SaveStr)
         cout << "Cannot open file " << path+"properties.txt";
         return false;
     }
+
+    //cout <<path<<SaveStr;
 
     QTextStream out(&file);
     if(SaveStr == "clear")
