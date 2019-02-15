@@ -1,0 +1,42 @@
+<RCC>
+    <qresource prefix="/Title">
+        <file>BarTitle.png</file>
+        <file>UartIcon.png</file>
+        <file>WinMode_cascade.png</file>
+        <file>WinMode_tile.png</file>
+        <file>closeALL.png</file>
+        <file>MDIModel.png</file>
+        <file>newTest.png</file>
+        <file>float.png</file>
+        <file>visible.png</file>
+        <file>exit.png</file>
+        <file>save.png</file>
+        <file>open.png</file>
+        <file>keyRes.png</file>
+        <file>resetW.png</file>
+        <file>autotest.png</file>
+        <file>sequence.png</file>
+        <file>show.png</file>
+        <file>testList.png</file>
+        <file>monitor.png</file>
+        <file>index.png</file>
+        <file>actEnding.png</file>
+        <file>actRunning.png</file>
+    </qresource>
+    <qresource prefix="/flow">
+        <file>offScriptFlow.png</file>
+        <file>sleepScriptFlow.png</file>
+        <file>ScriptFlow.png</file>
+    </qresource>
+    <qresource prefix="/test">
+        <file>fail.png</file>
+        <file>pass.png</file>
+        <file>testshow.png</file>
+        <file>current.png</file>
+        <file>ending.png</file>
+        <file>running.png</file>
+        <file>waiting.png</file>
+        <file>pause.png</file>
+        <file>edit.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,10 @@
+---- WorkItem Matches (9 in 6 files) ----
+Cfgeditunit.cpp (f:\lishuhui\procode\funtest\autotest\autotest\subwidget):    xmlRead.readKeyInfoXML(WorkItem,&keyList);
+Cfgsparam.cpp (f:\lishuhui\procode\funtest\autotest\autotest\subwidget):    xmlRead.readKeyInfoXML(WorkItem,&keyList);
+Mainwindow.cpp (f:\lishuhui\procode\funtest\autotest\autotest):    WorkItem = InfoINI.ReadIni_item().toString();
+Mainwindow.cpp (f:\lishuhui\procode\funtest\autotest\autotest):    xmlRead.readKeyInfoXML(WorkItem,&keyList);
+Model_include.cpp (f:\lishuhui\procode\funtest\autotest\autotest\models):QString WorkItem;        //当前测试项目
+Model_include.h (f:\lishuhui\procode\funtest\autotest\autotest\models):extern QString WorkItem;
+Reshardware.cpp (f:\lishuhui\procode\funtest\autotest\autotest\subwidget):    ui->comboBox_itemName->setCurrentText(WorkItem);
+Reshardware.cpp (f:\lishuhui\procode\funtest\autotest\autotest\subwidget):    WorkItem=arg1;
+Reshardware.cpp (f:\lishuhui\procode\funtest\autotest\autotest\subwidget):    itemName.WriteIni_item(WorkItem);
