@@ -577,7 +577,6 @@ void MainWindow::timerTestIDDeal()
         {
             isProOK=false;
             //机器版本信息:
-            //any:Error-经常性出现获取版本信息失败，照成生成报告失败
             ui->textBrowser_EXEShow->append("获取机器版本信息，请稍后... ...");
             appendThePropertiesToFile("clear");
 
@@ -715,7 +714,6 @@ void MainWindow::testProcessOverDeal()
         if(isProOK)
         {
             //添加时间
-            cout ;
             appendThePropertiesToFile("start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
             appendThePropertiesToFile("end_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
             testState = report;
@@ -724,7 +722,8 @@ void MainWindow::testProcessOverDeal()
     }
     case report:
     {
-        ui->textBrowser_EXEShow->append(tr("<html><p><a>报告生成结束，请查找本地对应目录或邮件或</a><a href=\"%1\">点击查阅</a></p></html>").arg("http://192.168.13.96/result/" + ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));
+        ui->textBrowser_EXEShow->append(tr("<html><p><a>报告生成结束，请查找本地对应目录或邮件或</a><a href=\"%1\">点击查阅</a></p></html>\n\n")
+                                        .arg("http://192.168.13.96/result/" + ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));
 
         testState = overtest;
         break;
@@ -737,7 +736,6 @@ void MainWindow::testProcessOverDeal()
         testState = getprop;
         isDelayReport=false;
     }
-
 }
 
 /*************************************************************

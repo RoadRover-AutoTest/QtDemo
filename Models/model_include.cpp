@@ -195,9 +195,19 @@ bool appendTheResultToFile(QString SaveStr)
 *************************************************************/
 bool appendThePropertiesToFile(QString SaveStr)
 {
+
     QStringList pathList = savePath.split("/");
 
     QString path ;
+
+    //路径拆分方式增加处理："\\"
+    if(pathList.length() == 1)
+    {
+        pathList.clear();
+        pathList = savePath.split("\\");
+    }
+
+    //组合路径
     for(int i=0;i<pathList.length()-3;i++)
     {
         path += pathList.at(i) + "/";
@@ -216,6 +226,7 @@ bool appendThePropertiesToFile(QString SaveStr)
     QFile file(path+"properties.txt");
     bool isOK;
 
+    //若是清数据，以Text保存，会将文档内数据先清除，再填写，否则，追加方式填写；
     if(SaveStr == "clear")
         isOK=file.open(QIODevice::WriteOnly | QIODevice::Text);
     else
@@ -226,8 +237,6 @@ bool appendThePropertiesToFile(QString SaveStr)
         cout << "Cannot open file " << path+"properties.txt";
         return false;
     }
-
-    //cout <<path<<SaveStr;
 
     QTextStream out(&file);
     if(SaveStr == "clear")

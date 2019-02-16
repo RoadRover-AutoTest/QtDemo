@@ -10,22 +10,22 @@
 #include <QPainter>
 #include <QProxyStyle>
 
-#define cout qDebug() << "[" << __FILE__ << ":"<< __FUNCTION__ << ":" << __LINE__ << "]"
-#define toStr(num)   QString::number(num)
+#define cout        qDebug() << "[" << __FILE__ << ":"<< __FUNCTION__ << ":" << __LINE__ << "]"
+#define toStr(num)  QString::number(num)
 #define ON          true
 #define OFF         false
 #define KeyINFOFile QCoreApplication::applicationDirPath()+"/config/KeyInfo.xml"
 #define SYSInfo     QCoreApplication::applicationDirPath()+"/config/config.ini"
-#define ResultPath QCoreApplication::applicationDirPath()+"/result"
-#define REPORTPath QCoreApplication::applicationDirPath()+"/ATReport"
+#define ResultPath  QCoreApplication::applicationDirPath()+"/result"
+#define REPORTPath  QCoreApplication::applicationDirPath()+"/ATReport"
 
 //定义颜色：用于进度条显示
-#define GRAY QColor(199,199,199)   //灰
-#define GREEN QColor(0,209,0)      //绿
-#define BLUE QColor(0,85,255)      //蓝
-#define RED QColor(255,5,5)        //红
-#define WHITE QColor(255,255,255)  //白
-#define BLACK QColor(0,0,0)
+#define GRAY    QColor(199,199,199)   //灰
+#define GREEN   QColor(0,209,0)      //绿
+#define BLUE    QColor(0,85,255)      //蓝
+#define RED     QColor(255,5,5)        //红
+#define WHITE   QColor(255,255,255)  //白
+#define BLACK   QColor(0,0,0)
 
 //测试流宏定义
 #define MAXFLOW                 0xFF            //最大测试流 //且0xFF为自定义时当前流程使用,实际可用0xFE
@@ -213,7 +213,8 @@ typedef struct
 
     QString logContains;
 
-    bool isMemory;      //true:回到记忆界面  false：读取到界面不进行判断；
+    bool isMemory;          //true:回到记忆界面  false：读取到界面不进行判断；
+    bool isCompareFirstPic; //true:比较首次采集图片  false:非首次图片比较，即与测试单元中其他动作下采集图片比较
 
     bool hReault;
 }checkParam;
@@ -234,7 +235,20 @@ typedef struct
     uint64_t end;
 }timeParam;
 
+/*************************************************************
+/信息采集：
+/高8位为保留位，低8位：低4位为1bit数据判断，高4位为2bit判断（第2位为用在动作前后的标志）
+*************************************************************/
+typedef enum
+{
+    COLCURRENT  = 0x0001,
+    COLSOUND    = 0x0002,
+    COLRES1     = 0x0004,
+    COLRES2     = 0x0008,
 
+    COLFACE     = 0x0010,
+    COLPICTURE  = 0x0040
+}collect_type_e;
 
 /*************************************************************
 /定义测试单元：（尽可能包含测试过程中所有的处理参数）
@@ -255,8 +269,8 @@ typedef struct
     //action Deal:
     QString actStr;
 
-    //action picture:any-待处理
-    //uint8_t actGetPic;
+    //information 采集:
+    uint16_t infoFlag; //详见:collect_type_e
 
     //time Deal:
     timeParam timeDeal;
