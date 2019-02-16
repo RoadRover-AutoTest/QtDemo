@@ -47,7 +47,7 @@
       <enum>QTabWidget::West</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tabACC">
       <attribute name="title">
@@ -600,7 +600,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupCCD">
          <property name="title">
-          <string>休眠后测试：</string>
+          <string>CCD测试：</string>
          </property>
          <property name="flat">
           <bool>true</bool>
@@ -672,64 +672,6 @@ p, li { white-space: pre-wrap; }
               </item>
               <item>
                <property name="text">
-                <string>关CCD</string>
-               </property>
-               <item>
-                <property name="text">
-                 <string>Wait Time(mS)：</string>
-                </property>
-                <property name="text">
-                 <string>1000</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Check：电流</string>
-                </property>
-                <property name="toolTip">
-                 <string>关机时间超过休眠电流检测时间将检测休眠电流；</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="foreground">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>0</red>
-                   <green>0</green>
-                   <blue>255</blue>
-                  </color>
-                 </brush>
-                </property>
-                <property name="checkState">
-                 <enum>Checked</enum>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>时间(mS):</string>
-                 </property>
-                 <property name="text">
-                  <string>15000</string>
-                 </property>
-                 <property name="flags">
-                  <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>休眠电流(mA):</string>
-                 </property>
-                 <property name="text">
-                  <string>20</string>
-                 </property>
-                 <property name="flags">
-                  <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-                 </property>
-                </item>
-               </item>
-              </item>
-              <item>
-               <property name="text">
                 <string>开CCD</string>
                </property>
                <property name="text">
@@ -775,52 +717,7 @@ p, li { white-space: pre-wrap; }
                </item>
                <item>
                 <property name="text">
-                 <string>Over Time(mS)：</string>
-                </property>
-                <property name="toolTip">
-                 <string>开机测试检测最长时间，超过该时间将不再检测，判断为失败。</string>
-                </property>
-                <property name="text">
-                 <string>60000</string>
-                </property>
-                <property name="toolTip">
-                 <string>处理超过该时间将结束测试，并判断为失败</string>
-                </property>
-                <property name="flags">
-                 <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Check：电流</string>
-                </property>
-                <property name="toolTip">
-                 <string>工作电流是否达到正常工作电流</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="checkState">
-                 <enum>Checked</enum>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>唤醒电流(mA)：</string>
-                 </property>
-                 <property name="text">
-                  <string>320</string>
-                 </property>
-                 <property name="toolTip">
-                  <string>电流最好为工作电流减去10~50mA</string>
-                 </property>
-                 <property name="flags">
-                  <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-                 </property>
-                </item>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Check：界面</string>
+                 <string>Check：倒车界面</string>
                 </property>
                 <property name="toolTip">
                  <string>检测开机后是否回到上次关机前界面</string>
@@ -834,17 +731,35 @@ p, li { white-space: pre-wrap; }
                 <property name="checkState">
                  <enum>Checked</enum>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>记忆检测</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="checkState">
-                  <enum>Checked</enum>
-                 </property>
-                </item>
+               </item>
+              </item>
+              <item>
+               <property name="text">
+                <string>关CCD</string>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Wait Time(mS)：</string>
+                </property>
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Check：记忆界面</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="checkState">
+                 <enum>Checked</enum>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Check：声音检测</string>
+                </property>
                </item>
               </item>
               <item>

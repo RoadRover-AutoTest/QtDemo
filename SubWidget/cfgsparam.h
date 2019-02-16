@@ -43,6 +43,13 @@ private:
     void createBATOnAction(tAction *onAction);
     void createBatScriptAction(tAction *scriptAction);
 
+    void initTabCCD();
+    QString getCCDKey();
+    void createCCDOffAction(tAction *offAction);
+    void createCCDOnAction(tAction *onAction);
+    void createCCDScriptAction(tAction *scriptAction);
+
+
     void addTheUnit(tUnit *unit,tAction *act);
 
     typedef enum
@@ -99,6 +106,28 @@ private:
         bat_Script_log=0,
     }battree_e;
 
+    typedef enum
+    {
+        ccd_colItem = 1,
+
+        ccd_topKey=0,
+        ccd_topOn,
+        ccd_topOff,
+        ccd_topScript,
+
+        ccd_On_Waittime = 0,
+        ccd_On_CheckPic,
+
+        ccd_On_ChangeMin=0,
+        ccd_On_ChangeMax,
+        ccd_On_ChangeStep,
+
+        ccd_Off_WaitTime = 0,
+        ccd_Off_CheckFace,
+        ccd_Off_CheckSound,
+
+        ccd_Script_log=0,
+    }ccdtree_e;
 
 protected:
     void accept();

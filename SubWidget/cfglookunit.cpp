@@ -28,6 +28,7 @@ CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
         AddTreeNode(item,0,QStringList()<<"waittime"<<toStr(theAct.timeDeal.wait));
         AddTreeNode(item,0,QStringList()<<"checktime"<<toStr(theAct.timeDeal.check));
         AddTreeNode(item,0,QStringList()<<"endtime"<<toStr(theAct.timeDeal.end));
+        AddTreeNode(item,0,QStringList()<<"colinfo"<<toStr(theAct.infoFlag));
 
         for(int j=0;j<theAct.checkDeal.length();j++)
         {

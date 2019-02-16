@@ -14,6 +14,7 @@ CfgSParam::CfgSParam(QList <tUnit> *thelist,QWidget *parent) :
 
     initTabACC();
     initTabBAT();
+    initTabCCD();
 }
 
 CfgSParam::~CfgSParam()
@@ -333,6 +334,147 @@ void CfgSParam::createBatScriptAction(tAction *scriptAction)
     scriptAction->checkDeal.append(checkScript);
 }
 
+
+/*************************************************************
+/函数功能：初始化CCD页
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void CfgSParam::initTabCCD()
+{
+    //填充CCD列表
+    QComboBox *CCDList = new QComboBox;
+
+    for(int i=0;i<keyList.length();i++)
+    {
+        CCDList->addItem("KEY"+QString::number(i+1)+":"+keyList.at(i).name);
+    }
+
+    ui->treeCCD->setItemWidget(ui->treeCCD->topLevelItem(ccd_topKey),ccd_colItem,CCDList);
+
+    //tree格式设置
+    ui->treeCCD->setColumnWidth(0,200);
+    ui->treeCCD->expandAll();
+}
+
+/*************************************************************
+/函数功能：获取CCD选择的按键字符串
+/函数参数：无
+/函数返回：按键
+*************************************************************/
+QString CfgSParam::getCCDKey()
+{
+    QComboBox *comboBox=(QComboBox *)ui->treeCCD->itemWidget(ui->treeCCD->topLevelItem(ccd_topKey),ccd_colItem);
+    return comboBox->currentText();
+}
+
+/*************************************************************
+/函数功能：创建CCDoff动作数据
+/函数参数：off动作
+/函数返回：无
+*************************************************************/
+void CfgSParam::createCCDOffAction(tAction *offAction)
+{
+    QTreeWidgetItem *topItem = ui->treeCCD->topLevelItem(ccd_topOff);
+
+    offAction->actName = "CCDOFF";
+    offAction->actStr =  getCCDKey()+":off";
+
+    offAction->timeDeal.wait = topItem->child(ccd_Off_WaitTime)->text(ccd_colItem).toUInt();
+    offAction->timeDeal.check = 0;
+    offAction->timeDeal.end = 60000;
+
+    //界面检测：
+    if(topItem->child(ccd_Off_CheckFace)->checkState(ccd_colItem) == Qt::Checked)
+    {
+        checkParam checkMemoey;
+        checkMemoey.check = CHKMEMORY;
+        checkMemoey.isMemory = true;
+        offAction->checkDeal.append(checkMemoey);
+    }
+
+    //声音检测：
+    if(topItem->child(ccd_Off_CheckSound)->checkState(ccd_colItem) == Qt::Checked)
+    {
+        checkParam checkSound;
+        checkSound.check = CHKSound;
+        checkSound.sound = endHAVESound;
+        offAction->checkDeal.append(checkSound);
+    }
+}
+
+/*************************************************************
+/函数功能：创建CCDon动作数据
+/函数参数：on动作
+/函数返回：无
+*************************************************************/
+void CfgSParam::createCCDOnAction(tAction *onAction)
+{
+    QTreeWidgetItem *topItem = ui->treeCCD->topLevelItem(ccd_topOn);
+
+    int waitMin  = topItem->child(ccd_On_Waittime)->child(ccd_On_ChangeMin)->text(ccd_colItem).toUInt();
+    int waitMax = topItem->child(ccd_On_Waittime)->child(ccd_On_ChangeMax)->text(ccd_colItem).toUInt();
+    int waitStep = topItem->child(ccd_On_Waittime)->child(ccd_On_ChangeStep)->text(ccd_colItem).toUInt();
+
+    onAction->actName = "CCDON";
+    onAction->actStr =  getCCDKey()+":on";
+
+    onAction->timeDeal.wait = waitMin;
+    onAction->timeDeal.check = 0;
+    onAction->timeDeal.end = 60000;
+
+    //添加变动参数：存在步进值，且最大和最小值不相等
+    if((waitStep != 0) && (waitMax != waitMin))
+    {
+        changedParam changeTime;
+
+        changeTime.changed = WaitTime;
+        if(waitMax > waitMin)
+            changeTime.dir = true;
+        else
+            changeTime.dir = false;
+        changeTime.min  = waitMin;
+        changeTime.max  = waitMax;
+        changeTime.step = waitStep;
+
+        onAction->changedDeal.append(changeTime);
+    }
+
+
+    //图像识别：
+    if(topItem->child(ccd_On_CheckPic)->checkState(ccd_colItem) == Qt::Checked)
+    {
+        checkParam checkPicture;
+        checkPicture.check = CHKADBPIC;
+        checkPicture.isCompareFirstPic = true;
+        onAction->checkDeal.append(checkPicture);
+    }
+}
+
+/*************************************************************
+/函数功能：创建脚本动作数据
+/函数参数：脚本动作
+/函数返回：无
+*************************************************************/
+void CfgSParam::createCCDScriptAction(tAction *scriptAction)
+{
+    QTreeWidgetItem *topItem = ui->treeCCD->topLevelItem(ccd_topScript);
+
+    //scriptAction->actName = "ACCON";
+    //scriptAction->actStr =  getAccKey()+":on";//在函数外处理，具体使用处添加
+
+    scriptAction->timeDeal.wait = 0;
+    scriptAction->timeDeal.check = 0;
+    scriptAction->timeDeal.end = 0;
+
+    checkParam checkScript;
+
+    checkScript.check = CHKScript;
+    checkScript.logContains = topItem->child(ccd_Script_log)->text(ccd_colItem);
+    scriptAction->checkDeal.append(checkScript);
+}
+
+
 /*************************************************************
 /函数功能：将动作添加到测试单元中
 /函数参数：unit   act
@@ -340,6 +482,72 @@ void CfgSParam::createBatScriptAction(tAction *scriptAction)
 *************************************************************/
 void CfgSParam::addTheUnit(tUnit *unit,tAction *act)
 {
+    //根据检测项目，添加采集信息
+    act->infoFlag = 0;
+    for(int i=0;i<act->checkDeal.length();i++)
+    {
+        checkParam chkDat=act->checkDeal.at(i);
+        switch(chkDat.check)
+        {
+        case CHKCurrent:
+        act->infoFlag |= COLCURRENT;
+        break;
+        case CHKSound:
+        act->infoFlag |= COLSOUND;
+        break;
+        //记忆检测：界面检测
+        case CHKMEMORY:
+        {
+            act->infoFlag |= COLFACE;
+            act->infoFlag |= COLFACESITE;//动作执行后采集
+            goto ADDINFODAT;
+            break;
+        }
+        //图片检测：
+        case CHKADBPIC:
+        {
+            act->infoFlag |= COLPICTURE;
+            act->infoFlag |= COLPICTURESITE;//动作执行后采集
+
+            if(chkDat.isCompareFirstPic)
+                break;//与每次进入该界面图片比较
+
+            //非比较首次图片，即与测试过程中其他图片比较
+            ADDINFODAT:
+            bool curStatus ;
+
+            if(act->actStr.contains(":on"))
+                curStatus=true;
+            else
+                curStatus=false;
+
+            //同时查找该动作之前测试单元中前一个状态下 添加上动作执行前采集当前界面信息
+            for(int j=0;j<unit->actTest.length();j++)
+            {
+                QString actStr=act->actStr;
+                QString unitfindStr = unit->actTest.at(j).actStr;
+
+                if(((curStatus)&&((unitfindStr.contains(":off"))&&(unitfindStr.contains(actStr.remove(":on")))))
+                 ||((!curStatus)&&((unitfindStr.contains(":on"))&&(unitfindStr.contains(actStr.remove(":off"))))))
+                {
+                    tAction findAction = unit->actTest.at(j);
+
+                    findAction.infoFlag |= COLFACE;
+                    if(chkDat.check == CHKMEMORY)
+                        findAction.infoFlag &= ~(1<<5);//COLFACESITE
+                    else if(chkDat.check == CHKADBPIC)
+                        findAction.infoFlag &= ~(1<<7);//COLPICTURESITE
+
+                    unit->actTest.replace(j,findAction);
+                }
+            }
+            break;
+        }
+        default:break;
+        }
+    }
+
+    //将测试动作添加到测试单元中去：
     unit->actTest.append(*act);
     act->changedDeal.clear();
     act->checkDeal.clear();
@@ -435,6 +643,31 @@ void CfgSParam::accept()
                 theAction.actName = Script;
                 theAction.actStr = filename;
                 createBatScriptAction(&theAction);
+                addTheUnit(&theUnit,&theAction);
+
+                listUnit->append(theUnit);
+            }
+
+            if(ui->groupCCD->isChecked())
+            {
+                tUnit theUnit;
+                tAction theAction;
+                QString Script = filename.split('/').last().remove(".bat");
+
+
+                theUnit.name = getCCDKey().split(":").last()+"_"+Script;
+                theUnit.cycleCount = ui->spinCCDCycle->value();
+                theUnit.unitDes = ui->textCCDDescription->toPlainText();
+
+                createCCDOnAction(&theAction);
+                addTheUnit(&theUnit,&theAction);
+
+                createCCDOffAction(&theAction);
+                addTheUnit(&theUnit,&theAction);
+
+                theAction.actName = Script;
+                theAction.actStr = filename;
+                createCCDScriptAction(&theAction);
                 addTheUnit(&theUnit,&theAction);
 
                 listUnit->append(theUnit);

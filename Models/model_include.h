@@ -246,8 +246,10 @@ typedef enum
     COLRES1     = 0x0004,
     COLRES2     = 0x0008,
 
-    COLFACE     = 0x0010,
-    COLPICTURE  = 0x0040
+    COLFACE         = 0x0010,   //采集界面信息
+    COLFACESITE     = 0x0020,   //采集界面位置：动作执行前0或后1
+    COLPICTURE      = 0x0040,   //采集图片
+    COLPICTURESITE  =0x0080     //采集图片位置：动作执行前0或后1
 }collect_type_e;
 
 /*************************************************************
