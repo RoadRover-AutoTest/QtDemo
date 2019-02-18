@@ -405,38 +405,6 @@ void MainWindow::on_treeWidget_devUseState(bool isUse)
     cout <<isUse;
 }
 
-/*************************************************************
-/函数功能：设备刷新
-/函数参数：ADB执行进程输出字符串
-/函数返回：无
-*************************************************************/
-void MainWindow::treeWidget_refreshDevNum(QString String)
-{
-    QStringList devList = String.split("\r\n");
-
-    if(devList.isEmpty()==false)
-        devList.removeFirst();
-
-    if(devList.isEmpty()==false)
-    {
-        for(int i=0;i<devList.length();)
-        {
-            QString tempString=devList.at(i);
-            if(tempString.contains("\tdevice"))
-            {
-                devList.replace(i,tempString.remove("\tdevice"));
-                if(devList.at(i).isEmpty())
-                    devList.removeAt(i);
-                else
-                    i++;
-            }
-            else
-                devList.removeAt(i);
-        }
-        ui->treeWidget->refreshDevNum1(devList);
-    }
-}
-
 
 
 
@@ -520,7 +488,7 @@ void MainWindow::timerTestIDDeal()
     {
         if(!isPRORunning)
         {
-            isProOK=false;
+            isHadProp=false;
             //机器版本信息:
             ui->textBrowser_EXEShow->append("获取机器版本信息，请稍后... ...");
             appendThePropertiesToFile("clear");
@@ -558,18 +526,13 @@ void MainWindow::timerTestIDDeal()
 *************************************************************/
 void MainWindow::testProcessOutputDeal(QString String)
 {
-    switch(testState)
-    {
-    case getprop:
+    if(testState == getprop)
     {
         if(String.contains("Out>>"))
         {
-            isProOK=true;
+            isHadProp=true;
             appendThePropertiesToFile(String.remove("Out>>"));
         }
-        break;
-    }
-    default :break;
     }
 }
 
@@ -584,7 +547,7 @@ void MainWindow::testProcessOverDeal()
     {
     case getprop:
     {
-        if(isProOK)
+        if(isHadProp)
         {
             //添加时间
             appendThePropertiesToFile("start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
@@ -656,7 +619,6 @@ void MainWindow::onEndTestSlot()
     }
     else
         testState = overtest;
-    //cout << testState;
 }
 
 /*************************************************************
@@ -1030,18 +992,33 @@ void MainWindow::onProcessOutputSlot(int pNum,QString String)
         //测试进程输出处理
         testProcessOutputDeal(String);
 
-        //处理设备扫描进程
+        //处理设备扫描进程:显示设备列表
         if((!getTestRunState())&&(currentCMDString == ADBDevs))
         {
-            treeWidget_refreshDevNum(String);
+            QStringList devList = String.split("\r\n");
+
+            if(devList.isEmpty()==false)
+                devList.removeFirst();
+
+            if(devList.isEmpty()==false)
+            {
+                for(int i=0;i<devList.length();)
+                {
+                    QString tempString=devList.at(i);
+                    if(tempString.contains("\tdevice"))
+                    {
+                        devList.replace(i,tempString.remove("\tdevice"));
+                        if(devList.at(i).isEmpty())
+                            devList.removeAt(i);
+                        else
+                            i++;
+                    }
+                    else
+                        devList.removeAt(i);
+                }
+                ui->treeWidget->refreshDevNum1(devList);
+            }
         }
-        else
-        {
-            //获取版本信息与报告生成不显示过程:any
-            if((testState!=getprop)&&(testState!=report))
-                ui->textBrowser_EXEShow->append(String);
-        }
-        //cout << String;
     }
 
 }
@@ -1055,8 +1032,6 @@ void MainWindow::onProcessOverSlot(uint8_t pNum)
 {
     if(pNum==PROSYS)
     {
-        //cout << currentCMDString << "process is over "<<testState;
-
         //测试进程结束处理
         testProcessOverDeal();
 

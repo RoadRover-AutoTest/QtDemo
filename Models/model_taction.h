@@ -31,7 +31,6 @@ private:
         wait,
         waitover,
         actover
-
     }time_deal_e;
 
     time_deal_e timeState;

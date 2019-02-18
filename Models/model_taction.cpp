@@ -33,8 +33,6 @@ void Model_tAction::timerEvent(QTimerEvent *event)
     //处理计时
     if(event->timerId()==timeID_T)
     {
-        timerProIDDeal();
-
         switch (timeState)
         {
         case start:
@@ -159,7 +157,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
     }
     else if(event->timerId() == timerProID)
     {
-
+        timerProIDDeal();
     }
 }
 

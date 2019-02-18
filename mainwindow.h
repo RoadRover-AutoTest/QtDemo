@@ -79,8 +79,7 @@ private:
     Ui::MainWindow *ui;
 
     ChartWidget *chartDeal;
-
-    QString seqPath;
+    Model_String *qtStrDeal;
 
     QList<QDockWidget*> m_docks;//< 记录所有dockWidget的指针
     void initMainWindow();
@@ -109,35 +108,25 @@ private:
     bool proSysIsRunning();
     void timerProIDDeal();
 
-    void treeWidget_refreshDevNum(QString String);
-
 
     int timer1SID;
+    QDateTime testTime;
 
     Model_UART *UARTDeal;
     QList <uartFrame> txList;      //将待发送的命令填充列表，然后在定时器中调用发送
     int timerUartID;
     uint8_t ackWait;
-
     void appendTxList(char cmd,char* dat,char len,uint8_t ack);
 
     Model_tFlow *tFlowDeal;
+    int timerTestID;
+    bool isDelayReport;             //是否延时生成报告：结束测试时有其他进程正在执行将生成报告
 
-    Model_String *qtStrDeal;
     Model_Process *PRODeal;
     bool isPRORunning;
+    bool isHadProp;
     int timerProID;
     QString currentCMDString;
-
-    int timerTestID;
-
-    QDateTime testTime;
-
-    QStringList deviceList;
-
-    bool isDelayReport;//是否延时生成报告：结束测试时有其他进程正在执行将生成报告
-    bool isProOK;
-
     QStringList proList;            //进程处理解析字符串列表：用来显示
 
 
