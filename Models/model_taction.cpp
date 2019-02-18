@@ -15,11 +15,12 @@ Model_tAction::Model_tAction(int loop,tAction *Action)
     actionDeal = Action;
     timeState = start;
     timeID_T = startTimer(1);//开启定时器
+    initProcessDeal();
 }
 
 Model_tAction::~Model_tAction()
 {
-
+    deleteProcessDeal();
 }
 
 /*************************************************************
@@ -32,95 +33,122 @@ void Model_tAction::timerEvent(QTimerEvent *event)
     //处理计时
     if(event->timerId()==timeID_T)
     {
+        timerProIDDeal();
+
         switch (timeState)
         {
         case start:
         {
+            //初始化变量：
             testResult = false;     //:通常超时为测试失败,因此模式测试失败
             timeCount=0;
             reChkCount=0;
             overtimeAct=0;
             IsFirstMemory=true;
+            actIsRunning=false;
+            colInfoFlag=0;
 
+            //显示执行且保存到结果文件：
             ShowList << "evaluateTheAction:"+actionDeal->actName;
             appendTheResultToFile("evaluateTheAction:"+actionDeal->actName);
 
-            testString.clear();
-            testString = actionDeal->actStr;
+            //判断动作执行前是否采集信息：
+            if(judgeIsCollectInfo(ACT_Front))
+            {
+                timeState = collectInfo;
+                nextState = exeAction;
+                ShowList << "采集信息：";
+            }
+            else
+                timeState = exeAction;
 
-            actIsRunning=true;
-            timeState = waitnull;   //等待动作执行完成
             break;
         }
-        case waitnull:
+        case exeAction://执行动作并判断执行结束
         {
-            //空等-等待动作处理完成
-            if(!actIsRunning)
+            if((!actIsRunning)&&(!overtimeAct))
             {
-                if(actionDeal->timeDeal.wait)
-                {
-                    ShowList << ("waitTime："+toStr(actionDeal->timeDeal.wait)+"mS");
-                    timeState = wait;
-                }
+                ShowList << "~执行动作~";
+                if(actionDeal->actStr.startsWith("KEY"))
+                    startAction(actionDeal->actStr);//执行按键动作
                 else
-                    timeState = waitover;
+                {
+                    if(!isPRORunning)
+                        onProcessEXECmd(CMD_script);
+                }
+                actIsRunning=true;
             }
             else
             {
-                //动作执行超时处理：
-                if(overtimeAct++ > 60000)
-                    timeState = endover;
+                /*等待动作处理完成时，会将标志位复位*/
+                if(!actIsRunning)
+                {
+                    if(actionDeal->timeDeal.wait)
+                    {
+                        ShowList << ("waitTime："+toStr(actionDeal->timeDeal.wait)+"mS");
+                        timeState = wait;
+                    }
+                    else
+                        timeState = waitover;
+                }
+                else
+                {
+                    if(overtimeAct++ > 60000)
+                        timeState = actover;//动作执行超时
+                }
             }
             break;
         }
-        case wait:
+        case chkAction:
         {
-            //计数并判断
+            clearAction();//在结果处理时有对记忆进行赋值，若开始判断结果时将清除数据，避免对后续操作影响
+            theActionCheckReault(actionDeal->checkDeal);//检测
+            timeState = actover;
+            break;
+        }
+        case collectInfo:
+        {
+            collectInfoDeal();
+            break;
+        }
+        case wait://计数并判断时间
+        {
             timeCount++;
 
+            /*未结束等待前检测到应该检测数据，判断数据的结果*/
+            if(timeCount == actionDeal->timeDeal.check)
+            {
+                theActionCheckReault(actionDeal->checkDeal);
+            }
+
+            /* 结束等待时，若检测时间不存在将默认进入等待结束，
+             * 若存在上述语句已经执行，因此直接进入actover操作*/
             if(timeCount == actionDeal->timeDeal.wait)
             {
-                if(IsDealCheck())
+                if(!actionDeal->timeDeal.check)//无检测时间
                     timeState = waitover;
                 else
                 {
                     testResult =true;
-                    timeState = endover;
+                    timeState = actover;
                 }
             }
-            else if(timeCount == actionDeal->timeDeal.check)
-                timeState = checkover;
             break;
         }
         case waitover:
         {
-            //1S监测一次结果
-            if(reChkCount%5000 == 0)
+            //判断动作执行后是否采集信息：
+            if(judgeIsCollectInfo(ACT_Back))
             {
-                //结果处理完成  或  判断结束后重复检查超时
-                if((theActionResultDeal(actionDeal->checkDeal)==false)||((reChkCount >= actionDeal->timeDeal.end)))
-                {
-                    testString.clear();//在结果处理时有对记忆进行赋值，若开始判断结果时将清除数据，避免对后续操作影响
-                    theActionCheckReault(actionDeal->checkDeal);//检测
-                    timeState = endover;
-                }
-            }
-            reChkCount++;
-            break;
-        }
-        case checkover:
-        {
-            //检测并继续测试
-            if(theActionResultDeal(actionDeal->checkDeal)==false)
-            {
-                theActionCheckReault(actionDeal->checkDeal);
-                timeState = wait;
+                timeState = collectInfo;
+                nextState = chkAction;
+                ShowList << "采集信息：";
             }
             else
-                timeState = wait;
+                timeState = chkAction;
             break;
         }
-        case endover:
+        case actover:
         {//结束
             theActionChangedDeal(actionDeal->changedDeal);
             theActionOverTest(testResult);
@@ -129,16 +157,114 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         }
         }
     }
+    else if(event->timerId() == timerProID)
+    {
+
+    }
+}
+
+
+
+/*************************************************************
+/函数功能：根据执行位置判断采集信息是否进行
+/函数参数：当前位置
+/函数返回：是否采集信息
+*************************************************************/
+bool Model_tAction::judgeIsCollectInfo(bool site)
+{
+    if(site == ACT_Front)
+    {
+        //判断动作执行前是否采集信息：
+        if(((actionDeal->infoFlag & COLFACE) && (!(actionDeal->infoFlag & COLFACESITE)))
+                || ((actionDeal->infoFlag & COLPICTURE) && (!(actionDeal->infoFlag & COLPICTURESITE))))
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+    else
+    {
+        //判断动作执行后是否采集信息：
+        if(((actionDeal->infoFlag & COLFACE) && ((actionDeal->infoFlag & COLFACESITE)))
+                || ((actionDeal->infoFlag & COLPICTURE) && ((actionDeal->infoFlag & COLPICTURESITE))))
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+
 }
 
 /*************************************************************
-/函数功能：设定的check时间小于等待时间时可检测，大于时证明达不到检测条件
-/函数参数：无
-/函数返回：结果
+/函数功能：根据执行位置判断采集信息是否进行
+/函数参数：当前位置
+/函数返回：是否采集信息
+/采集优先级顺序：电流--界面--图片--声音(依据开机参数能获取的顺序)
 *************************************************************/
-bool Model_tAction::IsDealCheck()
+void Model_tAction::collectInfoDeal()
 {
-    return (!actionDeal->timeDeal.check);//((actionDeal->timeDeal.check <= actionDeal->timeDeal.wait) &&
+    uint16_t infoFlag = actionDeal->infoFlag;
+
+    //将标志位置的位清0
+    infoFlag &= ~(1<<5);
+    infoFlag &= ~(1<<7);
+
+    //采集电流：
+    if((!(colInfoFlag & COLCURRENT))&&(infoFlag & COLCURRENT))
+    {
+        //处理的时间超过检测时间方可检测数据：
+        if(actionDeal->timeDeal.wait > actionDeal->timeDeal.check)
+        {
+            for(int i=0;i<actionDeal->checkDeal.length();i++)
+            {
+                checkParam chkDeal = actionDeal->checkDeal.at(i);
+                if(chkDeal.check == CHKCurrent)
+                {
+                    if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,Current)==false)
+                        goto toContinue;
+
+                    colInfoFlag |= COLCURRENT;      //电流采集完成
+                }
+            }
+        }
+        else
+            colInfoFlag |= COLCURRENT;      //电流采集完成
+    }
+    //采集界面：
+    if((!(colInfoFlag & COLFACE))&&(infoFlag & COLFACE))
+    {
+        if(!isPRORunning)
+            onProcessEXECmd(CMD_FACE);
+
+        goto toContinue;
+    }
+    //采集图片：
+    if((!(colInfoFlag & COLPICTURE))&&(infoFlag & COLPICTURE))
+    {
+
+    }
+    //采集声音：
+    if((!(colInfoFlag & COLSOUND))&&(infoFlag & COLSOUND))
+    {
+
+    }
+
+    //信息采集完成，执行下一步：
+    if(colInfoFlag == infoFlag)
+        timeState=nextState;
+
+    toContinue:
+    {
+        //添加超时处理机制：
+        if(reChkCount >= actionDeal->timeDeal.end)
+        {
+            ShowList <<"Warn:采集信息超时；";
+            timeState=nextState;
+        }
+        reChkCount++;
+    }
 }
 
 /*************************************************************
@@ -193,44 +319,6 @@ void Model_tAction::theActionChangedDeal(QList <changedParam>testChanged)
         }
     }
 
-}
-
-/*************************************************************
-/函数功能：结果预处理：主要针对开机检测：先判断电流值是否达到，再判断界面是否打开
-/函数参数：检测列表
-/函数返回：wu
-*************************************************************/
-bool Model_tAction::theActionResultDeal(QList <checkParam> testChk)
-{
-    bool isDeal = false;
-    bool result =false;
-
-    for(int i=0;i<testChk.length();i++)
-    {
-        if(testChk.at(i).check == CHKCurrent)
-        {
-            result = rangeJudgeTheParam(testChk.at(i).range,testChk.at(i).min,testChk.at(i).max,Current);
-            if(result==false)
-            {
-                isDeal=true;
-                break;
-            }
-        }
-        else if(testChk.at(i).check == CHKMEMORY)
-        {
-            if(onFace.isEmpty())
-            {
-                if(IsFirstMemory)
-                {
-                    IsFirstMemory=false;
-                    testString = "checkMemory";
-                }
-                isDeal=true;
-            }
-            break;
-        }
-    }
-    return isDeal;
 }
 
 /*************************************************************
@@ -316,7 +404,6 @@ bool Model_tAction::chkVolt(checkParam range)
     return result;
 }
 
-
 /*************************************************************
 /函数功能：检测声音
 /函数参数：声音检测参数
@@ -400,6 +487,191 @@ bool Model_tAction::chkRes(checkParam res)
     return false;
 }
 
+
+/*---------------------------------------this is Process option-----------------------------------------*/
+/*************************************************************
+/函数功能：初始化进程处理
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tAction::initProcessDeal()
+{
+    PRODeal = new Model_Process;
+    connect(PRODeal,SIGNAL(ProcessisOver(uint8_t)),this,SLOT(onProcessOverSlot(uint8_t)));
+    connect(PRODeal,SIGNAL(ProcessOutDeal(int,QString)),this,SLOT(onProcessOutputSlot(int,QString)));
+
+    PRODeal->ProcessPathJump(QCoreApplication::applicationDirPath());
+    timerProID = startTimer(1);
+    isPRORunning=false;
+    proCMD = CMD_NULL;
+}
+
+/*************************************************************
+/函数功能：释放进程处理
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tAction::deleteProcessDeal()
+{
+    killTimer(timerProID);
+    delete PRODeal;
+}
+
+/*************************************************************
+/函数功能：进程执行处理
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tAction::timerProIDDeal()
+{
+    if((proList.isEmpty()==false)&&(!proSysIsRunning()))
+    {
+        //cout << proList.length();
+        PRODeal->ProcessStart(PROSYS,proList.first());
+
+        isPRORunning=true;
+        currentCMDString = proList.first();
+        proList.removeFirst();
+    }
+}
+
+void Model_tAction::onProcessEXECmd(cmd_type_e cmdType)
+{
+    //先扫描设备，后运行命令
+    proList.append(ADBDevs);
+    proCMD = cmdType;
+}
+/*************************************************************
+/函数功能：进程输出槽函数处理
+/函数参数：进程号  字符串
+/函数返回：无
+*************************************************************/
+void Model_tAction::onProcessOutputSlot(int pNum,QString String)
+{
+    //进程处理
+    if((pNum==PROSYS)&&(String.isEmpty()==false))
+    {
+        if(currentCMDString == ADBDevs)
+        {
+            QString DEVString = String;
+            deviceList = DEVString.split("\r\n");
+
+            if(deviceList.isEmpty()==false)
+                deviceList.removeFirst();
+        }
+        else
+        {
+            if(proCMD == CMD_script)
+            {
+                //any:Error:执行脚本时获取部分显示错误的信息，用于处理，以及后期显示执行按键的信息；
+            }
+            else if(proCMD == CMD_FACE)
+            {
+                if(String.contains("mFocusedActivity: ActivityRecord"))
+                {
+                    QString faceStr = String;
+                    int startIndex=faceStr.indexOf("com.");
+
+                    //if(testState == off_face)
+                    //    offFace = faceStr.mid(startIndex).remove("}\r\r\n");
+                    //else
+                    //    onFace = faceStr.mid(startIndex).remove("}\r\r\n");
+                }
+            }
+        }
+
+        ShowList << String;
+    }
+}
+
+/*************************************************************
+/函数功能：进程结束处理
+/函数参数：进程号
+/函数返回：无
+*************************************************************/
+void Model_tAction::onProcessOverSlot(uint8_t pNum)
+{
+    if(pNum==PROSYS)
+    {
+        if(currentCMDString == ADBDevs)
+        {
+            if(deviceList.isEmpty()==false)
+            {
+                for(int i=0;i<deviceList.length();i++)
+                {
+                    QString tempString = deviceList.at(i);
+                    if((tempString.contains(getDevNumber()))&&(tempString.contains("\tdevice")))
+                    {
+                        if(proCMD == CMD_script)
+                        {
+                            proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
+                        }
+                        else if(proCMD == CMD_FACE)
+                        {
+                            proList.append("adb -s "+getDevNumber()+SHELLFACE);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            if(proCMD == CMD_script)
+            {
+                //测试脚本运行：any:Error-脚本运行未结束时赋值，照成下一步的关执行失效
+                if(actIsRunning)
+                {
+                    actIsRunning=false;
+                }
+            }
+            else if(proCMD == CMD_FACE)
+            {
+                //if()采集到信息后置位，否则不处理，使得再次循环
+                colInfoFlag |= COLFACE;      //界面采集完成
+            }
+
+            //恢复状态
+            proCMD = CMD_NULL;
+        }
+
+        isPRORunning=false;
+    }
+}
+
+/*************************************************************
+/函数功能：停止系统进程执行logcat
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tAction::proStopSysLogcat()
+{
+    PRODeal->stopProcess(getDevNumber(),"logcat");
+}
+
+/*************************************************************
+/函数功能：停止系统进程执行uiautomator
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tAction::proStopSysUiautomator()
+{
+    PRODeal->stopProcess(getDevNumber(),"uiautomator");
+}
+
+/*************************************************************
+/函数功能：判断系统进程是否正在执行
+/函数参数：无
+/函数返回：无
+/备注：判断的只是bat中某一条指令是否执行并不能判断bat执行是否正在运行
+*************************************************************/
+bool Model_tAction::proSysIsRunning()
+{
+    if(PRODeal->GetProcessRunStatus(PROSYS) != noRun)
+        return true;
+    else
+        return false;
+}
 
 
 

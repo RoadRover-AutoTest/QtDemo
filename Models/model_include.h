@@ -97,10 +97,10 @@ extern int WorkFrequency;          //测试次数
 extern bool ReportCreat;           //创建报告
 
 
-
+extern QString devNumber;
 extern int Current;
 extern int Volt;
-extern QStringList proList;
+//extern QStringList proList;
 extern QStringList ShowList;
 extern QString savePath;
 extern QString AccKey;
@@ -434,5 +434,12 @@ bool appendThePropertiesToFile(QString SaveStr);
 
 
 QTreeWidgetItem *AddTreeNode(QTreeWidgetItem *parent, uint8_t flags,QStringList list);
+
+
+void startAction(QString actStr);
+void clearAction();
+
+QString getDevNumber();
+
 
 #endif // MODEL_INCLUDE_H

@@ -91,7 +91,6 @@ private:
     void startTheFlow(QList <tUnit> *testFlow);
     void endTheFlow();
     bool getTestRunState();
-    QString getDevNumber();
     void timerTestIDDeal();
     void testProcessOutputDeal(QString String);
     void testProcessOverDeal();
@@ -139,7 +138,8 @@ private:
     bool isDelayReport;//是否延时生成报告：结束测试时有其他进程正在执行将生成报告
     bool isProOK;
 
-    QString devNumber;
+    QStringList proList;            //进程处理解析字符串列表：用来显示
+
 
     //运行状态列表
     enum
@@ -157,11 +157,6 @@ private:
     {
         start,
         waitnull,
-        off_face,
-        on_start,
-        on_face,
-        script,
-
         overtest,
         getprop,
         report,

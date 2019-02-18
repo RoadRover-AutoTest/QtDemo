@@ -511,62 +511,7 @@ void MainWindow::timerTestIDDeal()
     {
         if(testString.isEmpty()==false)
         {
-            if(testString == "checkMemory")
-            {
-                //记忆检测处理：一般开机要求记忆检测--相当于开机检测，若为否，检测界面
-                testState = on_start;
-                testString.clear();
-            }
-            else if(testString.startsWith("KEY"))
-            {
-                //点击按键操作
-                if((testString.contains(AccKey) || testString.contains(BatKey))&&(testString.contains("off")))
-                    testState = off_face;       //获取关机界面
-                else
-                {
-                    execKeyClicked(testString); //执行按键
-                    testString.clear();
-                }
-            }
-            else
-            {
-                testState = script;//其他：为脚本操作
-            }
-        }
-        break;
-    }
-    case on_start:
-    {
-        if(!isPRORunning)
-        {
-            proList.append(ADBDevs);
-        }
-        break;
-    }
-    case on_face:
-    {
-        if(!isPRORunning)
-        {
-            onFace.clear();
-            proList.append("adb -s "+getDevNumber()+SHELLFACE);
-        }
-        break;
-    }
-    case off_face:
-    {
-        if(!isPRORunning)
-        {
-            offFace.clear();
-            proList.append("adb -s "+getDevNumber()+SHELLFACE);
-        }
-        break;
-    }
-    case script:
-    {
-        //进程命令运行：
-        if(!isPRORunning)
-        {
-            proList.append(testString + " " +savePath.replace("/","\\")+"\\"+toStr(tFlowDeal->getTheUnitLoop())+" "+getDevNumber());
+            execKeyClicked(testString); //执行按键
             testString.clear();
         }
         break;
@@ -615,30 +560,6 @@ void MainWindow::testProcessOutputDeal(QString String)
 {
     switch(testState)
     {
-    case on_start:
-    {
-        QString DEVString = String;
-        deviceList = DEVString.split("\r\n");
-
-        if(deviceList.isEmpty()==false)
-            deviceList.removeFirst();
-        break;
-    }
-    case on_face:
-    case off_face:
-    {
-        if(String.contains("mFocusedActivity: ActivityRecord"))
-        {
-            QString faceStr = String;
-            int startIndex=faceStr.indexOf("com.");
-
-            if(testState == off_face)
-                offFace = faceStr.mid(startIndex).remove("}\r\r\n");
-            else
-                onFace = faceStr.mid(startIndex).remove("}\r\r\n");
-        }
-        break;
-    }
     case getprop:
     {
         if(String.contains("Out>>"))
@@ -646,7 +567,6 @@ void MainWindow::testProcessOutputDeal(QString String)
             isProOK=true;
             appendThePropertiesToFile(String.remove("Out>>"));
         }
-
         break;
     }
     default :break;
@@ -662,53 +582,6 @@ void MainWindow::testProcessOverDeal()
 {
     switch(testState)
     {
-    case on_start:
-    {
-        if(deviceList.isEmpty()==false)
-        {
-            int i;
-            for(i=0;i<deviceList.length();i++)
-            {
-                QString tempString = deviceList.at(i);
-                if((tempString.contains(getDevNumber()))&&(tempString.contains("\tdevice")))
-                {
-                    testState = on_face;
-                    break;
-                }
-            }
-            //if(i==deviceList.length())
-            //    testState = waitnull;
-        }
-        //else
-        //    testState = waitnull;
-        break;
-    }
-    case off_face:
-    {
-        if(offFace.isEmpty()==false)
-        {
-            execKeyClicked(testString);
-            testString.clear();
-            testState = waitnull;
-        }
-        break;
-    }
-    case on_face:
-    {
-        if(onFace.isEmpty()==false)
-            testState = waitnull;
-        break;
-    }
-    case script:
-    {
-        //测试脚本运行：any:Error-脚本运行未结束时赋值，照成下一步的关执行失效
-        if(actIsRunning)
-        {
-            actIsRunning=false;
-        }
-        testState = waitnull;
-        break;
-    }
     case getprop:
     {
         if(isProOK)
@@ -728,7 +601,7 @@ void MainWindow::testProcessOverDeal()
         testState = overtest;
         break;
     }
-    default :break;//testState = waitnull;
+    default :break;
     }
 
     if(isDelayReport)
@@ -736,16 +609,6 @@ void MainWindow::testProcessOverDeal()
         testState = getprop;
         isDelayReport=false;
     }
-}
-
-/*************************************************************
-/函数功能：获取运行时设备序列号
-/函数参数：无
-/函数返回：无
-*************************************************************/
-QString MainWindow::getDevNumber()
-{
-    return devNumber;
 }
 
 /*************************************************************

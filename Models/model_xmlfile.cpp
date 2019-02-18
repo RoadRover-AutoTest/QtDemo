@@ -169,6 +169,11 @@ void Model_XMLFile::writeSequenceActXML(QDomDocument &doc, QDomElement &root, tA
     stringEle.appendChild(doc.createTextNode(list.actStr));
     actEmt.appendChild(stringEle);
 
+    //添加信息采集标志位：infoFlag
+    QDomElement infoEle = doc.createElement("InfoFlag");
+    infoEle.appendChild(doc.createTextNode(toStr(list.infoFlag)));
+    actEmt.appendChild(infoEle);
+
     //时间处理
     QDomElement timeEle = doc.createElement("Time");
     actEmt.appendChild(timeEle);
@@ -346,6 +351,8 @@ void Model_XMLFile::readSequenceXML(QString filePath,QList <tUnit> &tFlow)
                                     act.actName = actEle.toElement().text();
                                 else if(emtName == "String")
                                     act.actStr = actEle.toElement().text();
+                                else if(emtName == "InfoFlag")
+                                    act.infoFlag = actEle.toElement().text().toUInt();
                                 else if(emtName == "Time")
                                 {
                                     QDomNodeList timelist = actEle.childNodes();

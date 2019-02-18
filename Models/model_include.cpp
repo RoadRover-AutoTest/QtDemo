@@ -7,11 +7,10 @@ int WorkFrequency;          //测试次数
 bool ReportCreat;           //创建报告
 
 
-
-
+//运行中
+QString devNumber;              //设备序列号
 int Current=0;                  //当前测试电流
 int Volt = 0;
-QStringList proList;            //进程处理解析字符串列表：用来显示
 QStringList ShowList;           //字符串列表：用来显示
 QString savePath;                //测试序列保存为xml文件；测试结果记录保存为TXT文件，路径为序列文件所在路径，文件名为序列文件名
 
@@ -273,8 +272,37 @@ QTreeWidgetItem *AddTreeNode(QTreeWidgetItem *parent, uint8_t flags,QStringList 
     return item;
 }
 
+/*************************************************************
+/函数功能：开始执行动作
+/函数参数：  执行字符串
+/函数返回：无
+/在运行时执行到动作执行时赋值字符串，主函数循环扫描到字符串时开始运行
+*************************************************************/
+void startAction(QString actStr)
+{
+    clearAction();
+    testString = actStr;
+}
+
+/*************************************************************
+/函数功能：清执行动作
+/函数参数：  无
+/函数返回：无
+*************************************************************/
+void clearAction()
+{
+    testString.clear();
+}
 
 
-
+/*************************************************************
+/函数功能：获取运行时设备序列号
+/函数参数：无
+/函数返回：无
+*************************************************************/
+QString getDevNumber()
+{
+    return devNumber;
+}
 
 
