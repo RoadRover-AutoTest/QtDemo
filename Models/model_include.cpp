@@ -19,8 +19,6 @@ QString AccKey;
 QString BatKey;
 
 QString testString;            //以此字符串传递action的执行字符串在主函数中运行
-QString offFace;           //关机时处于的界面
-QString onFace;
 
 bool actIsRunning=false;
 

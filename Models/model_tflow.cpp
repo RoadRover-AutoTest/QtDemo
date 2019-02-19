@@ -31,6 +31,9 @@ void Model_tFlow::timerEvent(QTimerEvent *event)
             cycleCount = 0;
             reTime = 0;
             isUnitDeal=false;
+            fixedFaceInfo.clear();
+            fixedPicInfo.clear();
+
 
             if(chkWorkState())
                 flowState = dealunit;

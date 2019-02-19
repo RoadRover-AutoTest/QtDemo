@@ -120,7 +120,6 @@ private:
 
     Model_tFlow *tFlowDeal;
     int timerTestID;
-    bool isDelayReport;             //是否延时生成报告：结束测试时有其他进程正在执行将生成报告
 
     Model_Process *PRODeal;
     bool isPRORunning;

@@ -1,6 +1,16 @@
 #include "model_taction.h"
 
 
+QList <storageInfo_type_s> fixedFaceInfo;       //固定界面信息：随测试序列刷新：即每次开始测试启动时清空，测试过程中首次测试某一项，添加到列表中，之后的测试单元测试时将于其相对应数据比较
+QList <storageInfo_type_s> fixedPicInfo;        //固定图片信息
+
+QList <storageInfo_type_s> tempFaceInfo;        //临时界面信息：随测试单元刷新：即测试单元开始可填写数据，结束即清空
+QList <storageInfo_type_s> tempPicInfo;         //临时图片信息
+
+QList <bool> tempSoundInfo;                        //定义临时声音信息：用来处理声音临时数据存储
+
+
+
 /* this is Action Deal
  * ：测试流程改为：关ACC--开ACC--脚本（优点，测试单元执行结束机器仍为正常工作状态，无需恢复；测试记忆功能也可在一个测试单元中处理）
  * 增加任务：
@@ -45,6 +55,8 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             IsFirstMemory=true;
             actIsRunning=false;
             colInfoFlag=0;
+
+            tempSoundInfo.clear();
 
             //显示执行且保存到结果文件：
             ShowList << "evaluateTheAction:"+actionDeal->actName;
@@ -93,6 +105,12 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 {
                     if(overtimeAct++ > 60000)
                         timeState = actover;//动作执行超时
+                    else
+                    {
+                        //脚本运行连续执行
+                        if((actionDeal->actStr.startsWith("KEY")==false)&&(!isPRORunning))
+                            onProcessEXECmd(CMD_script);
+                    }
                 }
             }
             break;
@@ -454,22 +472,64 @@ bool Model_tAction::chkScript(checkParam script)
 *************************************************************/
 bool Model_tAction::chkMemory(checkParam memory)
 {
-    ShowList<< "checkTheAction:检测记忆..."+onFace;
+    QString curFaceInfo,lastFaceInfo;
     bool result = false;
 
-    if(memory.isMemory)
+    ShowList<< "checkTheAction:检测记忆...";
+
+    for(int i=0;i<tempFaceInfo.length();i++)
     {
-        if((onFace.isEmpty()==false)&&(onFace == offFace))
-            result = true;
+        if(tempFaceInfo.at(i).name == actionDeal->actStr)
+        {
+            curFaceInfo = tempFaceInfo.at(i).information.toString();
+        }
+    }
+
+    if(curFaceInfo.isEmpty() == false)
+    {
+        if(memory.isMemory)
+        {
+            //查询之前对比界面，并比较
+            bool curStatus ;
+
+            if(actionDeal->actStr.contains(":on"))
+                curStatus=true;
+            else
+                curStatus=false;
+
+            //同时查找该动作之前测试单元中前一个状态下 添加上动作执行前采集当前界面信息
+            for(int i=0;i<tempFaceInfo.length();i++)
+            {
+                QString actStr=actionDeal->actStr;
+                QString unitfindStr = tempFaceInfo.at(i).name;
+
+                if(((curStatus)&&((unitfindStr.contains(":off"))&&(unitfindStr.contains(actStr.remove(":on")))))
+                 ||((!curStatus)&&((unitfindStr.contains(":on"))&&(unitfindStr.contains(actStr.remove(":off"))))))
+                {
+                    lastFaceInfo = tempFaceInfo.at(i).information.toString();
+                }
+            }
+
+            if(lastFaceInfo.isEmpty()==false)
+            {
+                if(lastFaceInfo == curFaceInfo)
+                    result = true;
+            }
+            else
+            {
+                ShowList <<"Warn:未采集到动作执行前界面，检测失败！";
+            }
+        }
+        else
+            result = true;//界面开启即为真
     }
     else
     {
-        if(onFace.isEmpty() == false)
-            result = true;
+        ShowList <<"Warn:未查询到当前界面，检测失败！";
     }
 
-    appendTheResultToFile("Judge:Memory:"+offFace);
-    appendTheResultToFile("Check:Memory:"+onFace);
+    appendTheResultToFile("Judge:Memory:"+lastFaceInfo);
+    appendTheResultToFile("Check:Memory:"+curFaceInfo);
     appendTheResultToFile("Result:Memory:"+toStr(result));
 
     return result;
@@ -570,10 +630,11 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
                     QString faceStr = String;
                     int startIndex=faceStr.indexOf("com.");
 
-                    //if(testState == off_face)
-                    //    offFace = faceStr.mid(startIndex).remove("}\r\r\n");
-                    //else
-                    //    onFace = faceStr.mid(startIndex).remove("}\r\r\n");
+                    //any：Error-暂时放在临时存储，考虑如何区分临时数据与固定数据,name的比较处理
+                    storageInfo_type_s infoStorage;
+                    infoStorage.name = actionDeal->actStr;
+                    infoStorage.information = faceStr.mid(startIndex).remove("}\r\r\n");
+                    tempFaceInfo.append(infoStorage);
                 }
             }
         }

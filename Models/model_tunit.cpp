@@ -37,13 +37,19 @@ void Model_tUnit::timerEvent(QTimerEvent *event)
         case start:
         {
             cycleCount = 0;
+            isActionDeal=false;
+            testState = initUnit;
+            break;
+        }
+        case initUnit:
+        {
             actIndex = 0;
             arrayResult.clear();
-            isActionDeal=false;
             testState = dealAction;
 
-            offFace.clear();
-            onFace.clear();
+            //清临时数据存储
+            tempFaceInfo.clear();
+            tempPicInfo.clear();
 
             theUnitStart();
             break;
@@ -90,16 +96,7 @@ void Model_tUnit::timerEvent(QTimerEvent *event)
             cycleCount++;
             //循环判断
             if(cycleCount < UnitDeal.cycleCount)
-            {
-                actIndex = 0;
-                arrayResult.clear();
-                testState = dealAction;
-
-                offFace.clear();
-                onFace.clear();
-
-                theUnitStart();
-            }
+                testState = initUnit;
             else
                 testState = over;            
             break;

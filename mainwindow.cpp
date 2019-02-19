@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     isRunning=false;
     testState=overtest;
-    isDelayReport=false;
 }
 
 MainWindow::~MainWindow()
@@ -162,8 +161,30 @@ void MainWindow::closeEvent(QCloseEvent *event)
 *************************************************************/
 void MainWindow::timerEvent(QTimerEvent *event)
 {
+    //串口定时器处理：
+    if(event->timerId()==timerUartID)
+    {
+        timerUartIDDeal();
+    }
+    //进程定时器处理+显示处理：
+    else if(event->timerId() == timerProID)
+    {
+        timerProIDDeal();
+
+        //显示执行
+        if(ShowList.isEmpty() == false)
+        {
+            ui->textBrowser_EXEShow->append(ShowList.first());
+            ShowList.removeFirst();
+        }
+    }
+    //测试定时器处理
+    else if(event->timerId()==timerTestID)
+    {
+        timerTestIDDeal();
+    }
     //1S定时
-    if(event->timerId()==timer1SID)
+    else if(event->timerId()==timer1SID)
     {
         //显示当前时间
         QDateTime current_date_time =QDateTime::currentDateTime();
@@ -186,28 +207,6 @@ void MainWindow::timerEvent(QTimerEvent *event)
                 proList.append(ADBDevs);
             //cout;
         }
-    }
-    //串口定时器处理：
-    else if(event->timerId()==timerUartID)
-    {
-        timerUartIDDeal();
-    }
-    //进程定时器处理+显示处理：
-    else if(event->timerId() == timerProID)
-    {
-        timerProIDDeal();
-
-        //显示执行
-        if(ShowList.isEmpty() == false)
-        {
-            ui->textBrowser_EXEShow->append(ShowList.first());
-            ShowList.removeFirst();
-        }
-    }
-    //测试定时器处理
-    else if(event->timerId()==timerTestID)
-    {
-        timerTestIDDeal();
     }
 }
 
@@ -402,7 +401,16 @@ void MainWindow::on_treeWidget_canClose()
 *************************************************************/
 void MainWindow::on_treeWidget_devUseState(bool isUse)
 {
-    cout <<isUse;
+    if(isUse)
+    {
+        QTreeWidgetItem *topDev = ui->treeWidget->topLevelItem(topDEV);
+        QComboBox *comboBox=(QComboBox *)ui->treeWidget->itemWidget(topDev->child(devNum1),colItem);
+        devNumber = comboBox->currentText();
+    }
+    else
+    {
+        devNumber.clear();
+    }
 }
 
 
@@ -419,17 +427,9 @@ void MainWindow::startTheFlow(QList <tUnit> *testFlow)
     if((!isRunning)&&(testState==overtest))
     {
         //设备序列号
-        QTreeWidgetItem *topDev = ui->treeWidget->topLevelItem(topDEV);
-        if(topDev->child(devUSE)->checkState(colItem)==Qt::Checked)
+        if(devNumber.isEmpty())
         {
-            QComboBox *comboBox=(QComboBox *)ui->treeWidget->itemWidget(topDev->child(devNum1),colItem);
-            devNumber = comboBox->currentText();
-        }
-        else
-        {
-            if(QMessageBox::information(NULL, "Warn", "未启用设备序列号，是否继续?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::Yes)//Upgrading
-                devNumber.clear();
-            else
+            if(QMessageBox::information(NULL, "Warn", "未启用设备序列号，是否继续?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::No)//Upgrading
                 return ;
         }
 
@@ -467,7 +467,6 @@ void MainWindow::timerTestIDDeal()
     {
     case start:
     {
-        isDelayReport=false;
         isRunning = true;
         setIsRunInterface(true);
         testTime = QDateTime::currentDateTime();
@@ -515,8 +514,6 @@ void MainWindow::timerTestIDDeal()
         break;
     }
     }
-
-
 }
 
 /*************************************************************
@@ -543,35 +540,24 @@ void MainWindow::testProcessOutputDeal(QString String)
 *************************************************************/
 void MainWindow::testProcessOverDeal()
 {
-    switch(testState)
-    {
-    case getprop:
+    if(testState == getprop)
     {
         if(isHadProp)
         {
             //添加时间
             appendThePropertiesToFile("start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
             appendThePropertiesToFile("end_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
-            testState = report;
+            testState = report;     //采集到属性信息方可进入生成报告的操作，否则不改变测试状态继续查询属性
         }
-        break;
     }
-    case report:
+    else if(testState == report)
     {
-        ui->textBrowser_EXEShow->append(tr("<html><p><a>报告生成结束，请查找本地对应目录或邮件或</a><a href=\"%1\">点击查阅</a></p></html>\n\n")
+        ui->textBrowser_EXEShow->append(tr("<html><p><a>报告生成结束，请查找本地对应目录或邮件或</a><a href=\"%1\">点击查阅</a></p></html> \n\n")
                                         .arg("http://192.168.13.96/result/" + ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));
 
         testState = overtest;
-        break;
-    }
-    default :break;
     }
 
-    if(isDelayReport)
-    {
-        testState = getprop;
-        isDelayReport=false;
-    }
 }
 
 /*************************************************************
@@ -605,18 +591,13 @@ void MainWindow::endTheFlow()
 /*************************************************************
 /函数功能：测试单元结束执行
 /函数参数：无
-/函数返回：无  any:测试停止时若机器关，需要将机器开启再进行获取信息，生成报告
+/函数返回：无  any:测试停止时若机器关，需要将机器开启恢复机器工作状态再进行获取信息，生成报告
 *************************************************************/
 void MainWindow::onEndTestSlot()
 {
     ui->textBrowser_EXEShow->append("结束测试！");
     if(ReportCreat)
-    {
-        if(isPRORunning)
-            isDelayReport=true;
-        else
-            testState = getprop;
-    }
+        testState = getprop;
     else
         testState = overtest;
 }

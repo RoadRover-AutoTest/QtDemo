@@ -107,8 +107,6 @@ extern QString AccKey;
 extern QString BatKey;
 
 extern QString testString;
-extern QString offFace;
-extern QString onFace;
 
 extern bool actIsRunning;
 

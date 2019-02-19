@@ -11,7 +11,26 @@
 #define ACT_Front   false
 #define ACT_Back    true
 
+/*存储采集数据类型：
+ * 数据名：定义和动作或数据类型相关，以便查找
+ * 信息：未固定数据类型，可为多种数据类型
+*/
+typedef struct
+{
+    QString name;
+    QVariant information;
+}storageInfo_type_s;
 
+extern QList <storageInfo_type_s> fixedFaceInfo;
+extern QList <storageInfo_type_s> fixedPicInfo;
+
+extern QList <storageInfo_type_s> tempFaceInfo;
+extern QList <storageInfo_type_s> tempPicInfo;
+
+extern QList <bool> tempSoundInfo;
+
+
+/*定义测试动作类*/
 class Model_tAction:public QObject
 {
     Q_OBJECT
@@ -38,7 +57,6 @@ private:
     uint64_t timeCount;
 
     bool testResult;
-    //int passCount;      //测试通过次数，连续监测3次均通过判断为测试成功
     uint64_t reChkCount;     //重复监测计数
     uint64_t overtimeAct;
 

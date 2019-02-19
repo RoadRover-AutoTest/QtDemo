@@ -29,11 +29,11 @@ private:
     typedef enum
     {
         start,
+        initUnit,
         wait,
         dealAction,
         overAction,
         overUnit,
-
         over
     }test_deal_e;
 

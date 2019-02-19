@@ -21,13 +21,10 @@ public:
 
 private:
     Model_tUnit *unitDeal;
-
-    int timeID_UF;      //测试单元及测试流执行定时器
-
     QList <tUnit> *theFlow;    //测试流
     tUnit curUnit;
 
-
+    int timeID_UF;      //测试单元及测试流执行定时器
     int reTime;//最长1分钟
     int unitIndex;
     int cycleCount;
@@ -47,6 +44,8 @@ private:
 
     flow_type_e flowState;
     flow_type_e lastState;
+
+
 
 
     bool chkWorkState();
