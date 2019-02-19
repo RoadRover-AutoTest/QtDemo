@@ -164,11 +164,11 @@ void CfgSParam::createACCOnAction(tAction *onAction)
     {
         checkParam checkMemoey;
 
-        checkMemoey.check = CHKMEMORY;
+        checkMemoey.check = CHKInterface;
         if(topItem->child(acc_On_CheckMemory)->child(acc_On_MemoryBool)->checkState(acc_colItem) == Qt::Checked)
-            checkMemoey.isMemory = true;
+            checkMemoey.infoCompare = MemoryCompare;
         else
-            checkMemoey.isMemory = false;
+            checkMemoey.infoCompare = NoCompare;
         onAction->checkDeal.append(checkMemoey);
     }
 }
@@ -302,11 +302,11 @@ void CfgSParam::createBATOnAction(tAction *onAction)
     {
         checkParam checkMemoey;
 
-        checkMemoey.check = CHKMEMORY;
+        checkMemoey.check = CHKInterface;
         if(topItem->child(bat_On_CheckMemory)->child(bat_On_MemoryBool)->checkState(bat_colItem) == Qt::Checked)
-            checkMemoey.isMemory = true;
+            checkMemoey.infoCompare = MemoryCompare;
         else
-            checkMemoey.isMemory = false;
+            checkMemoey.infoCompare = NoCompare;
         onAction->checkDeal.append(checkMemoey);
     }
 }
@@ -388,8 +388,8 @@ void CfgSParam::createCCDOffAction(tAction *offAction)
     if(topItem->child(ccd_Off_CheckFace)->checkState(ccd_colItem) == Qt::Checked)
     {
         checkParam checkMemoey;
-        checkMemoey.check = CHKMEMORY;
-        checkMemoey.isMemory = true;
+        checkMemoey.check = CHKInterface;
+        checkMemoey.infoCompare = MemoryCompare;
         offAction->checkDeal.append(checkMemoey);
     }
 
@@ -446,7 +446,7 @@ void CfgSParam::createCCDOnAction(tAction *onAction)
     {
         checkParam checkPicture;
         checkPicture.check = CHKADBPIC;
-        checkPicture.isCompareFirstPic = true;
+        checkPicture.infoCompare = SelfCompare;
         onAction->checkDeal.append(checkPicture);
     }
 }
@@ -496,7 +496,7 @@ void CfgSParam::addTheUnit(tUnit *unit,tAction *act)
         act->infoFlag |= COLSOUND;
         break;
         //记忆检测：界面检测
-        case CHKMEMORY:
+        case CHKInterface:
         {
             act->infoFlag |= COLFACE;
             act->infoFlag |= COLFACESITE;//动作执行后采集
@@ -509,8 +509,8 @@ void CfgSParam::addTheUnit(tUnit *unit,tAction *act)
             act->infoFlag |= COLPICTURE;
             act->infoFlag |= COLPICTURESITE;//动作执行后采集
 
-            if(chkDat.isCompareFirstPic)
-                break;//与每次进入该界面图片比较
+            if(chkDat.infoCompare != MemoryCompare)
+                break;//非记忆比较，均无需对应动作获取信息
 
             //非比较首次图片，即与测试过程中其他图片比较
             ADDINFODAT:
@@ -533,7 +533,7 @@ void CfgSParam::addTheUnit(tUnit *unit,tAction *act)
                     tAction findAction = unit->actTest.at(j);
 
                     findAction.infoFlag |= COLFACE;
-                    if(chkDat.check == CHKMEMORY)
+                    if(chkDat.check == CHKInterface)
                         findAction.infoFlag &= ~(1<<5);//COLFACESITE
                     else if(chkDat.check == CHKADBPIC)
                         findAction.infoFlag &= ~(1<<7);//COLPICTURESITE

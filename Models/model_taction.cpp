@@ -259,7 +259,10 @@ void Model_tAction::collectInfoDeal()
     //采集图片：
     if((!(colInfoFlag & COLPICTURE))&&(infoFlag & COLPICTURE))
     {
+        if(!isPRORunning)
+            onProcessEXECmd(CMD_ADBPic);
 
+        goto toContinue;
     }
     //采集声音：
     if((!(colInfoFlag & COLSOUND))&&(infoFlag & COLSOUND))
@@ -367,8 +370,8 @@ void Model_tAction::theActionCheckReault(QList <checkParam> testChk)
         case CHKScript:
         result &= chkScript(testChk.at(i));
         break;
-        case CHKMEMORY:
-        result &= chkMemory(testChk.at(i));
+        case CHKInterface:
+        result &= chkInterface(testChk.at(i));
         break;
         case CHKRES:
         result &= chkRes(testChk.at(i));
@@ -470,13 +473,14 @@ bool Model_tAction::chkScript(checkParam script)
 /函数参数：记忆检测参数
 /函数返回：wu
 *************************************************************/
-bool Model_tAction::chkMemory(checkParam memory)
+bool Model_tAction::chkInterface(checkParam memory)
 {
     QString curFaceInfo,lastFaceInfo;
     bool result = false;
 
-    ShowList<< "checkTheAction:检测记忆...";
+    ShowList<< "checkTheAction:检测界面...";
 
+    /*获取当前界面信息*/
     for(int i=0;i<tempFaceInfo.length();i++)
     {
         if(tempFaceInfo.at(i).name == actionDeal->actStr)
@@ -485,9 +489,10 @@ bool Model_tAction::chkMemory(checkParam memory)
         }
     }
 
+    /*根据比较添加进行界面检验*/
     if(curFaceInfo.isEmpty() == false)
     {
-        if(memory.isMemory)
+        if(memory.infoCompare == MemoryCompare)
         {
             //查询之前对比界面，并比较
             bool curStatus ;
@@ -520,8 +525,11 @@ bool Model_tAction::chkMemory(checkParam memory)
                 ShowList <<"Warn:未采集到动作执行前界面，检测失败！";
             }
         }
-        else
+        else if(memory.infoCompare == NoCompare)
+        {
             result = true;//界面开启即为真
+            lastFaceInfo = "Is Interface Start?";
+        }
     }
     else
     {
@@ -532,6 +540,82 @@ bool Model_tAction::chkMemory(checkParam memory)
     appendTheResultToFile("Check:Memory:"+curFaceInfo);
     appendTheResultToFile("Result:Memory:"+toStr(result));
 
+    return result;
+}
+
+/*************************************************************
+/函数功能：检测ADB命令下获取图片
+/函数参数：动作定义
+/函数返回：wu
+/any：添加图片校验：类界面校验
+*************************************************************/
+bool Model_tAction::chkADBPic(checkParam adbpic)
+{
+    QString curFaceInfo,lastFaceInfo;
+    bool result = false;
+
+    ShowList<< "checkTheAction:检测Picture...";
+#if 0
+    /*获取当前界面信息*/
+    for(int i=0;i<tempFaceInfo.length();i++)
+    {
+        if(tempFaceInfo.at(i).name == actionDeal->actStr)
+        {
+            curFaceInfo = tempFaceInfo.at(i).information.toString();
+        }
+    }
+
+    /*根据比较添加进行界面检验*/
+    if(curFaceInfo.isEmpty() == false)
+    {
+        if(adbpic.infoCompare == MemoryCompare)
+        {
+            //查询之前对比界面，并比较
+            bool curStatus ;
+
+            if(actionDeal->actStr.contains(":on"))
+                curStatus=true;
+            else
+                curStatus=false;
+
+            //同时查找该动作之前测试单元中前一个状态下 添加上动作执行前采集当前界面信息
+            for(int i=0;i<tempFaceInfo.length();i++)
+            {
+                QString actStr=actionDeal->actStr;
+                QString unitfindStr = tempFaceInfo.at(i).name;
+
+                if(((curStatus)&&((unitfindStr.contains(":off"))&&(unitfindStr.contains(actStr.remove(":on")))))
+                 ||((!curStatus)&&((unitfindStr.contains(":on"))&&(unitfindStr.contains(actStr.remove(":off"))))))
+                {
+                    lastFaceInfo = tempFaceInfo.at(i).information.toString();
+                }
+            }
+
+            if(lastFaceInfo.isEmpty()==false)
+            {
+                if(lastFaceInfo == curFaceInfo)
+                    result = true;
+            }
+            else
+            {
+                ShowList <<"Warn:未采集到动作执行前界面，检测失败！";
+            }
+        }
+        else if(adbpic.infoCompare == NoCompare)
+        {
+            result = true;//界面开启即为真
+            lastFaceInfo = "Is Face Start?";
+        }
+    }
+    else
+    {
+        ShowList <<"Warn:未查询到当前界面，检测失败！";
+    }
+
+    appendTheResultToFile("Judge:Memory:"+lastFaceInfo);
+    appendTheResultToFile("Check:Memory:"+curFaceInfo);
+    appendTheResultToFile("Result:Memory:"+toStr(result));
+#endif
     return result;
 }
 
@@ -647,6 +731,7 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
 /函数功能：进程结束处理
 /函数参数：进程号
 /函数返回：无
+/any:Error-adb devices扫描后执行命令，会出现多次命令同时执行问题，因标志位清空，定时器再次处理
 *************************************************************/
 void Model_tAction::onProcessOverSlot(uint8_t pNum)
 {
@@ -656,22 +741,25 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
         {
             if(deviceList.isEmpty()==false)
             {
+                bool devFindIsOK = false;
                 for(int i=0;i<deviceList.length();i++)
                 {
                     QString tempString = deviceList.at(i);
                     if((tempString.contains(getDevNumber()))&&(tempString.contains("\tdevice")))
                     {
                         if(proCMD == CMD_script)
-                        {
                             proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
-                        }
                         else if(proCMD == CMD_FACE)
-                        {
                             proList.append("adb -s "+getDevNumber()+SHELLFACE);
-                        }
+                        else if(proCMD == CMD_ADBPic)
+                            proList.append(SCREENCAP_S(getDevNumber(),actionDeal->actName+".png"));
+
+                        devFindIsOK=true;
                         break;
                     }
                 }
+                if(!devFindIsOK)
+                    isPRORunning=false;
             }
         }
         else
@@ -686,15 +774,40 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
             }
             else if(proCMD == CMD_FACE)
             {
-                //if()采集到信息后置位，否则不处理，使得再次循环
                 colInfoFlag |= COLFACE;      //界面采集完成
             }
-
+            else if(proCMD == CMD_ADBPic)
+            {
+                if(currentCMDString.contains("screencap"))
+                {
+                    QDir dir(TEMPPath);
+                    if(!dir.exists())
+                    {
+                        if(dir.mkpath(TEMPPath) == false) //创建多级目录
+                        {
+                            cout << "创建属性文件夹失败！创建路径为："<<TEMPPath;
+                            return ;
+                        }
+                    }
+                    proList.append(PULLFile_S(getDevNumber(),actionDeal->actName+".png",TEMPPath));
+                    goto ToEndProcess;//跳转到进程结束处理，因为该多命令组合未完全执行结束，因此不转换isPRORunning标志位及proCMD不清空
+                }
+                else if(currentCMDString.contains("pull"))
+                {
+                    storageInfo_type_s infoStorage;
+                    infoStorage.name = actionDeal->actStr;
+                    infoStorage.information = TEMPPath+actionDeal->actName+".png";
+                    tempFaceInfo.append(infoStorage);
+                    cout << infoStorage.information.toString();
+                    colInfoFlag |= COLPICTURE;      //界面采集完成
+                }
+            }
             //恢复状态
             proCMD = CMD_NULL;
+            isPRORunning=false;//在除去adb devices之外的进程结束再赋值，避免多次进入adb devices
         }
-
-        isPRORunning=false;
+        ToEndProcess:
+        currentCMDString.clear();
     }
 }
 

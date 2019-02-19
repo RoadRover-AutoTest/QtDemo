@@ -77,7 +77,8 @@ private:
     bool chkVolt(checkParam range);
     bool chkSound(checkParam sound);
     bool chkScript(checkParam script);
-    bool chkMemory(checkParam memory);
+    bool chkInterface(checkParam memory);
+    bool chkADBPic(checkParam adbpic);
     bool chkRes(checkParam res);
 
 
@@ -94,7 +95,8 @@ private:
         CMD_NULL,
         CMD_script,
         CMD_ListDev,
-        CMD_FACE
+        CMD_FACE,
+        CMD_ADBPic
     }cmd_type_e;
     cmd_type_e proCMD;
 

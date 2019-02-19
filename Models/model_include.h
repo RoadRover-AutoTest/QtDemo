@@ -18,6 +18,7 @@
 #define SYSInfo     QCoreApplication::applicationDirPath()+"/config/config.ini"
 #define ResultPath  QCoreApplication::applicationDirPath()+"/result"
 #define REPORTPath  QCoreApplication::applicationDirPath()+"/ATReport"
+#define TEMPPath  ResultPath+"/temp/"
 
 //定义颜色：用于进度条显示
 #define GRAY    QColor(199,199,199)   //灰
@@ -52,6 +53,13 @@
 
 #define SHELLFACE               " shell dumpsys activity|findstr  mF"   //获取界面信息
 #define SHELLPROP               " shell getprop"                        //获取设备信息
+
+#define SCREENCAP(picname)               ("adb shell screencap -p /sdcard/"+picname)          //捕捉图片//adb shell screencap -p /sdcard/a.png
+#define SCREENCAP_S(devNum,picname)      ("adb -s "+devNum+" shell screencap -p /sdcard/"+picname)
+
+#define PULLFile(picname,desPath)                "adb pull /mnt/sdcard/"+picname+" "+desPath
+#define PULLFile_S(devNum,picname,desPath)                "adb -s "+devNum+" pull /mnt/sdcard/"+picname+" "+desPath
+
 
 #define PYTHONREPORT            "python "+REPORTPath+"/run.py "
 
@@ -152,7 +160,7 @@ typedef enum
     CHKVlot,
     CHKSound,
     CHKScript,
-    CHKMEMORY,
+    CHKInterface,
     CHKADBPIC,
     CHKRES
 }chk_type_e;
@@ -191,6 +199,21 @@ typedef enum
 }sound_type_e;
 
 /*************************************************************
+/定义比较判断：
+/0x00:不比较（若是存在记忆检测将只判断是否获取到界面）
+/0x01:记忆检测：和上次动作获取信息比较
+/0x02:自身比较：每次均和首次采集信息比较
+/0x03:本地比较：和本地文件比较（通常为图片）
+*************************************************************/
+typedef enum
+{
+    NoCompare,
+    MemoryCompare,
+    SelfCompare,
+    LocalCompare
+}compare_type_e;
+
+/*************************************************************
 /检测测试动作：
 /chk_type_e：测试类型
 /range_type_e：测试范围
@@ -201,7 +224,7 @@ typedef enum
 *************************************************************/
 typedef struct
 {
-    chk_type_e check;
+    chk_type_e check;       //决定检测参数
 
     range_type_e range;
     int min;
@@ -211,8 +234,10 @@ typedef struct
 
     QString logContains;
 
-    bool isMemory;          //true:回到记忆界面  false：读取到界面不进行判断；
-    bool isCompareFirstPic; //true:比较首次采集图片  false:非首次图片比较，即与测试单元中其他动作下采集图片比较
+    //bool isMemory;          //true:回到记忆界面  false：读取到界面不进行判断；
+    //bool isCompareFirstPic; //true:比较首次采集图片  false:非首次图片比较，即与测试单元中其他动作下采集图片比较
+
+    compare_type_e infoCompare; //判断比较方式
 
     bool hReault;
 }checkParam;

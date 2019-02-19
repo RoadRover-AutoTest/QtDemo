@@ -547,7 +547,10 @@ void MainWindow::testProcessOverDeal()
             //添加时间
             appendThePropertiesToFile("start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
             appendThePropertiesToFile("end_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
-            testState = report;     //采集到属性信息方可进入生成报告的操作，否则不改变测试状态继续查询属性
+            if(ReportCreat)
+                testState = report;//采集到属性信息方可进入生成报告的操作，否则不改变测试状态继续查询属性
+            else
+                testState = overtest;
         }
     }
     else if(testState == report)
@@ -596,10 +599,7 @@ void MainWindow::endTheFlow()
 void MainWindow::onEndTestSlot()
 {
     ui->textBrowser_EXEShow->append("结束测试！");
-    if(ReportCreat)
-        testState = getprop;
-    else
-        testState = overtest;
+    testState = getprop;
 }
 
 /*************************************************************

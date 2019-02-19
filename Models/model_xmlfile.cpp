@@ -242,10 +242,11 @@ void Model_XMLFile::writeSequenceActXML(QDomDocument &doc, QDomElement &root, tA
                 }
                 break;
 
-            case CHKMEMORY:
+            case CHKInterface:
+            case CHKADBPIC:
             {
-                QDomElement memEle = doc.createElement("Memory");
-                memEle.appendChild(doc.createTextNode(toStr(chk.isMemory)));
+                QDomElement memEle = doc.createElement("InfoCompare");
+                memEle.appendChild(doc.createTextNode(toStr(chk.infoCompare)));
                 checkEle.appendChild(memEle);
                 break;
             }
@@ -392,8 +393,8 @@ void Model_XMLFile::readSequenceXML(QString filePath,QList <tUnit> &tFlow)
                                             chkDat.sound = (sound_type_e)chkNode.toElement().text().toUInt();
                                         else if(mleName == "Script")
                                             chkDat.logContains = chkNode.toElement().text();
-                                        else if(mleName == "Memory")
-                                            chkDat.isMemory = chkNode.toElement().text().toUInt();
+                                        else if(mleName == "InfoCompare")
+                                            chkDat.infoCompare = (compare_type_e)chkNode.toElement().text().toUInt();
                                     }
                                     act.checkDeal.append(chkDat);//最后一次数据保存
                                 }

@@ -45,8 +45,8 @@ CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
             case CHKScript:
                 AddTreeNode(item,0,QStringList()<<"chkScript"<<chkShow.logContains);
                 break;
-            case CHKMEMORY:
-                AddTreeNode(item,0,QStringList()<<"chkMemory"<<toStr(chkShow.isMemory));
+            case CHKInterface:
+                AddTreeNode(item,0,QStringList()<<"chkCompare"<<toStr(chkShow.infoCompare));
                 break;
             case CHKADBPIC:break;
             case CHKRES:break;
