@@ -31,6 +31,26 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
+INCLUDEPATH +=D:\OpenCV\include\opencv\
+            D:\OpenCV\include\opencv2\
+            D:\OpenCV\include
+
+LIBS+=D:\OpenCV\lib\libopencv_*.a\
+        #D:\OpenCV\lib\libopencv_calib3d249.dll.a\
+        #D:\OpenCV\lib\libopencv_contrib249.dll.a\
+        #D:\OpenCV\lib\libopencv_core249.dll.a\
+        #D:\OpenCV\lib\libopencv_features2d249.dll.a\
+        #D:\OpenCV\lib\libopencv_flann249.dll.a\
+        #D:\OpenCV\lib\libopencv_gpu249.dll.a\
+        #D:\OpenCV\lib\libopencv_highgui249.dll.a\
+        #D:\OpenCV\lib\libopencv_imgproc249.dll.a\
+        #D:\OpenCV\lib\libopencv_legacy249.dll.a\
+        #D:\OpenCV\lib\libopencv_ml249.dll.a\
+        #D:\OpenCV\lib\libopencv_objdetect249.dll.a\
+        #D:\OpenCV\lib\libopencv_video249.dll.a
+
+
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
@@ -56,7 +76,8 @@ SOURCES += \
     Models/model_tunit.cpp \
     Models/model_taction.cpp \
     SubWidget/diareport.cpp \
-    SubWidget/toolconfig.cpp
+    SubWidget/toolconfig.cpp \
+    Models/model_piccompare.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -82,7 +103,8 @@ HEADERS += \
     Models/model_tunit.h \
     Models/model_taction.h \
     SubWidget/diareport.h \
-    SubWidget/toolconfig.h
+    SubWidget/toolconfig.h \
+    Models/model_piccompare.h
 
 FORMS += \
         mainwindow.ui \

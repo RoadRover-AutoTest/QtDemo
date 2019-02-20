@@ -4,9 +4,11 @@
 #include <QObject>
 #include <QTimerEvent>
 
-#include "model_include.h"
 #include "model_delay.h"
-#include "Models/model_process.h"
+#include "model_process.h"
+//#include "model_piccompare.h"
+#include "model_include.h"
+
 
 #define ACT_Front   false
 #define ACT_Back    true

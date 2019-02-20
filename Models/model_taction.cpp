@@ -622,6 +622,7 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
     /*根据比较添加进行界面检验*/
     if(curPicInfo.isEmpty() == false)
     {
+        //Model_PicCompare picDeal;
         if(adbpic.infoCompare == MemoryCompare)
         {
             //查询之前对比界面，并比较
@@ -649,6 +650,7 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
                 //any:比较2图片的相似度
                 if(lastPicInfo == curPicInfo)
                     result = true;
+                //picDeal.Cameracompare(curPicInfo,lastPicInfo);
             }
             else
             {
@@ -668,6 +670,8 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
                 if(fixedInfo.at(i).name.contains(actionDeal->actStr) && fixedInfo.at(i).name.contains("-PICTURE"))
                 {
                     lastPicInfo = fixedInfo.at(i).information.toString();
+                    //picDeal.Cameracompare(curPicInfo,lastPicInfo);
+                    break;
                 }
             }
         }
