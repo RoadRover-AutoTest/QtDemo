@@ -69,7 +69,7 @@ bool rangeJudgeTheParam(range_type_e rJudge,uint16_t param1,uint16_t param2,uint
 /函数功能：获得空按键资源信息：主要对数据信息进行赋值，字符串默认为空
 /函数参数：无
 /函数返回：按键信息：空
-*************************************************************/
+************************************************************
 keyControl *getkeyControlNull()
 {
     keyControl *keyInfo=new keyControl;
@@ -80,6 +80,14 @@ keyControl *getkeyControlNull()
     keyInfo->des="No Information!";
 
     return keyInfo;
+}*/
+
+void getkeyControlNull(keyControl *keyInfo)
+{
+    keyInfo->isUse=false;
+    keyInfo->type=HardACC;
+
+    keyInfo->des="No Information!";
 }
 
 QString getKeyType(kType type)

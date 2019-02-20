@@ -80,6 +80,8 @@ void MainWindow::initMainWindow()
     WorkFrequency = InfoINI.ReadIni_WorkFrequency();
     ReportCreat = InfoINI.ReadIni_ReportCreat();
 
+    devNumber.clear();
+
 }
 
 /*************************************************************
@@ -492,7 +494,10 @@ void MainWindow::timerTestIDDeal()
             ui->textBrowser_EXEShow->append("获取机器版本信息，请稍后... ...");
             appendThePropertiesToFile("clear");
 
-            proList.append("adb -s "+getDevNumber()+SHELLPROP);
+            if(getDevNumber().isEmpty())
+                proList.append(GETPROP);
+            else
+                proList.append(GETPROP_S(getDevNumber()));
         }
         break;
     }
@@ -501,7 +506,7 @@ void MainWindow::timerTestIDDeal()
         if(!isPRORunning)
         {
             ui->textBrowser_EXEShow->append("正在生成报告，请稍后... ...");
-            proList.append(PYTHONREPORT+ResultPath+"/" + ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/");
+            proList.append(PYTHONREPORT(ResultPath+"/" + ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/"));
         }
         break;
     }

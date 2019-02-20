@@ -21,8 +21,7 @@ typedef struct
     QVariant information;
 }storageInfo_type_s;
 
-extern QList <storageInfo_type_s> fixedFaceInfo;
-extern QList <storageInfo_type_s> fixedPicInfo;
+extern QList <storageInfo_type_s> fixedInfo;
 
 extern QList <storageInfo_type_s> tempFaceInfo;
 extern QList <storageInfo_type_s> tempPicInfo;
@@ -61,6 +60,7 @@ private:
     uint64_t overtimeAct;
 
     uint16_t colInfoFlag;       //用来标记已完成的信息采集
+    uint16_t infoFlag;
     int timeID_T;
 
     int iniLoop;
@@ -68,7 +68,7 @@ private:
     bool IsFirstMemory;
 
     bool judgeIsCollectInfo(bool site);
-    void collectInfoDeal();
+    void collectInfoDeal(uint16_t infoFlag);
     void evaluateTheAction(QString actStr);
     void theActionChangedDeal(QList <changedParam>testChanged);
     void theActionCheckReault(QList <checkParam> testChk);
@@ -99,6 +99,7 @@ private:
         CMD_ADBPic
     }cmd_type_e;
     cmd_type_e proCMD;
+    QString proCMDString;
 
 
     void initProcessDeal();
@@ -108,6 +109,7 @@ private:
     bool proSysIsRunning();
     void timerProIDDeal();
     void onProcessEXECmd(cmd_type_e cmdType);
+    void infoAppendDeal(uint16_t infoflag,storageInfo_type_s infoDat);
 
 private slots:
     void onProcessOutputSlot(int pNum,QString String);

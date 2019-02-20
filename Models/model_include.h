@@ -17,7 +17,8 @@
 #define KeyINFOFile QCoreApplication::applicationDirPath()+"/config/KeyInfo.xml"
 #define SYSInfo     QCoreApplication::applicationDirPath()+"/config/config.ini"
 #define ResultPath  QCoreApplication::applicationDirPath()+"/result"
-#define REPORTPath  QCoreApplication::applicationDirPath()+"/ATReport"
+#define REPORTPath  QCoreApplication::applicationDirPath()+"/ATReport/run.py"
+#define REPORTCFGPath QCoreApplication::applicationDirPath()+"/ATReport/conf/config.ini"
 #define TEMPPath  ResultPath+"/temp/"
 
 //定义颜色：用于进度条显示
@@ -38,39 +39,38 @@
 
 
 
+#define DEVHID              "VID_18D1&PID_D002" //安卓设备硬件ID匹配
 
 /*************************************************************
 /ADB指令宏定义
 *************************************************************/
-#define DEVHID              "VID_18D1&PID_D002" //安卓设备硬件ID匹配
-
 #define PROSYS              0                   //系统进程号
 #define PROREPORT           1                   //生成报告、避免与主函数进程相同影响判断
-#define ADBDevs                 "adb devices"       //扫描连接设备
-#define ADBWIFICNT              "adb connect "      //连接无线
-#define ADBWIFIDISCNT           "adb disconnect "   //端口无线
-#define ADBGetprop              "adb shell getprop" //获取设备信息
-
-#define SHELLFACE               " shell dumpsys activity|findstr  mF"   //获取界面信息
-#define SHELLPROP               " shell getprop"                        //获取设备信息
-
-#define SCREENCAP(picname)               ("adb shell screencap -p /sdcard/"+picname)          //捕捉图片//adb shell screencap -p /sdcard/a.png
-#define SCREENCAP_S(devNum,picname)      ("adb -s "+devNum+" shell screencap -p /sdcard/"+picname)
-
-#define PULLFile(picname,desPath)                "adb pull /mnt/sdcard/"+picname+" "+desPath
-#define PULLFile_S(devNum,picname,desPath)                "adb -s "+devNum+" pull /mnt/sdcard/"+picname+" "+desPath
-
-
-#define PYTHONREPORT            "python "+REPORTPath+"/run.py "
-
-
-
-
-
-
-
-
-
+#define ADBDevs                             "adb devices"       //扫描连接设备
+#define ADBWIFICNT                          "adb connect "      //连接无线
+#define ADBWIFIDISCNT                       "adb disconnect "   //端口无线
+//获取设备信息
+#define GETPROP                             ("adb shell getprop")
+#define GETPROP_S(devNum)                   ("adb -s "+devNum+" shell getprop")
+//获取界面信息
+#define ACTIVITYFACE                        ("adb shell dumpsys activity|findstr  mF")
+#define ACTIVITYFACE_S(devNum)              ("adb -s "+devNum+" shell dumpsys activity|findstr  mF")
+//捕捉图片//adb shell screencap -p /sdcard/a.png
+#define SCREENCAP(picname)                  ("adb shell screencap -p /sdcard/"+picname)
+#define SCREENCAP_S(devNum,picname)         ("adb -s "+devNum+" shell screencap -p /sdcard/"+picname)
+//导出图片
+#define PULLFile(picname,desPath)           ("adb pull /mnt/sdcard/"+picname+" "+desPath)
+#define PULLFile_S(devNum,picname,desPath)  ("adb -s "+devNum+" pull /mnt/sdcard/"+picname+" "+desPath)
+//列举进程
+#define PSGREP(appStr)                      ("adb shell ps | grep "+appStr)
+#define PSGREP_S(devNum,appStr)             ("adb -s "+devNum+" shell ps | grep "+appStr)
+//杀死进程
+#define KILL_9(Str)                         ("adb shell kill -9 "+Str)
+#define KILL_9_S(devNum,Str)                ("adb -s "+devNum+" shell kill -9 "+Str)
+//修改文件名
+#define RENAME(oldName,newName)             ("rename "+oldName+" "+newName)
+//运行生成报告脚本
+#define PYTHONREPORT(flpath)                ("python "+REPORTPath +" "+flpath)
 
 
 
@@ -448,7 +448,8 @@ QString getRangeJudge(range_type_e judge);
 QString getSoundJudge(sound_type_e judge);
 
 
-keyControl *getkeyControlNull();
+//keyControl *getkeyControlNull();
+void getkeyControlNull(keyControl *keyInfo);
 QString getKeyType(kType type);
 
 

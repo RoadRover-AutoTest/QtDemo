@@ -45,7 +45,7 @@ void Model_iniSetting::ReadIni(QString file,QString Section,QString Key,QVariant
 QVariant Model_iniSetting::ReadIni_email()
 {
     QVariant value;
-    ReadIni(REPORTPath+"/conf/config.ini","mailto_list","mailto_list",&value);
+    ReadIni(REPORTCFGPath,"mailto_list","mailto_list",&value);
     return value;
 }
 
@@ -56,7 +56,7 @@ QVariant Model_iniSetting::ReadIni_email()
 *************************************************************/
 void Model_iniSetting::WriteIni_email(QVariant value)
 {
-    WriteIni(REPORTPath+"/conf/config.ini","mailto_list","mailto_list",value);
+    WriteIni(REPORTCFGPath,"mailto_list","mailto_list",value);
 }
 
 

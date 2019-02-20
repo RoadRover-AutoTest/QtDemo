@@ -127,7 +127,7 @@ void DiaReport::on_CreateBtn_clicked()
 
     ui->textShow->append(path+"/");
 
-    proDeal->ProcessStart(PROREPORT,PYTHONREPORT+path+"/");
+    proDeal->ProcessStart(PROREPORT,PYTHONREPORT(path+"/"));
 }
 
 void DiaReport::onProcessOverSlot(uint8_t pNum)

@@ -215,7 +215,11 @@ void Model_Process::stopProcess(QString devNum,QString appStr)
 {
     //摘自ACCTool工具
     QProcess process;
-    QString command="adb -s " + devNum +  " shell ps | grep " +appStr;
+    QString command;//"adb -s " + devNum +  " shell ps | grep " +appStr;
+    if(devNum.isEmpty())
+        command = PSGREP(appStr);
+    else
+        command = PSGREP_S(devNum,appStr);
     cout << (command);
     process.start(command);
     process.waitForStarted();
@@ -227,7 +231,11 @@ void Model_Process::stopProcess(QString devNum,QString appStr)
     for (int i=0;i<list.length();i++)
     {
         if(i%9 == 1){
-            QString killcmd = "adb -s " + devNum + " shell kill -9 " + list.at(i);
+            QString killcmd ;//"adb -s " + devNum + " shell kill -9 " + list.at(i);
+            if(devNum.isEmpty())
+                killcmd = KILL_9(list.at(i));
+            else
+                killcmd = KILL_9_S(devNum,list.at(i));
             cout << (killcmd);
             process.start(killcmd);
             process.waitForStarted();

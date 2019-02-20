@@ -1,8 +1,7 @@
 #include "model_taction.h"
 
 
-QList <storageInfo_type_s> fixedFaceInfo;       //固定界面信息：随测试序列刷新：即每次开始测试启动时清空，测试过程中首次测试某一项，添加到列表中，之后的测试单元测试时将于其相对应数据比较
-QList <storageInfo_type_s> fixedPicInfo;        //固定图片信息
+QList <storageInfo_type_s> fixedInfo;       //固定界面信息：随测试序列刷新：即每次开始测试启动时清空，测试过程中首次测试某一项，添加到列表中，之后的测试单元测试时将于其相对应数据比较
 
 QList <storageInfo_type_s> tempFaceInfo;        //临时界面信息：随测试单元刷新：即测试单元开始可填写数据，结束即清空
 QList <storageInfo_type_s> tempPicInfo;         //临时图片信息
@@ -14,8 +13,6 @@ QList <bool> tempSoundInfo;                        //定义临时声音信息：
 /* this is Action Deal
  * ：测试流程改为：关ACC--开ACC--脚本（优点，测试单元执行结束机器仍为正常工作状态，无需恢复；测试记忆功能也可在一个测试单元中处理）
  * 增加任务：
- * 1.关机或ACC时读取机器界面-用来判断记忆功能；
- * 2.测试变动；
  * 3.BAT测试增加改变电压的测试；
  * 4.动作执行完成处理
 */
@@ -55,6 +52,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             IsFirstMemory=true;
             actIsRunning=false;
             colInfoFlag=0;
+            infoFlag = actionDeal->infoFlag & 0x0F;
 
             tempSoundInfo.clear();
 
@@ -124,7 +122,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         }
         case collectInfo:
         {
-            collectInfoDeal();
+            collectInfoDeal(infoFlag);
             break;
         }
         case wait://计数并判断时间
@@ -190,10 +188,14 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
 {
     if(site == ACT_Front)
     {
-        //判断动作执行前是否采集信息：
+        //判断动作执行前是否采集信息,并填写要采集的标志位：
         if(((actionDeal->infoFlag & COLFACE) && (!(actionDeal->infoFlag & COLFACESITE)))
                 || ((actionDeal->infoFlag & COLPICTURE) && (!(actionDeal->infoFlag & COLPICTURESITE))))
         {
+            if(!(actionDeal->infoFlag & COLFACESITE))
+                infoFlag|=COLFACE;
+            if(!(actionDeal->infoFlag & COLPICTURESITE))
+                infoFlag|=COLPICTURE;
             return true;
         }
         else
@@ -205,6 +207,10 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
         if(((actionDeal->infoFlag & COLFACE) && ((actionDeal->infoFlag & COLFACESITE)))
                 || ((actionDeal->infoFlag & COLPICTURE) && ((actionDeal->infoFlag & COLPICTURESITE))))
         {
+            if(actionDeal->infoFlag & COLFACESITE)
+                infoFlag|=COLFACE;
+            if(actionDeal->infoFlag & COLPICTURESITE)
+                infoFlag|=COLPICTURE;
             return true;
         }
         else
@@ -219,14 +225,8 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
 /函数返回：是否采集信息
 /采集优先级顺序：电流--界面--图片--声音(依据开机参数能获取的顺序)
 *************************************************************/
-void Model_tAction::collectInfoDeal()
+void Model_tAction::collectInfoDeal(uint16_t infoFlag)
 {
-    uint16_t infoFlag = actionDeal->infoFlag;
-
-    //将标志位置的位清0
-    infoFlag &= ~(1<<5);
-    infoFlag &= ~(1<<7);
-
     //采集电流：
     if((!(colInfoFlag & COLCURRENT))&&(infoFlag & COLCURRENT))
     {
@@ -271,6 +271,9 @@ void Model_tAction::collectInfoDeal()
     }
 
     //信息采集完成，执行下一步：
+    //将标志位置的位清0
+    infoFlag &= ~(1<<5);
+    infoFlag &= ~(1<<7);
     if(colInfoFlag == infoFlag)
         timeState=nextState;
 
@@ -284,6 +287,48 @@ void Model_tAction::collectInfoDeal()
         }
         reChkCount++;
     }
+}
+
+/*************************************************************
+/函数功能：信息存储
+/函数参数：信息类型  数据
+/函数返回：无
+*************************************************************/
+void Model_tAction::infoAppendDeal(uint16_t infoflag,storageInfo_type_s infoDat)
+{
+    /*查找界面处理的判断条件*/
+    for(int i=0;i<actionDeal->checkDeal.length();i++)
+    {
+        if(((infoflag == COLFACE)&&(actionDeal->checkDeal.at(i).check == CHKInterface))
+                ||((infoflag == COLPICTURE)&&(actionDeal->checkDeal.at(i).check == CHKADBPIC)))
+        {
+            if(actionDeal->checkDeal.at(i).infoCompare == SelfCompare)
+            {
+                for(int j=0;j<fixedInfo.length();j++)
+                {
+                    /*自身比较界面：固定信息中存在该信息，添加为临时信息用来和固定信息进行比较*/
+                    if(fixedInfo.at(j).name == infoDat.name)
+                        goto AddTempInfo;
+                }
+                /*自身比较界面：固定信息中不存在该信息，添加为固定信息*/
+                if(infoflag == COLPICTURE)
+                {
+                    QString firstFile = actionDeal->actName+QDateTime::currentDateTime().toString("yyyyMMddhhmmss")+".png";
+                    proList.append(RENAME(infoDat.information.toString(),firstFile));
+                    infoDat.information =TEMPPath + firstFile;
+                }
+                fixedInfo.append(infoDat);
+            }
+            else
+                goto AddTempInfo;
+        }
+    }
+
+    AddTempInfo:
+    if(infoflag == COLPICTURE)
+        tempPicInfo.append(infoDat);
+    else if(infoflag == COLFACE)
+        tempFaceInfo.append(infoDat);
 }
 
 /*************************************************************
@@ -484,7 +529,7 @@ bool Model_tAction::chkInterface(checkParam memory)
     /*获取当前界面信息*/
     for(int i=0;i<tempFaceInfo.length();i++)
     {
-        if(tempFaceInfo.at(i).name == actionDeal->actStr)
+        if(tempFaceInfo.at(i).name.contains(actionDeal->actStr) && tempFaceInfo.at(i).name.contains("-FACE"))
         {
             curFaceInfo = tempFaceInfo.at(i).information.toString();
         }
@@ -531,15 +576,23 @@ bool Model_tAction::chkInterface(checkParam memory)
             result = true;//界面开启即为真
             lastFaceInfo = "Is Interface Start?";
         }
+        else if(memory.infoCompare == SelfCompare)
+        {
+
+        }
+        else
+        {
+
+        }
     }
     else
     {
         ShowList <<"Warn:未查询到当前界面，检测失败！";
     }
 
-    appendTheResultToFile("Judge:Memory:"+lastFaceInfo);
-    appendTheResultToFile("Check:Memory:"+curFaceInfo);
-    appendTheResultToFile("Result:Memory:"+toStr(result));
+    appendTheResultToFile("Judge:Interface:"+lastFaceInfo);
+    appendTheResultToFile("Check:Interface:"+curFaceInfo);
+    appendTheResultToFile("Result:Interface:"+toStr(result));
 
     return result;
 }
@@ -552,22 +605,22 @@ bool Model_tAction::chkInterface(checkParam memory)
 *************************************************************/
 bool Model_tAction::chkADBPic(checkParam adbpic)
 {
-    QString curFaceInfo,lastFaceInfo;
+    QString curPicInfo,lastPicInfo;
     bool result = false;
 
     ShowList<< "checkTheAction:检测Picture...";
-#if 0
+
     /*获取当前界面信息*/
-    for(int i=0;i<tempFaceInfo.length();i++)
+    for(int i=0;i<tempPicInfo.length();i++)
     {
-        if(tempFaceInfo.at(i).name == actionDeal->actStr)
+        if(tempPicInfo.at(i).name.contains(actionDeal->actStr) && tempPicInfo.at(i).name.contains("-PICTURE"))
         {
-            curFaceInfo = tempFaceInfo.at(i).information.toString();
+            curPicInfo = tempPicInfo.at(i).information.toString();
         }
     }
 
     /*根据比较添加进行界面检验*/
-    if(curFaceInfo.isEmpty() == false)
+    if(curPicInfo.isEmpty() == false)
     {
         if(adbpic.infoCompare == MemoryCompare)
         {
@@ -580,32 +633,43 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
                 curStatus=false;
 
             //同时查找该动作之前测试单元中前一个状态下 添加上动作执行前采集当前界面信息
-            for(int i=0;i<tempFaceInfo.length();i++)
+            for(int i=0;i<tempPicInfo.length();i++)
             {
                 QString actStr=actionDeal->actStr;
-                QString unitfindStr = tempFaceInfo.at(i).name;
+                QString unitfindStr = tempPicInfo.at(i).name;
 
                 if(((curStatus)&&((unitfindStr.contains(":off"))&&(unitfindStr.contains(actStr.remove(":on")))))
                  ||((!curStatus)&&((unitfindStr.contains(":on"))&&(unitfindStr.contains(actStr.remove(":off"))))))
                 {
-                    lastFaceInfo = tempFaceInfo.at(i).information.toString();
+                    lastPicInfo = tempPicInfo.at(i).information.toString();
                 }
             }
-
-            if(lastFaceInfo.isEmpty()==false)
+            if(lastPicInfo.isEmpty()==false)
             {
-                if(lastFaceInfo == curFaceInfo)
+                //any:比较2图片的相似度
+                if(lastPicInfo == curPicInfo)
                     result = true;
             }
             else
             {
                 ShowList <<"Warn:未采集到动作执行前界面，检测失败！";
             }
+
         }
         else if(adbpic.infoCompare == NoCompare)
         {
             result = true;//界面开启即为真
-            lastFaceInfo = "Is Face Start?";
+            lastPicInfo = "Is Face Start?";
+        }
+        else if(adbpic.infoCompare == SelfCompare)
+        {
+            for(int i=0;i<fixedInfo.length();i++)
+            {
+                if(fixedInfo.at(i).name.contains(actionDeal->actStr) && fixedInfo.at(i).name.contains("-PICTURE"))
+                {
+                    lastPicInfo = fixedInfo.at(i).information.toString();
+                }
+            }
         }
     }
     else
@@ -613,10 +677,10 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
         ShowList <<"Warn:未查询到当前界面，检测失败！";
     }
 
-    appendTheResultToFile("Judge:Memory:"+lastFaceInfo);
-    appendTheResultToFile("Check:Memory:"+curFaceInfo);
-    appendTheResultToFile("Result:Memory:"+toStr(result));
-#endif
+    appendTheResultToFile("Judge:Picture:"+lastPicInfo);
+    appendTheResultToFile("Check:Picture:"+curPicInfo);
+    appendTheResultToFile("Result:Picture:"+toStr(result));
+
     return result;
 }
 
@@ -627,6 +691,7 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
 *************************************************************/
 bool Model_tAction::chkRes(checkParam res)
 {
+    Q_UNUSED(res);
     return false;
 }
 
@@ -722,27 +787,9 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
                     QString faceStr = String;
                     int startIndex=faceStr.indexOf("com.");
                     storageInfo_type_s infoStorage;
-                    infoStorage.name = actionDeal->actStr;
+                    infoStorage.name = actionDeal->actStr+"-FACE";
                     infoStorage.information = faceStr.mid(startIndex).remove("}\r\r\n");
-
-                    /*查找界面处理的判断条件*/
-                    int i;
-                    for(i=0;i<actionDeal->checkDeal.length();i++)
-                    {
-                        if(actionDeal->checkDeal.at(i).check == CHKInterface)
-                        {
-                            if(actionDeal->checkDeal.at(i).infoCompare == SelfCompare)
-                                fixedFaceInfo.append(infoStorage);//自身比较界面：存储为固定信息
-                            else
-                                tempFaceInfo.append(infoStorage);//其他:存储为临时界面信息
-                            break;
-                        }
-                    }
-                    /*若遍历未查到界面处理任务：存储为临时变量*/
-                    if(i==actionDeal->checkDeal.length())
-                    {
-                        tempFaceInfo.append(infoStorage);
-                    }
+                    infoAppendDeal(COLFACE,infoStorage);
                 }
             }
         }
@@ -769,12 +816,25 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                     QString tempString = deviceList.at(i);
                     if((tempString.contains(getDevNumber()))&&(tempString.contains("\tdevice")))
                     {
-                        if(proCMD == CMD_script)
-                            proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
-                        else if(proCMD == CMD_FACE)
-                            proList.append("adb -s "+getDevNumber()+SHELLFACE);
-                        else if(proCMD == CMD_ADBPic)
-                            proList.append(SCREENCAP_S(getDevNumber(),actionDeal->actName+".png"));
+                        if(getDevNumber().isEmpty())
+                        {
+                            if(proCMD == CMD_script)
+                                proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
+                            else if(proCMD == CMD_FACE)
+                                proList.append(ACTIVITYFACE);
+                            else if(proCMD == CMD_ADBPic)
+                                proList.append(SCREENCAP(actionDeal->actName+".png"));
+                        }
+                        else
+                        {
+                            if(proCMD == CMD_script)
+                                proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
+                            else if(proCMD == CMD_FACE)
+                                proList.append(ACTIVITYFACE_S(getDevNumber()));
+                            else if(proCMD == CMD_ADBPic)
+                                proList.append(SCREENCAP_S(getDevNumber(),actionDeal->actName+".png"));
+                        }
+
                         break;
                     }
                 }
@@ -807,34 +867,19 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                             return ;
                         }
                     }
-                    proList.append(PULLFile_S(getDevNumber(),actionDeal->actName+".png",TEMPPath));
+                    if(getDevNumber().isEmpty())
+                        proList.append(PULLFile(actionDeal->actName+".png",TEMPPath));
+                    else
+                        proList.append(PULLFile_S(getDevNumber(),actionDeal->actName+".png",TEMPPath));
                     goto ToEndProcess;//跳转到进程结束处理，因为该多命令组合未完全执行结束，因此proCMD不清空
                 }
                 else if(currentCMDString.contains("pull"))
                 {
+                    QString picFile = TEMPPath+actionDeal->actName+".png";
                     storageInfo_type_s infoStorage;
-                    infoStorage.name = actionDeal->actStr;
-                    infoStorage.information = TEMPPath+actionDeal->actName+".png";
-
-                    /*查找界面处理的判断条件*/
-                    int i;
-                    for(i=0;i<actionDeal->checkDeal.length();i++)
-                    {
-                        if(actionDeal->checkDeal.at(i).check == CHKADBPIC)
-                        {
-                            if(actionDeal->checkDeal.at(i).infoCompare == SelfCompare)
-                                fixedPicInfo.append(infoStorage);//自身比较界面：存储为固定信息
-                            else
-                                tempPicInfo.append(infoStorage);//其他:存储为临时界面信息
-                            break;
-                        }
-                    }
-                    /*若遍历未查到界面处理任务：存储为临时变量*/
-                    if(i==actionDeal->checkDeal.length())
-                    {
-                        tempPicInfo.append(infoStorage);
-                    }
-
+                    infoStorage.name = actionDeal->actStr+"-PICTURE";
+                    infoStorage.information = picFile.replace("/","\\");
+                    infoAppendDeal(COLPICTURE,infoStorage);
                     colInfoFlag |= COLPICTURE;      //界面采集完成
                 }
             }

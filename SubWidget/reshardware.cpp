@@ -41,37 +41,38 @@ void ResHardware::fixedKeyEdit()
 {
     for(int i=0;i<fixedKeyNum;i++)
     {
-        keyControl *keyInfo=getkeyControlNull();
+        keyControl keyInfo;
+        getkeyControlNull(&keyInfo);
 
         //填写具体信息
         switch(i)
         {
         case 0:
-            keyInfo->name = "ACC";
-            keyInfo->type = HardACC;
-            keyInfo->isUse = true;
+            keyInfo.name = "ACC";
+            keyInfo.type = HardACC;
+            keyInfo.isUse = true;
             break;
         case 1:
-            keyInfo->name = "BAT";
-            keyInfo->type = HardBAT;
-            keyInfo->isUse = true;
+            keyInfo.name = "BAT";
+            keyInfo.type = HardBAT;
+            keyInfo.isUse = true;
             break;
         case 2:
-            keyInfo->name = "CCD";
-            keyInfo->type = HardCCD;
-            keyInfo->isUse = true;
+            keyInfo.name = "CCD";
+            keyInfo.type = HardCCD;
+            keyInfo.isUse = true;
             break;
         }
 
-        keyInfo->des = "name : "+keyInfo->name;
-        keyInfo->des +="\ntype : "+getKeyType(keyInfo->type);
+        keyInfo.des = "name : "+keyInfo.name;
+        keyInfo.des +="\ntype : "+getKeyType(keyInfo.type);
         //替换显示及列表信息
-        ui->tableWidget->item(i,colDes)->setText(keyInfo->des);
+        ui->tableWidget->item(i,colDes)->setText(keyInfo.des);
         //key:isEnable
         ui->tableWidget->item(i,colKey)->setCheckState(Qt::Checked);
 
         //按键信息添加到列表
-        keyList.replace(i,*keyInfo);
+        keyList.replace(i,keyInfo);
     }
 }
 
@@ -85,20 +86,21 @@ void ResHardware::tableWidgetInit()
 {
     for(int i=0;i<MaxKey;i++)
     {
-        keyControl *keyInfo=getkeyControlNull();
+        keyControl keyInfo;
+        getkeyControlNull(&keyInfo);
         int row=ui->tableWidget->rowCount();
         ui->tableWidget->setRowCount(row+1);
 
         //key：isUse
         QTableWidgetItem *keyName=new QTableWidgetItem("KEY"+QString::number(row+1));
-        if(keyInfo->isUse)
+        if(keyInfo.isUse)
             keyName->setCheckState(Qt::Checked);
         else
             keyName->setCheckState(Qt::Unchecked);
         ui->tableWidget->setItem(row,colKey,keyName);
 
         //key :Description
-        QTableWidgetItem *keyDes=new QTableWidgetItem(keyInfo->des);
+        QTableWidgetItem *keyDes=new QTableWidgetItem(keyInfo.des);
         ui->tableWidget->setItem(row,colDes,keyDes);
 
         //key:Edit
@@ -113,10 +115,10 @@ void ResHardware::tableWidgetInit()
         ui->tableWidget->setColumnWidth(colDes,410);
 
         //key:isEnable
-        keyisUsetoEnable(row,keyInfo->isUse);
+        keyisUsetoEnable(row,keyInfo.isUse);
 
         //按键信息添加到列表
-        keyList.append(*keyInfo);
+        keyList.append(keyInfo);
     }
 
     //any：备注：放在添加项目完成时处理，不然在添加check时会进入
