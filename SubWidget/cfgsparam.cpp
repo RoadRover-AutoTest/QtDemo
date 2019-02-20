@@ -23,6 +23,23 @@ CfgSParam::~CfgSParam()
 }
 
 /*************************************************************
+/函数功能：初始化检测参数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void CfgSParam::initNullChkParam(checkParam *chkParam)
+{
+    chkParam->check =CHKRES;
+    chkParam->range=GE;
+    chkParam->max=0;
+    chkParam->min=0;
+    chkParam->hReault=0;
+    chkParam->sound=endHAVESound;
+    chkParam->infoCompare=NoCompare;
+    chkParam->logContains.clear();
+}
+
+/*************************************************************
 /函数功能：初始化按键选择
 /函数参数：无
 /函数返回：wu
@@ -123,6 +140,8 @@ void CfgSParam::createACCOffAction(tAction *offAction)
     {
         checkParam checkSleep;
 
+        initNullChkParam(&checkSleep);
+
         checkSleep.check = CHKCurrent;
         checkSleep.range = LE;
         checkSleep.min = topItem->child(acc_Off_Check)->child(acc_Off_Check_Current)->text(acc_colItem).toUInt();
@@ -153,9 +172,12 @@ void CfgSParam::createACCOnAction(tAction *onAction)
     {
         checkParam checkCurrent;
 
+        initNullChkParam(&checkCurrent);
+
         checkCurrent.check = CHKCurrent;
         checkCurrent.range = GE;
         checkCurrent.min = topItem->child(acc_On_CheckCurrent)->child(acc_On_CurrentValue)->text(acc_colItem).toUInt();
+
         onAction->checkDeal.append(checkCurrent);
     }
 
@@ -163,6 +185,8 @@ void CfgSParam::createACCOnAction(tAction *onAction)
     if(topItem->child(acc_On_CheckMemory)->checkState(acc_colItem) == Qt::Checked)
     {
         checkParam checkMemoey;
+
+        initNullChkParam(&checkMemoey);
 
         checkMemoey.check = CHKInterface;
         if(topItem->child(acc_On_CheckMemory)->child(acc_On_MemoryBool)->checkState(acc_colItem) == Qt::Checked)
@@ -190,6 +214,8 @@ void CfgSParam::createScriptAction(tAction *scriptAction)
     scriptAction->timeDeal.end = 0;
 
     checkParam checkScript;
+
+    initNullChkParam(&checkScript);
 
     checkScript.check = CHKScript;
     checkScript.logContains = topItem->child(acc_Script_log)->text(acc_colItem);
@@ -291,6 +317,8 @@ void CfgSParam::createBATOnAction(tAction *onAction)
     {
         checkParam checkCurrent;
 
+        initNullChkParam(&checkCurrent);
+
         checkCurrent.check = CHKCurrent;
         checkCurrent.range = GE;
         checkCurrent.min = topItem->child(bat_On_CheckCurrent)->child(bat_On_CurrentValue)->text(bat_colItem).toUInt();
@@ -301,6 +329,7 @@ void CfgSParam::createBATOnAction(tAction *onAction)
     if(topItem->child(bat_On_CheckMemory)->checkState(bat_colItem) == Qt::Checked)
     {
         checkParam checkMemoey;
+        initNullChkParam(&checkMemoey);
 
         checkMemoey.check = CHKInterface;
         if(topItem->child(bat_On_CheckMemory)->child(bat_On_MemoryBool)->checkState(bat_colItem) == Qt::Checked)
@@ -328,6 +357,7 @@ void CfgSParam::createBatScriptAction(tAction *scriptAction)
     scriptAction->timeDeal.end = 0;
 
     checkParam checkScript;
+    initNullChkParam(&checkScript);
 
     checkScript.check = CHKScript;
     checkScript.logContains = topItem->child(bat_Script_log)->text(bat_colItem);
@@ -388,6 +418,7 @@ void CfgSParam::createCCDOffAction(tAction *offAction)
     if(topItem->child(ccd_Off_CheckFace)->checkState(ccd_colItem) == Qt::Checked)
     {
         checkParam checkMemoey;
+        initNullChkParam(&checkMemoey);
         checkMemoey.check = CHKInterface;
         checkMemoey.infoCompare = MemoryCompare;
         offAction->checkDeal.append(checkMemoey);
@@ -397,6 +428,7 @@ void CfgSParam::createCCDOffAction(tAction *offAction)
     if(topItem->child(ccd_Off_CheckSound)->checkState(ccd_colItem) == Qt::Checked)
     {
         checkParam checkSound;
+        initNullChkParam(&checkSound);
         checkSound.check = CHKSound;
         checkSound.sound = endHAVESound;
         offAction->checkDeal.append(checkSound);
@@ -445,6 +477,7 @@ void CfgSParam::createCCDOnAction(tAction *onAction)
     if(topItem->child(ccd_On_CheckPic)->checkState(ccd_colItem) == Qt::Checked)
     {
         checkParam checkPicture;
+        initNullChkParam(&checkPicture);
         checkPicture.check = CHKADBPIC;
         checkPicture.infoCompare = SelfCompare;
         onAction->checkDeal.append(checkPicture);
@@ -468,6 +501,7 @@ void CfgSParam::createCCDScriptAction(tAction *scriptAction)
     scriptAction->timeDeal.end = 0;
 
     checkParam checkScript;
+    initNullChkParam(&checkScript);
 
     checkScript.check = CHKScript;
     checkScript.logContains = topItem->child(ccd_Script_log)->text(ccd_colItem);

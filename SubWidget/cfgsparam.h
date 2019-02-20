@@ -29,6 +29,7 @@ private:
     QList <keyControl> keyList;
 
     void initKeyList();
+    void initNullChkParam(checkParam *chkParam);
 
 
     void initTabACC();

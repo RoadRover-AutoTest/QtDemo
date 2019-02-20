@@ -83,7 +83,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                     startAction(actionDeal->actStr);//执行按键动作
                 else
                 {
-                    if(!isPRORunning)
+                    if((!isPRORunning)&&(proList.isEmpty()))
                         onProcessEXECmd(CMD_script);
                 }
                 actIsRunning=true;
@@ -108,7 +108,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                     else
                     {
                         //脚本运行连续执行
-                        if((actionDeal->actStr.startsWith("KEY")==false)&&(!isPRORunning))
+                        if((actionDeal->actStr.startsWith("KEY")==false)&&(!isPRORunning)&&(proList.isEmpty()))
                             onProcessEXECmd(CMD_script);
                     }
                 }
@@ -251,7 +251,7 @@ void Model_tAction::collectInfoDeal()
     //采集界面：
     if((!(colInfoFlag & COLFACE))&&(infoFlag & COLFACE))
     {
-        if(!isPRORunning)
+        if((!isPRORunning)&&(proList.isEmpty()))
             onProcessEXECmd(CMD_FACE);
 
         goto toContinue;
@@ -259,7 +259,7 @@ void Model_tAction::collectInfoDeal()
     //采集图片：
     if((!(colInfoFlag & COLPICTURE))&&(infoFlag & COLPICTURE))
     {
-        if(!isPRORunning)
+        if((!isPRORunning)&&(proList.isEmpty()))
             onProcessEXECmd(CMD_ADBPic);
 
         goto toContinue;
@@ -377,6 +377,7 @@ void Model_tAction::theActionCheckReault(QList <checkParam> testChk)
         result &= chkRes(testChk.at(i));
         break;
         case CHKADBPIC:
+        result &= chkADBPic(testChk.at(i));
         break;
         }
     }
@@ -677,12 +678,18 @@ void Model_tAction::timerProIDDeal()
     }
 }
 
+/*************************************************************
+/函数功能：进程执行命令：先执行adb devices  执行结束后根据proCMD来执行对应的命令，为保证设备在线再执行
+/函数参数：需要执行的命令类型
+/函数返回：无
+*************************************************************/
 void Model_tAction::onProcessEXECmd(cmd_type_e cmdType)
 {
     //先扫描设备，后运行命令
     proList.append(ADBDevs);
     proCMD = cmdType;
 }
+
 /*************************************************************
 /函数功能：进程输出槽函数处理
 /函数参数：进程号  字符串
@@ -709,20 +716,36 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
             }
             else if(proCMD == CMD_FACE)
             {
+                /*处理界面采集信息*/
                 if(String.contains("mFocusedActivity: ActivityRecord"))
                 {
                     QString faceStr = String;
                     int startIndex=faceStr.indexOf("com.");
-
-                    //any：Error-暂时放在临时存储，考虑如何区分临时数据与固定数据,name的比较处理
                     storageInfo_type_s infoStorage;
                     infoStorage.name = actionDeal->actStr;
                     infoStorage.information = faceStr.mid(startIndex).remove("}\r\r\n");
-                    tempFaceInfo.append(infoStorage);
+
+                    /*查找界面处理的判断条件*/
+                    int i;
+                    for(i=0;i<actionDeal->checkDeal.length();i++)
+                    {
+                        if(actionDeal->checkDeal.at(i).check == CHKInterface)
+                        {
+                            if(actionDeal->checkDeal.at(i).infoCompare == SelfCompare)
+                                fixedFaceInfo.append(infoStorage);//自身比较界面：存储为固定信息
+                            else
+                                tempFaceInfo.append(infoStorage);//其他:存储为临时界面信息
+                            break;
+                        }
+                    }
+                    /*若遍历未查到界面处理任务：存储为临时变量*/
+                    if(i==actionDeal->checkDeal.length())
+                    {
+                        tempFaceInfo.append(infoStorage);
+                    }
                 }
             }
         }
-
         ShowList << String;
     }
 }
@@ -741,7 +764,6 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
         {
             if(deviceList.isEmpty()==false)
             {
-                bool devFindIsOK = false;
                 for(int i=0;i<deviceList.length();i++)
                 {
                     QString tempString = deviceList.at(i);
@@ -753,13 +775,9 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                             proList.append("adb -s "+getDevNumber()+SHELLFACE);
                         else if(proCMD == CMD_ADBPic)
                             proList.append(SCREENCAP_S(getDevNumber(),actionDeal->actName+".png"));
-
-                        devFindIsOK=true;
                         break;
                     }
                 }
-                if(!devFindIsOK)
-                    isPRORunning=false;
             }
         }
         else
@@ -790,23 +808,41 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                         }
                     }
                     proList.append(PULLFile_S(getDevNumber(),actionDeal->actName+".png",TEMPPath));
-                    goto ToEndProcess;//跳转到进程结束处理，因为该多命令组合未完全执行结束，因此不转换isPRORunning标志位及proCMD不清空
+                    goto ToEndProcess;//跳转到进程结束处理，因为该多命令组合未完全执行结束，因此proCMD不清空
                 }
                 else if(currentCMDString.contains("pull"))
                 {
                     storageInfo_type_s infoStorage;
                     infoStorage.name = actionDeal->actStr;
                     infoStorage.information = TEMPPath+actionDeal->actName+".png";
-                    tempFaceInfo.append(infoStorage);
-                    cout << infoStorage.information.toString();
+
+                    /*查找界面处理的判断条件*/
+                    int i;
+                    for(i=0;i<actionDeal->checkDeal.length();i++)
+                    {
+                        if(actionDeal->checkDeal.at(i).check == CHKADBPIC)
+                        {
+                            if(actionDeal->checkDeal.at(i).infoCompare == SelfCompare)
+                                fixedPicInfo.append(infoStorage);//自身比较界面：存储为固定信息
+                            else
+                                tempPicInfo.append(infoStorage);//其他:存储为临时界面信息
+                            break;
+                        }
+                    }
+                    /*若遍历未查到界面处理任务：存储为临时变量*/
+                    if(i==actionDeal->checkDeal.length())
+                    {
+                        tempPicInfo.append(infoStorage);
+                    }
+
                     colInfoFlag |= COLPICTURE;      //界面采集完成
                 }
             }
             //恢复状态
             proCMD = CMD_NULL;
-            isPRORunning=false;//在除去adb devices之外的进程结束再赋值，避免多次进入adb devices
         }
         ToEndProcess:
+        isPRORunning=false;
         currentCMDString.clear();
     }
 }
