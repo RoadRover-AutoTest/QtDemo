@@ -69,19 +69,7 @@ bool rangeJudgeTheParam(range_type_e rJudge,uint16_t param1,uint16_t param2,uint
 /函数功能：获得空按键资源信息：主要对数据信息进行赋值，字符串默认为空
 /函数参数：无
 /函数返回：按键信息：空
-************************************************************
-keyControl *getkeyControlNull()
-{
-    keyControl *keyInfo=new keyControl;
-
-    keyInfo->isUse=false;
-    keyInfo->type=HardACC;
-
-    keyInfo->des="No Information!";
-
-    return keyInfo;
-}*/
-
+*************************************************************/
 void getkeyControlNull(keyControl *keyInfo)
 {
     keyInfo->isUse=false;
@@ -105,23 +93,6 @@ QString getKeyType(kType type)
     }
     return str;
 }
-
-/*************************************************************
-/函数功能：根据枚举类型获得字符串显示
-/函数参数：枚举类型
-/函数返回：字符串
-***********************************************************
-QString getTestType(tType type)
-{
-    QString str;
-    switch(type)
-    {
-    case KEY:str="方控";break;
-    case SCRIPT:str="脚本";break;
-    }
-    return str;
-}
-**/
 
 /*************************************************************
 /函数功能：根据枚举类型获得字符串显示
@@ -160,6 +131,22 @@ QString getSoundJudge(sound_type_e judge)
     case HCountlessNCount:str="有声音次数小于等于无声音次数";break;
     case noHSoundCount:str="不存在有声音值";break;
     case noNSoundCount:str="不存在无声音值";break;
+    }
+    return str;
+}
+
+QString getCheckType(chk_type_e chk)
+{
+    QString str;
+    switch(chk)
+    {
+        case CHKCurrent:str = "检测电流";break;
+        case CHKVlot:str = "检测电压";break;
+        case CHKSound:str = "检测声音";break;
+        case CHKScript:str = "检测脚本LOG";break;
+        case CHKInterface:str = "检测界面";break;
+        case CHKADBPIC:str = "检测图片";break;
+        case CHKRES:str = "检测保留";break;
     }
     return str;
 }
@@ -311,4 +298,31 @@ QString getDevNumber()
     return devNumber;
 }
 
+/*************************************************************
+/函数功能：初始化检测参数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void initNullChkParam(checkParam *chkParam)
+{
+    chkParam->check =CHKRES;
+    chkParam->range=GE;
+    chkParam->max=0;
+    chkParam->min=0;
+    chkParam->hReault=0;
+    chkParam->sound=endHAVESound;
+    chkParam->infoCompare=NoCompare;
+    chkParam->logContains.clear();
+}
+
+int getKeyNumber(QString key)
+{
+    QStringList theAct=key.split(':');
+    int keyNum=-1;
+
+    if(theAct.isEmpty()==false)
+        keyNum = theAct.at(0).right(1).toInt();//KEY1 取"1"
+
+    return keyNum;
+}
 

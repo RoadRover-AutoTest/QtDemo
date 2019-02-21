@@ -446,6 +446,7 @@ bool rangeJudgeTheParam(range_type_e rJudge,uint16_t param1,uint16_t param2,uint
 //QString getTestType(tType type);
 QString getRangeJudge(range_type_e judge);
 QString getSoundJudge(sound_type_e judge);
+QString getCheckType(chk_type_e chk);
 
 
 //keyControl *getkeyControlNull();
@@ -464,6 +465,9 @@ void startAction(QString actStr);
 void clearAction();
 
 QString getDevNumber();
+
+void initNullChkParam(checkParam *chkParam);
+int getKeyNumber(QString key);
 
 
 #endif // MODEL_INCLUDE_H

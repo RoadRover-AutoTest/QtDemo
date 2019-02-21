@@ -671,19 +671,16 @@ void MainWindow::unitEndExeSlot(bool exeResult)
 *************************************************************/
 void MainWindow::execKeyClicked(QString key)
 {
-    QStringList theAct=key.split(':');
     char buf[2]={0};
-    if(theAct.isEmpty()==false)
-    {
-        buf[0] = theAct.at(0).right(1).toInt();//KEY1 取"1"
+    int keyNum = getKeyNumber(key);
 
-        if(theAct.length() == 3)
-        {
-            if(theAct.at(2)=="on")
-                buf[1]=true;
-            else
-                buf[1]=false;
-        }
+    if(keyNum != -1)
+    {
+        buf[0] = keyNum;
+        if(key.contains(":on"))
+            buf[1]=true;
+        else
+            buf[1]=false;
         appendTxList(CMDClickedKey,buf,2,CMD_NEEDACK);
     }
 }

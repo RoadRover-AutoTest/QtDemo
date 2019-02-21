@@ -28,8 +28,6 @@ private:
     QList <tUnit> *listUnit;//测试单元列表测试顺序
     QList <keyControl> keyList;
 
-    void initKeyList();
-    void initNullChkParam(checkParam *chkParam);
 
 
     void initTabACC();

@@ -10,7 +10,8 @@ CfgSParam::CfgSParam(QList <tUnit> *thelist,QWidget *parent) :
 
     listUnit = thelist;
 
-    initKeyList();
+    Model_XMLFile xmlRead;
+    xmlRead.readKeyInfoXML(WorkItem,&keyList);
 
     initTabACC();
     initTabBAT();
@@ -22,46 +23,6 @@ CfgSParam::~CfgSParam()
     delete ui;
 }
 
-/*************************************************************
-/函数功能：初始化检测参数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void CfgSParam::initNullChkParam(checkParam *chkParam)
-{
-    chkParam->check =CHKRES;
-    chkParam->range=GE;
-    chkParam->max=0;
-    chkParam->min=0;
-    chkParam->hReault=0;
-    chkParam->sound=endHAVESound;
-    chkParam->infoCompare=NoCompare;
-    chkParam->logContains.clear();
-}
-
-/*************************************************************
-/函数功能：初始化按键选择
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void CfgSParam::initKeyList()
-{
-    Model_XMLFile xmlRead;
-    QStringList showList;
-
-    xmlRead.readKeyInfoXML(WorkItem,&keyList);
-
-    if(keyList.isEmpty()==false)
-    {
-        for(int i=0;i<keyList.length();i++)
-        {
-            if(keyList.at(i).isUse)
-            {
-                showList.append("KEY"+QString::number(i+1)+":"+keyList.at(i).name);
-            }
-        }
-    }
-}
 
 /*************************************************************
 /函数功能：初始化ACC页
@@ -377,7 +338,8 @@ void CfgSParam::initTabCCD()
 
     for(int i=0;i<keyList.length();i++)
     {
-        CCDList->addItem("KEY"+QString::number(i+1)+":"+keyList.at(i).name);
+        if(keyList.at(i).isUse)
+            CCDList->addItem("KEY"+QString::number(i+1)+":"+keyList.at(i).name);
     }
 
     ui->treeCCD->setItemWidget(ui->treeCCD->topLevelItem(ccd_topKey),ccd_colItem,CCDList);

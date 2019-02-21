@@ -77,7 +77,9 @@ SOURCES += \
     Models/model_taction.cpp \
     SubWidget/diareport.cpp \
     SubWidget/toolconfig.cpp \
-    Models/model_piccompare.cpp
+    Models/model_piccompare.cpp \
+    SubWidget/deftheunit.cpp \
+    SubWidget/defaction.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -104,7 +106,9 @@ HEADERS += \
     Models/model_taction.h \
     SubWidget/diareport.h \
     SubWidget/toolconfig.h \
-    Models/model_piccompare.h
+    Models/model_piccompare.h \
+    SubWidget/deftheunit.h \
+    SubWidget/defaction.h
 
 FORMS += \
         mainwindow.ui \
@@ -117,7 +121,9 @@ FORMS += \
     SubWidget/cfgaddunit.ui \
     SubWidget/chartwidget.ui \
     SubWidget/diareport.ui \
-    SubWidget/toolconfig.ui
+    SubWidget/toolconfig.ui \
+    SubWidget/deftheunit.ui \
+    SubWidget/defaction.ui
 
 RESOURCES += \
     Images/images.qrc

@@ -15,6 +15,7 @@
 #include "SubWidget/cfgsparam.h"
 #include "SubWidget/cfgaddunit.h"
 #include "SubWidget/cfgeditunit.h"
+#include "SubWidget/deftheunit.h"
 
 
 //序列列表
@@ -42,6 +43,8 @@ protected:
 
 private:
     bool isSel;
+    defTheUnit *defUnit;
+
 
     QList <tUnit> theSeqList;
     QString seqSavePath;

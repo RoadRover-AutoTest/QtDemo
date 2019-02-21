@@ -525,12 +525,15 @@ void reTableWidget::ScriptCase1Slot()
 *************************************************************/
 void reTableWidget::AddTestCasetoListSlot()
 {
-    CfgAddUnit *addUnit=new CfgAddUnit;
+    /*CfgAddUnit *addUnit=new CfgAddUnit;
 
     if(addUnit->exec()==QDialog::Accepted)
     {
 
     }
-    delete addUnit;
+    delete addUnit;*/
+
+    defUnit = new defTheUnit;
+    defUnit->show();
 }
 
