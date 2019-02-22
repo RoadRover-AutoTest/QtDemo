@@ -192,9 +192,9 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
         if(((actionDeal->infoFlag & COLFACE) && (!(actionDeal->infoFlag & COLFACESITE)))
                 || ((actionDeal->infoFlag & COLPICTURE) && (!(actionDeal->infoFlag & COLPICTURESITE))))
         {
-            if(!(actionDeal->infoFlag & COLFACESITE))
+            if((actionDeal->infoFlag & COLFACE)&&(!(actionDeal->infoFlag & COLFACESITE)))
                 infoFlag|=COLFACE;
-            if(!(actionDeal->infoFlag & COLPICTURESITE))
+            if((actionDeal->infoFlag & COLPICTURE)&&(!(actionDeal->infoFlag & COLPICTURESITE)))
                 infoFlag|=COLPICTURE;
             return true;
         }
@@ -207,9 +207,9 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
         if(((actionDeal->infoFlag & COLFACE) && ((actionDeal->infoFlag & COLFACESITE)))
                 || ((actionDeal->infoFlag & COLPICTURE) && ((actionDeal->infoFlag & COLPICTURESITE))))
         {
-            if(actionDeal->infoFlag & COLFACESITE)
+            if((actionDeal->infoFlag & COLFACE)&&(actionDeal->infoFlag & COLFACESITE))
                 infoFlag|=COLFACE;
-            if(actionDeal->infoFlag & COLPICTURESITE)
+            if((actionDeal->infoFlag & COLPICTURE)&&(actionDeal->infoFlag & COLPICTURESITE))
                 infoFlag|=COLPICTURE;
             return true;
         }

@@ -16,8 +16,7 @@
 Model_Process::Model_Process()
 {
     /*设置定时器*/
-    m_timerID1=startTimer(1000);//刷新进程执行
-    m_timerID2=startTimer(1);//扫描命令接收和进程计时
+    m_timerID1=startTimer(10);//刷新进程执行
 
     /*建立全局进程-进程0*/
     Process_Add();
@@ -31,21 +30,6 @@ Model_Process::Model_Process()
 Model_Process::~Model_Process()
 {
     killTimer(m_timerID1);
-    killTimer(m_timerID2);
-}
-
-/*************************************************************
-/函数功能：进程参数初始化
-/函数参数：pNum:进程序号
-/函数返回：无
-*************************************************************/
-void Model_Process::ParamInit(uint8_t pNum)
-{
-    pParam[pNum].isRun=noRun;
-    pParam[pNum].rTime=0;
-    pParam[pNum].pBarValue=0;
-    pParam[pNum].CmdRead="";
-    pParam[pNum].CmdError="";
 }
 
 /*************************************************************
@@ -56,49 +40,13 @@ void Model_Process::ParamInit(uint8_t pNum)
 void Model_Process::timerEvent(QTimerEvent *event)
 {
     if(!P_List.length())
-    {
         return ;
-    }
 
     if(event->timerId()==m_timerID1)
     {
         /*扫描执行进程*/
         Process_Execute();
-        //cout <<pParam[0].isRun;
-
     }
-#if 0   //若是直接打印，需要一定延时，若是直接处理接收字符串还是实时处理比较好
-    else if(event->timerId()==m_timerID2)
-    {
-
-        /*遍历进程-处理*/
-        for(uint8_t i=0;i<P_List.length();i++)
-        {
-            /*接收信息处理*/
-            //if(pParam[i].CmdRead.isEmpty()==false)
-            //{
-                //ProcessOutDeal(i,pParam[i].CmdRead);
-                //pParam[i].CmdRead.clear();
-            //}
-
-            /*接收错误信息处理*/
-            //if(pParam[i].CmdError.isEmpty()==false)
-            //{
-            //    ProcessErrorDeal(i,pParam[i].CmdError);
-            //    pParam[i].CmdError.clear();
-            //}
-
-            /*计时处理:rTime为真开启计时，进度条数据<98  每1S前进一个数据*/
-            if((i>0)&&(pParam[i].rTime)&&(pParam[i].pBarValue<98))
-            {
-                pParam[i].rTime++;
-
-                if(pParam[i].rTime%1000==0)
-                    ProcessBar(i-1,pParam[i].pBarValue++,GREEN);
-            }
-        }
-    }
-#endif
 }
 
 /*************************************************************
@@ -118,7 +66,11 @@ void Model_Process::Process_Add()
     connect(P_List.at(P_List.length()-1).process,SIGNAL(readyReadStandardError()),this,SLOT(ProcessReadError()));
     connect(P_List.at(P_List.length()-1).process, SIGNAL(stateChanged(QProcess::ProcessState)),this, SLOT(ProcessshowState(QProcess::ProcessState)));
 
-    ParamInit(aProcess.pNum);
+    pParam[aProcess.pNum].isRun=noRun;
+    pParam[aProcess.pNum].rTime=0;
+    pParam[aProcess.pNum].pBarValue=0;
+    pParam[aProcess.pNum].CmdRead="";
+    pParam[aProcess.pNum].CmdError="";
 }
 
 /*************************************************************
@@ -128,19 +80,20 @@ void Model_Process::Process_Add()
 *************************************************************/
 void Model_Process::Process_Add(QString Workpath)
 {
-    tProcess_t aProcess;
-    aProcess.process=new QProcess();
-    aProcess.cmdList.clear();
-    aProcess.pNum=P_List.length();
+    Process_Add();
 
-    aProcess.process->setWorkingDirectory(Workpath);
+    P_List.at(P_List.length()-1).process->setWorkingDirectory(Workpath);
+}
 
-    P_List.append(aProcess);
-    connect(P_List.at(P_List.length()-1).process,SIGNAL(readyRead()),this,SLOT(ProcessReadAll()));
-    connect(P_List.at(P_List.length()-1).process,SIGNAL(readyReadStandardError()),this,SLOT(ProcessReadError()));
-    connect(P_List.at(P_List.length()-1).process, SIGNAL(stateChanged(QProcess::ProcessState)),this, SLOT(ProcessshowState(QProcess::ProcessState)));
-
-    ParamInit(aProcess.pNum);
+/*************************************************************
+/函数功能：进程运行目录跳转
+/函数参数：无
+/函数返回：true:正在运行 false:未运行
+*************************************************************/
+void Model_Process::ProcessPathJump(QString path)
+{
+    for(uint8_t i=1;i<P_List.length();i++)
+        P_List.at(i).process->setWorkingDirectory(path);
 }
 
 /*************************************************************
@@ -155,8 +108,6 @@ void Model_Process::Process_Del(uint8_t pNum)
     {
         tProcess_t tempProcess;
         P_List.removeAt(pNum);
-
-        //qDebug()<<"del:"<<pNum;
 
         /*删除当前进程后，后面进程的序号修改*/
         for(uint8_t i=pNum;i<P_List.length();i++)
@@ -185,20 +136,44 @@ void Model_Process::Process_Execute()
         {
             QString cmdStr = P_List.at(i).cmdList.first();
 
-            //cout << (ShowStr.sprintf("[%d] EXE: ",i)+cmdStr);
-            //ShowList.append(ShowStr.sprintf("[%d] EXE: ",i)+cmdStr);
             ProcessOutDeal(i,"EXEC>>"+cmdStr);
             P_List.at(i).process->start("cmd.exe", QStringList() << "/c" << cmdStr);
 
             /*开启进程失败*/
             if (P_List.at(i).process->waitForStarted()==false)
             {
-                cout << (ShowStr.sprintf("[%d] WARN:",i)+"Failed to start");
+                cout << i <<"WARN:Failed to start";
                 ProcessisOver(i);//进程结束
                 pParam[i].isRun=noRun;
             }
         }
     }
+}
+
+/*************************************************************
+/函数功能：进程开始执行：置进程运行标志位，添加进程执行命令
+/函数参数：pNum:进程序号  cmdStr:命令字符串
+/函数返回：无
+*************************************************************/
+void Model_Process::ProcessStart(uint8_t pNum,QString cmdStr)
+{
+    if(pNum<P_List.length())
+    {
+        /*若进程未进行，启动运行，否则只添加指令列表*/
+        if(pParam[pNum].isRun == noRun)
+            pParam[pNum].isRun=RunStart;
+
+        /*进程只执行单个命令，带判断条件；
+         * 若执行多个命令，将判断添加去掉，累加即可*/
+        if(P_List.at(pNum).cmdList.isEmpty())
+        {
+            tProcess_t tempProcess=P_List.at(pNum);
+            tempProcess.cmdList.append(cmdStr);
+            P_List.replace(pNum,tempProcess);
+        }
+    }
+    else
+        cout << "pNum is Over.";
 }
 
 /*************************************************************
@@ -249,43 +224,6 @@ void Model_Process::stopProcess(QString devNum,QString appStr)
 }
 
 /*************************************************************
-/函数功能：进程命令添加
-/函数参数：pNum:进程序号  cmdStr:命令字符串
-/函数返回：无
-/备注：列表不可直接更改参数，采用替换的形式
-*************************************************************/
-void Model_Process::Process_CmdAdd(uint8_t pNum,QString cmdStr)
-{
-    if(pNum<P_List.length())
-    {
-        tProcess_t tempProcess=P_List.at(pNum);
-        tempProcess.cmdList.append(cmdStr);
-        P_List.replace(pNum,tempProcess);
-    }
-    else
-        cout << "pNum is Over.";
-
-}
-
-/*************************************************************
-/函数功能：进程命令删除--删除列表中第1个命令，一般为命令执行完删除
-/函数参数：pNum:进程序号
-/函数返回：无
-/备注：列表不可直接更改参数，采用替换的形式
-*************************************************************/
-void Model_Process::Process_CmdDel(uint8_t pNum)
-{
-    if(pNum<P_List.length())
-    {
-        tProcess_t tempProcess=P_List.at(pNum);
-        tempProcess.cmdList.removeFirst();
-        P_List.replace(pNum,tempProcess);
-    }
-    else
-        cout << "pNum is Over.";
-}
-
-/*************************************************************
 /函数功能：进程读信息槽函数
 /函数参数：无
 /函数返回：无
@@ -301,8 +239,7 @@ void Model_Process::ProcessReadAll()
     {
         if(sender==P_List.at(i).process)
         {
-            //pParam[i].CmdRead += P_List.at(i).process->readAll();//QString::fromLocal8Bit();//any：最新版本的QT无需转换，可直接输出中文
-            ProcessOutDeal(i,"Out>>"+P_List.at(i).process->readAll());
+            ProcessOutDeal(i,"Out>>"+P_List.at(i).process->readAll());//QString::fromLocal8Bit();//any：最新版本的QT无需转换，可直接输出中文
             break;
         }
     }
@@ -323,7 +260,6 @@ void Model_Process::ProcessReadError()
     {
         if(sender==P_List.at(i).process)
         {
-            //pParam[i].CmdError += QString::fromLocal8Bit(P_List.at(i).process->readAllStandardError());//QString::fromLocal8Bit();
             ProcessOutDeal(i,"Error>>"+QString::fromLocal8Bit(P_List.at(i).process->readAllStandardError()));
             break;
         }
@@ -367,16 +303,19 @@ void Model_Process::ProcessshowState(QProcess::ProcessState state)
                     /*计时清空*/
                     pParam[i].rTime=0;
 
+                    /*删除执行过的命令*/
+                    tProcess_t tempProcess=P_List.at(i);
+                    tempProcess.cmdList.removeFirst();
+                    P_List.replace(i,tempProcess);
+
                     /*进程执行完毕，仍有命令，继续开启进程执行下一个命令*/
-                    if(P_List.at(i).cmdList.length()>1)
+                    if(P_List.at(i).cmdList.isEmpty()==false)
                         pParam[i].isRun=RunStart;
                     else
                     {
+                        pParam[i].isRun=noRun;//先转换进程执行状态，再去处理进程结束
                         ProcessisOver(i);//进程结束
-                        pParam[i].isRun=noRun;
                     }
-                    /*删除执行过的命令*/
-                    Process_CmdDel(i);
                 }
                 break;
             }
@@ -410,37 +349,4 @@ bool Model_Process::GetProcessIsRun()
         }
     }
     return false;
-}
-
-/*************************************************************
-/函数功能：进程开始执行：置进程运行标志位，添加进程执行命令
-/函数参数：pNum:进程序号  cmdStr:命令字符串
-/函数返回：无
-/备注：因执行Python脚本时间较长，不存在两条命令同时执行的情况，因此这里限制不继续添加命令列表
-*************************************************************/
-void Model_Process::ProcessStart(uint8_t pNum,QString cmdStr)
-{
-    if(pNum<P_List.length())
-    {
-        /*若进程未进行，启动运行，否则只添加指令列表*/
-        if(pParam[pNum].isRun == noRun)
-            pParam[pNum].isRun=RunStart;
-
-        /*不处理连续命令操作，进程每次只有一个命令*/
-        if(P_List.at(pNum).cmdList.isEmpty())
-            Process_CmdAdd(pNum,cmdStr);
-    }
-    else
-        cout << "pNum is Over.";
-}
-
-/*************************************************************
-/函数功能：进程运行目录跳转
-/函数参数：无
-/函数返回：true:正在运行 false:未运行
-*************************************************************/
-void Model_Process::ProcessPathJump(QString path)
-{
-    for(uint8_t i=1;i<P_List.length();i++)
-        P_List.at(i).process->setWorkingDirectory(path);
 }

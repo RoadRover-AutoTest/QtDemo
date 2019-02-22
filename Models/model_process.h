@@ -66,8 +66,6 @@ public:
     Model_Process();
     ~Model_Process();
 
-    void ParamInit(uint8_t pNum);
-
     //进程处理函数
     void Process_Add();
     void Process_Add(QString Workpath);
@@ -86,14 +84,9 @@ private:
     pParam_t pParam[P_Max]; //进程参数
 
     int m_timerID1;//命令执行
-    int m_timerID2;//执行结果处理
-
-    QString ShowStr;
 
     //内部进程执行
     void Process_Execute();
-    void Process_CmdAdd(uint8_t pNum,QString cmdStr);
-    void Process_CmdDel(uint8_t pNum);
 
 private slots:
     void ProcessReadAll();
