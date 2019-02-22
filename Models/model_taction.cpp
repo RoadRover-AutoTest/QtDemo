@@ -311,12 +311,6 @@ void Model_tAction::infoAppendDeal(uint16_t infoflag,storageInfo_type_s infoDat)
                         goto AddTempInfo;
                 }
                 /*自身比较界面：固定信息中不存在该信息，添加为固定信息*/
-                if(infoflag == COLPICTURE)
-                {
-                    QString firstFile = actionDeal->actName+QDateTime::currentDateTime().toString("yyyyMMddhhmmss")+".png";
-                    proList.append(RENAME(infoDat.information.toString(),firstFile));
-                    infoDat.information =TEMPPath + firstFile;
-                }
                 fixedInfo.append(infoDat);
             }
             else
@@ -827,7 +821,7 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                             else if(proCMD == CMD_FACE)
                                 proList.append(ACTIVITYFACE);
                             else if(proCMD == CMD_ADBPic)
-                                proList.append(SCREENCAP(actionDeal->actName+".png"));
+                                proList.append(SCREENCAP);
                         }
                         else
                         {
@@ -836,7 +830,7 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                             else if(proCMD == CMD_FACE)
                                 proList.append(ACTIVITYFACE_S(getDevNumber()));
                             else if(proCMD == CMD_ADBPic)
-                                proList.append(SCREENCAP_S(getDevNumber(),actionDeal->actName+".png"));
+                                proList.append(SCREENCAP_S(getDevNumber()));
                         }
 
                         break;
@@ -862,28 +856,34 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
             {
                 if(currentCMDString.contains("screencap"))
                 {
-                    QDir dir(TEMPPath);
+                    QString picPath = savePath
+                            +"/"+actionDeal->actName;
+
+                    QDir dir(picPath);
                     if(!dir.exists())
                     {
-                        if(dir.mkpath(TEMPPath) == false) //创建多级目录
+                        if(dir.mkpath(picPath) == false) //创建多级目录
                         {
-                            cout << "创建属性文件夹失败！创建路径为："<<TEMPPath;
+                            cout << "创建属性文件夹失败！创建路径为："<<picPath;
                             return ;
                         }
                     }
+                    picPath+="/"+QDateTime::currentDateTime().toString("yyyyMMddhhmmss")+".png";
+
                     if(getDevNumber().isEmpty())
-                        proList.append(PULLFile(actionDeal->actName+".png",TEMPPath));
+                        proList.append(PULLFile(picPath));
                     else
-                        proList.append(PULLFile_S(getDevNumber(),actionDeal->actName+".png",TEMPPath));
+                        proList.append(PULLFile_S(getDevNumber(),picPath));
+
+                    //添加采集信息到临时变量
+                    storageInfo_type_s infoStorage;
+                    infoStorage.name = actionDeal->actStr+"-PICTURE";
+                    infoStorage.information = picPath.replace("/","\\");
+                    infoAppendDeal(COLPICTURE,infoStorage);
                     goto ToEndProcess;//跳转到进程结束处理，因为该多命令组合未完全执行结束，因此proCMD不清空
                 }
                 else if(currentCMDString.contains("pull"))
                 {
-                    QString picFile = TEMPPath+actionDeal->actName+".png";
-                    storageInfo_type_s infoStorage;
-                    infoStorage.name = actionDeal->actStr+"-PICTURE";
-                    infoStorage.information = picFile.replace("/","\\");
-                    infoAppendDeal(COLPICTURE,infoStorage);
                     colInfoFlag |= COLPICTURE;      //界面采集完成
                 }
             }

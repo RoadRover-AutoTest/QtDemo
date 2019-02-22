@@ -9,18 +9,21 @@ Model_PicCompare::~Model_PicCompare()
 
 }
 
-#if 0
+#if 1
 /*************************************************************
 /函数功能：比较图片
 /函数参数：无
 /函数返回：无
+//得到指纹以后，就可以对比不同的图片，看看64位中有多少位是不一样的。
+//在理论上，这等同于计算"汉明距离"（Hamming distance）。
 *************************************************************/
-void Model_PicCompare::Cameracompare(QString comPic,QString fixedPic)
-{
-    int iDiffNum = CameraPerHash(comPic, fixedPic);
+void Model_PicCompare::Cameracompare(QString pic1,QString pic2)
+{    
+    cv::Mat matSrc1 = cv::imread(pic1.toStdString(), CV_LOAD_IMAGE_COLOR);
+    cv::Mat matSrc2 = cv::imread(pic2.toStdString(), CV_LOAD_IMAGE_COLOR);
 
-    //得到指纹以后，就可以对比不同的图片，看看64位中有多少位是不一样的。
-    //在理论上，这等同于计算"汉明距离"（Hamming distance）。
+    int iDiffNum= PerHash(matSrc1,matSrc2);
+
     //如果不相同的数据位不超过5，就说明两张图片很相似；如果大于10，就说明这是两张不同的图片。
     //if (iDiffNum <= 5)
     //    qDebug()<<"校验结果：非常相似";//ShowList.append("校验结果：非常相似");//QMessageBox::information(this,tr("比较结果"),tr("two images are very similar!"));//+"iDiffNum = "+QString("%1").arg(iDiffNum)
@@ -28,134 +31,6 @@ void Model_PicCompare::Cameracompare(QString comPic,QString fixedPic)
     //    qDebug()<<"校验结果：完全不同的图片";//ShowList.append("校验结果：完全不同的图片");//QMessageBox::information(this,tr("比较结果"),tr("they are two different images!"));//+"iDiffNum = "+QString("%1").arg(iDiffNum)
     //else
     //    qDebug()<<"校验结果：有些相似";//ShowList.append("校验结果：有些相似");//QMessageBox::information(this,tr("比较结果"),tr("two image are somewhat similar!"));//+"iDiffNum = "+QString("%1").arg(iDiffNum)
-}
-
-/*************************************************************
-/函数功能：cv：Mat转换为QT：QImage
-/函数参数：无
-/函数返回：无
-*************************************************************/
-QImage Model_PicCompare::cvMat2QImage(const cv::Mat& mat)
-{
-    // 8-bits unsigned, NO. OF CHANNELS = 1
-    if(mat.type() == CV_8UC1)
-    {
-        QImage image(mat.cols, mat.rows, QImage::Format_Indexed8);
-        // Set the color table (used to translate colour indexes to qRgb values)
-        image.setColorCount(256);
-        for(int i = 0; i < 256; i++)
-        {
-            image.setColor(i, qRgb(i, i, i));
-        }
-        // Copy input Mat
-        uchar *pSrc = mat.data;
-        for(int row = 0; row < mat.rows; row ++)
-        {
-            uchar *pDest = image.scanLine(row);
-            memcpy(pDest, pSrc, mat.cols);
-            pSrc += mat.step;
-        }
-        return image;
-    }
-    // 8-bits unsigned, NO. OF CHANNELS = 3
-    else if(mat.type() == CV_8UC3)
-    {
-        // Copy input Mat
-        const uchar *pSrc = (const uchar*)mat.data;
-        // Create QImage with same dimensions as input Mat
-        QImage image(pSrc, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
-        return image.rgbSwapped();
-    }
-    else if(mat.type() == CV_8UC4)
-    {
-        //qDebug() << "CV_8UC4";
-        // Copy input Mat
-        const uchar *pSrc = (const uchar*)mat.data;
-        // Create QImage with same dimensions as input Mat
-        QImage image(pSrc, mat.cols, mat.rows, mat.step, QImage::Format_ARGB32);
-        return image.copy();
-    }
-    else
-    {
-        //qDebug() << "ERROR: Mat could not be converted to QImage.";
-        return QImage();
-    }
-}
-
-/*************************************************************
-/函数功能：QT：QImage转换为cv：Mat
-/函数参数：无
-/函数返回：无
-*************************************************************/
-cv::Mat Model_PicCompare::QImage2cvMat(QImage image)
-{
-    cv::Mat mat;
-    //qDebug() << image.format();
-
-    if((image.format()==QImage::Format_ARGB32)||(image.format()==QImage::Format_RGB32)
-            ||(image.format()==QImage::Format_ARGB32_Premultiplied))
-    {
-        mat = cv::Mat(image.height(), image.width(), CV_8UC4, (void*)image.constBits(), image.bytesPerLine());
-    }
-    else if(image.format()==QImage::Format_RGB888)
-    {
-        mat = cv::Mat(image.height(), image.width(), CV_8UC3, (void*)image.constBits(), image.bytesPerLine());
-        cv::cvtColor(mat, mat, CV_BGR2RGB);
-    }
-    else if(image.format()==QImage::Format_Indexed8)
-    {
-        mat = cv::Mat(image.height(), image.width(), CV_8UC1, (void*)image.constBits(), image.bytesPerLine());
-    }
-
-    return mat;
-}
-
-/*************************************************************
-/函数功能：根据图片所在的路径字符串比较图片
-/函数参数：ImageName1,ImageName2图片路径，不要带有汉字：eg:"C:\\Users\\lxj\\Desktop\\Autotest pc\\pic\\img1.jpg"
-/函数返回：”汉明距离”(Hamming distance,在信息论中，两个等长字符串之间的汉明距离是两个字符串对应位置的不同字符的个数)。
-/       如果不相同的数据位数不超过5，就说明两张图像很相似；如果大于10，就说明这是两张不同的图像。
-*************************************************************/
-int Model_PicCompare::CameraPerHash(QString ImageName1, QString ImageName2)
-{
-    cv::Mat matSrc1, matSrc2;
-
-    matSrc1 = cv::imread(ImageName1.toStdString(), CV_LOAD_IMAGE_COLOR);
-    matSrc2 = cv::imread(ImageName2.toStdString(), CV_LOAD_IMAGE_COLOR);
-
-    return PerHash(matSrc1,matSrc2);
-}
-
-/*************************************************************
-/函数功能：直接输入图片进行比较
-/函数参数：Image1，Image2：这里为采集的图片和文件中打开的图片对比
-/函数返回：”汉明距离”(Hamming distance,在信息论中，两个等长字符串之间的汉明距离是两个字符串对应位置的不同字符的个数)。
-/       如果不相同的数据位数不超过5，就说明两张图像很相似；如果大于10，就说明这是两张不同的图像。
-*************************************************************/
-int Model_PicCompare::CameraPerHash(QImage Image1, QImage Image2)
-{
-    cv::Mat matSrc1, matSrc2;
-
-    matSrc1 = QImage2cvMat(Image1);
-    matSrc2 = QImage2cvMat(Image2);
-
-    return PerHash(matSrc1,matSrc2);
-}
-
-/*************************************************************
-/函数功能：图片与文件中图片比较
-/函数参数：Image1，Image2：这里为采集的图片和文件中打开的图片对比
-/函数返回：”汉明距离”(Hamming distance,在信息论中，两个等长字符串之间的汉明距离是两个字符串对应位置的不同字符的个数)。
-/       如果不相同的数据位数不超过5，就说明两张图像很相似；如果大于10，就说明这是两张不同的图像。
-*************************************************************/
-int Model_PicCompare::CameraPerHash(QImage Image1, QString ImageName2)
-{
-    cv::Mat matSrc1, matSrc2;
-
-    matSrc1 = QImage2cvMat(Image1);
-    matSrc2 = cv::imread(ImageName2.toStdString(), CV_LOAD_IMAGE_COLOR);
-
-    return PerHash(matSrc1,matSrc2);
 }
 
 /*************************************************************

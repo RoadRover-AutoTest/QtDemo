@@ -56,11 +56,11 @@
 #define ACTIVITYFACE                        ("adb shell dumpsys activity|findstr  mF")
 #define ACTIVITYFACE_S(devNum)              ("adb -s "+devNum+" shell dumpsys activity|findstr  mF")
 //捕捉图片//adb shell screencap -p /sdcard/a.png
-#define SCREENCAP(picname)                  ("adb shell screencap -p /sdcard/"+picname)
-#define SCREENCAP_S(devNum,picname)         ("adb -s "+devNum+" shell screencap -p /sdcard/"+picname)
+#define SCREENCAP                  ("adb shell screencap -p /sdcard/screen.png")
+#define SCREENCAP_S(devNum)         ("adb -s "+devNum+" shell screencap -p /sdcard/screen.png")
 //导出图片
-#define PULLFile(picname,desPath)           ("adb pull /mnt/sdcard/"+picname+" "+desPath)
-#define PULLFile_S(devNum,picname,desPath)  ("adb -s "+devNum+" pull /mnt/sdcard/"+picname+" "+desPath)
+#define PULLFile(desPath)           ("adb pull /mnt/sdcard/screen.png "+desPath)
+#define PULLFile_S(devNum,desPath)  ("adb -s "+devNum+" pull /mnt/sdcard/screen.png "+desPath)
 //列举进程
 #define PSGREP(appStr)                      ("adb shell ps | grep "+appStr)
 #define PSGREP_S(devNum,appStr)             ("adb -s "+devNum+" shell ps | grep "+appStr)
