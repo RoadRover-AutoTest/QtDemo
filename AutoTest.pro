@@ -49,8 +49,6 @@ LIBS+=D:\OpenCV\lib\libopencv_*.a\
         #D:\OpenCV\lib\libopencv_objdetect249.dll.a\
         #D:\OpenCV\lib\libopencv_video249.dll.a
 
-
-
 SOURCES += \
         main.cpp \
         mainwindow.cpp \

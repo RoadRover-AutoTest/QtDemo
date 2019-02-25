@@ -47,37 +47,12 @@
              </attribute>
              <column>
               <property name="text">
-               <string>Action</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
                <string>ActName</string>
               </property>
              </column>
              <column>
               <property name="text">
                <string>ActStr</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>WaitTime</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>ChkTime</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>OverTime</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Check</string>
               </property>
              </column>
             </widget>
@@ -150,16 +125,6 @@
          <string>Properties:</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_10">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>ActName:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="editActName"/>
-         </item>
          <item row="1" column="0" colspan="2">
           <widget class="QTabWidget" name="tabProperties">
            <property name="tabPosition">
@@ -173,17 +138,17 @@
              <string>Action</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_18">
-             <item row="0" column="0">
+             <item row="1" column="0">
               <widget class="QLabel" name="label_15">
                <property name="text">
                 <string>KeyList:</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="1">
+             <item row="1" column="1">
               <widget class="QComboBox" name="comboKeyList"/>
              </item>
-             <item row="0" column="2">
+             <item row="1" column="2">
               <spacer name="horizontalSpacer">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -196,7 +161,7 @@
                </property>
               </spacer>
              </item>
-             <item row="1" column="0" colspan="3">
+             <item row="2" column="0" colspan="3">
               <widget class="QStackedWidget" name="stackedWidget">
                <property name="currentIndex">
                 <number>1</number>
@@ -301,7 +266,7 @@
                </widget>
               </widget>
              </item>
-             <item row="2" column="0" colspan="3">
+             <item row="3" column="0" colspan="3">
               <spacer name="verticalSpacer_8">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -313,6 +278,16 @@
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>ActName:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="editActName"/>
              </item>
             </layout>
            </widget>

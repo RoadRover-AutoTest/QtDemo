@@ -9,7 +9,6 @@
 //#include "model_piccompare.h"
 #include "model_include.h"
 
-
 #define ACT_Front   false
 #define ACT_Back    true
 
@@ -112,6 +111,7 @@ private:
     void timerProIDDeal();
     void onProcessEXECmd(cmd_type_e cmdType);
     void infoAppendDeal(uint16_t infoflag,storageInfo_type_s infoDat);
+
 
 private slots:
     void onProcessOutputSlot(int pNum,QString String);

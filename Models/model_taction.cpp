@@ -9,7 +9,6 @@ QList <storageInfo_type_s> tempPicInfo;         //临时图片信息
 QList <bool> tempSoundInfo;                        //定义临时声音信息：用来处理声音临时数据存储
 
 
-
 /* this is Action Deal
  * ：测试流程改为：关ACC--开ACC--脚本（优点，测试单元执行结束机器仍为正常工作状态，无需恢复；测试记忆功能也可在一个测试单元中处理）
  * 增加任务：

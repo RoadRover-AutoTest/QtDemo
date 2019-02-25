@@ -8,7 +8,6 @@
 #include "cxcore.h"
 #include "highgui.h"
 //using namespace cv;
-
 class Model_PicCompare:public QObject
 {
     Q_OBJECT

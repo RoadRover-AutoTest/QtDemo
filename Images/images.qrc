@@ -27,6 +27,8 @@
         <file>offScriptFlow.png</file>
         <file>sleepScriptFlow.png</file>
         <file>ScriptFlow.png</file>
+        <file>key.png</file>
+        <file>Script.png</file>
     </qresource>
     <qresource prefix="/test">
         <file>fail.png</file>

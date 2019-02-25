@@ -110,27 +110,10 @@ void defTheUnit::appendTableAction(bool flag,tAction act)
     ui->tableAction->setRowCount(row+1);
 
     if(flag)
-        ui->tableAction->setItem(row,Col_Action,new QTableWidgetItem(QIcon(":/test/current.png"),"KEY"));
+        ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(QIcon(":/flow/key.png"),act.actName));
     else
-        ui->tableAction->setItem(row,Col_Action,new QTableWidgetItem(QIcon(":/test/current.png"),"Script"));
-
-    ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(act.actName));
+        ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(QIcon(":/flow/Script.png"),act.actName));
     ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(act.actStr));
-
-    ui->tableAction->setItem(row,Col_WaitTime,new QTableWidgetItem(toStr(act.timeDeal.wait)));
-    ui->tableAction->setItem(row,Col_ChkTime,new QTableWidgetItem(toStr(act.timeDeal.check)));
-    ui->tableAction->setItem(row,Col_OverTime,new QTableWidgetItem(toStr(act.timeDeal.end)));
-    ui->tableAction->item(row,Col_WaitTime)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);//居中显示
-    ui->tableAction->item(row,Col_ChkTime)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-    ui->tableAction->item(row,Col_OverTime)->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-
-
-    QString chkString;
-    for(int i=0;i<act.checkDeal.length();i++)
-    {
-        chkString += getCheckType(act.checkDeal.at(i).check)+";";
-    }
-    ui->tableAction->setItem(row,Col_Check,new QTableWidgetItem(chkString));
 
     unitDeal.actTest.append(act);
 }
@@ -140,14 +123,14 @@ void defTheUnit::on_tableAction_clicked(const QModelIndex &index)
     if(index.row()>=unitDeal.actTest.length())
         return ;
 
-    tAction selAction = unitDeal.actTest.at(index.row());
+    //tAction selAction = unitDeal.actTest.at(index.row());
 
-    QString typeStr = ui->tableAction->item(index.row(),Col_Action)->text();
+    //QString typeStr = ui->tableAction->item(index.row(),Col_Action)->text();
 
-    if(typeStr == "KEY")
-        initPropertiesParam(1,selAction);
-    else
-        initPropertiesParam(0,selAction);
+    //if(typeStr == "KEY")
+    //    initPropertiesParam(1,selAction);
+    //else
+    //    initPropertiesParam(0,selAction);
 
 }
 

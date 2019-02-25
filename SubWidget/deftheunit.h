@@ -36,13 +36,10 @@ private:
 
     typedef enum
     {
-        Col_Action,
+
         Col_Name,
-        Col_Str,
-        Col_WaitTime,
-        Col_ChkTime,
-        Col_OverTime,
-        Col_Check
+        Col_Str
+
     }actCol_e;
 
     void appendTableAction(bool flag,tAction act);
