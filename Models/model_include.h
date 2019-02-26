@@ -234,9 +234,6 @@ typedef struct
 
     QString logContains;
 
-    //bool isMemory;          //true:回到记忆界面  false：读取到界面不进行判断；
-    //bool isCompareFirstPic; //true:比较首次采集图片  false:非首次图片比较，即与测试单元中其他动作下采集图片比较
-
     compare_type_e infoCompare; //判断比较方式
 
     bool hReault;
@@ -275,6 +272,15 @@ typedef enum
     COLPICTURESITE  =0x0080     //采集图片位置：动作执行前0或后1
 }collect_type_e;
 
+
+typedef enum
+{
+    ACT_NULL,
+    ACT_KEY,
+    ACT_SCRIPT
+}ActType_e;
+
+
 /*************************************************************
 /定义测试单元：（尽可能包含测试过程中所有的处理参数）
 /动作处理--时间处理--检测处理--变动处理
@@ -293,6 +299,7 @@ typedef struct
 
     //action Deal:
     QString actStr;
+    uint8_t actFlag;//动作类型：0-空 1-KEY 2-Script
 
     //information 采集:
     uint16_t infoFlag; //详见:collect_type_e

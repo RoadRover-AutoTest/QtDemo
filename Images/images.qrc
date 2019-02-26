@@ -22,6 +22,8 @@
         <file>index.png</file>
         <file>actEnding.png</file>
         <file>actRunning.png</file>
+        <file>apply.png</file>
+        <file>preview.png</file>
     </qresource>
     <qresource prefix="/flow">
         <file>offScriptFlow.png</file>

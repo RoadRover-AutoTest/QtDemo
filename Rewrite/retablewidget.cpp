@@ -376,6 +376,7 @@ void reTableWidget::LookTheUnitSlot()
 *************************************************************/
 void reTableWidget::EditTheUnitSlot()
 {
+#if 0
     QTableWidgetItem * item = this->currentItem();
     if( item == NULL )
         return;
@@ -389,6 +390,7 @@ void reTableWidget::EditTheUnitSlot()
 
     }
     delete editUnit;
+#endif
 }
 
 /*************************************************************

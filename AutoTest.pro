@@ -67,7 +67,6 @@ SOURCES += \
     SubWidget/reshardedit.cpp \
     SubWidget/resupanddownloads.cpp \
     Rewrite/retreewidget.cpp \
-    SubWidget/cfgeditunit.cpp \
     SubWidget/cfgaddunit.cpp \
     SubWidget/chartwidget.cpp \
     Models/model_winapi.cpp \
@@ -76,8 +75,7 @@ SOURCES += \
     SubWidget/diareport.cpp \
     SubWidget/toolconfig.cpp \
     Models/model_piccompare.cpp \
-    SubWidget/deftheunit.cpp \
-    SubWidget/defaction.cpp
+    SubWidget/deftheunit.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -96,7 +94,6 @@ HEADERS += \
     SubWidget/reshardedit.h \
     SubWidget/resupanddownloads.h \
     Rewrite/retreewidget.h \
-    SubWidget/cfgeditunit.h \
     SubWidget/cfgaddunit.h \
     SubWidget/chartwidget.h \
     Models/model_winapi.h \
@@ -105,8 +102,7 @@ HEADERS += \
     SubWidget/diareport.h \
     SubWidget/toolconfig.h \
     Models/model_piccompare.h \
-    SubWidget/deftheunit.h \
-    SubWidget/defaction.h
+    SubWidget/deftheunit.h
 
 FORMS += \
         mainwindow.ui \
@@ -115,13 +111,11 @@ FORMS += \
     SubWidget/reshardware.ui \
     SubWidget/reshardedit.ui \
     SubWidget/resupanddownloads.ui \
-    SubWidget/cfgeditunit.ui \
     SubWidget/cfgaddunit.ui \
     SubWidget/chartwidget.ui \
     SubWidget/diareport.ui \
     SubWidget/toolconfig.ui \
-    SubWidget/deftheunit.ui \
-    SubWidget/defaction.ui
+    SubWidget/deftheunit.ui
 
 RESOURCES += \
     Images/images.qrc
