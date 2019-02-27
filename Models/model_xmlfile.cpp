@@ -47,6 +47,49 @@ void Model_XMLFile::createSequenceXML(QString filePath)
 }
 
 /*************************************************************
+/函数功能：按键XML--查询是否存在项目
+/函数参数：item
+/函数返回：结果
+*************************************************************/
+bool Model_XMLFile::hasUnitInfomation(QString filePath,QString unitName)
+{
+    QFile file(filePath);
+    bool isOk = file.open(QIODevice::ReadOnly);
+    if(true == isOk) //打开成功
+    {
+        //file和xml文档对象关联
+        QDomDocument doc;
+        isOk = doc.setContent(&file);
+        if(isOk) //如果关联成功
+        {
+            file.close(); //关闭文件
+            //获取根节点元素
+            QDomElement root = doc.documentElement();
+
+            //判断根节点下有没有子节点
+            if(root.hasChildNodes())
+            {
+                QDomNode n = root.firstChild();
+
+                while(!n.isNull())
+                {
+                    QDomElement thisEmt = n.toElement();
+
+                    if( (!thisEmt.isNull()) && (thisEmt.attribute("name") == unitName) )
+                    {
+                        //已存在该项目，修改数据
+                        return true;
+                    }
+                    n=n.nextSibling();
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+/*************************************************************
 /函数功能：序列XML--添加序列
 /函数参数：文件路径    测试单元   动作
 /函数返回：无
@@ -437,6 +480,56 @@ void Model_XMLFile::readSequenceXML(QString filePath,QList <tUnit> &tFlow)
         n=n.nextSibling();
     }
 }
+
+/*************************************************************
+/函数功能：移除测试单元
+/函数参数：文件路径  测试流
+/函数返回：无
+*************************************************************/
+void Model_XMLFile::removeUnitXML(QString filePath,QString unitName)
+{
+    QFile file(filePath);
+    if(file.open(QIODevice::ReadOnly)) //打开成功
+    {
+        //file和xml文档对象关联
+        QDomDocument doc;
+        if(doc.setContent(&file)) //如果关联成功
+        {
+            file.close(); //关闭文件
+            //获取根节点元素
+            QDomElement root = doc.documentElement();
+
+            //判断根节点下有没有子节点
+            if(root.hasChildNodes())
+            {
+                QDomNode n = root.firstChild();
+
+                while(!n.isNull())
+                {
+                    QDomElement thisEmt = n.toElement();
+
+                    if( (!thisEmt.isNull()) && (thisEmt.attribute("name") == unitName) )
+                    {
+                        root.removeChild(n);
+                        break;
+                    }
+                    n=n.nextSibling();
+                }
+            }
+
+            //保存文件
+            if(file.open(QIODevice::WriteOnly))
+            {
+                QTextStream stream(&file);
+                doc.save(stream, 4);
+                file.close();
+            }
+        }
+        else
+            file.close(); //关闭文件
+    }
+}
+
 
 
 /*************************************************************

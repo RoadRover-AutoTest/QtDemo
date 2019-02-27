@@ -18,9 +18,13 @@ public:
 
     void createSequenceXML(QString filePath);
 
+    bool hasUnitInfomation(QString filePath,QString unitName);
+
     void appendSequenceXML(QString filePath,QStringList listUnit ,tAction list);
 
     void readSequenceXML(QString filePath,QList <tUnit> &tFlow);
+
+    void removeUnitXML(QString filePath,QString unitName);
 
 
 

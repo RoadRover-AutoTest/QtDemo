@@ -118,10 +118,10 @@ void defTheUnit::on_editUnitDes_textChanged()
 void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
 {
     QMenu *popMenu = new QMenu( this );
-    QMenu *addMenu = new QMenu("Add Action");
-    QAction *ScriptAction = new QAction(tr("Script"), this);
+    QAction *clear = new QAction(tr("clear"), this);
+    QAction *ScriptAction = new QAction(tr("Add Script"), this);
 
-    QMenu *keyMenu = new QMenu("Key");
+    QMenu *keyMenu = new QMenu("Add Key");
     QAction *ACCONAction = new QAction(tr("ACCON"), this);
     QAction *ACCOFFAction = new QAction(tr("ACCOFF"), this);
     QAction *BATONAction = new QAction(tr("BATON"), this);
@@ -136,6 +136,14 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     keyMenu->addAction(CCDONAction);
     keyMenu->addAction(CCDOFFAction);
     keyMenu->addAction(OtherAction);
+
+
+
+    popMenu->addMenu(keyMenu);
+    popMenu->addAction(ScriptAction);
+    popMenu->addSeparator();
+    popMenu->addAction(clear);
+
     connect( ACCONAction,        SIGNAL(triggered() ), this, SLOT( ACCONActionSlot()) );
     connect( ACCOFFAction,        SIGNAL(triggered() ), this, SLOT( ACCOFFActionSlot()) );
     connect( BATONAction,        SIGNAL(triggered() ), this, SLOT( BATONActionSlot()) );
@@ -144,18 +152,29 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     connect( CCDOFFAction,        SIGNAL(triggered() ), this, SLOT( CCDOFFActionSlot()) );
     connect( OtherAction,        SIGNAL(triggered() ), this, SLOT( keyActionSlot()) );
 
-    addMenu->addMenu(keyMenu);
-    addMenu->addAction(ScriptAction);
-
     connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( scriptActionSlot()) );
 
-
-    popMenu->addMenu(addMenu);
+    connect( clear,        SIGNAL(triggered() ), this, SLOT( clearActionSlot()) );
 
     popMenu->exec( QCursor::pos() );
 
     delete popMenu;
 
+}
+
+void defTheUnit::clearActionSlot()
+{
+    if (QMessageBox::warning(NULL, "Warning","Are you sure you want to clear Unit ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+        return;
+
+    //主窗口涉及清楚任务，因此放置上层处理
+    int row=ui->tableAction->rowCount();
+    for(uint16_t i=row;i>0;i--)
+    {
+        ui->tableAction->removeRow(i-1);
+    }
+
+    unitDeal.actTest.clear();
 }
 
 /*************************************************************
@@ -1124,9 +1143,9 @@ void defTheUnit::on_actLook_triggered()
 *************************************************************/
 void defTheUnit::on_actSave_triggered()
 {
-    if(unitDeal.name.isEmpty())
+    if((unitDeal.actTest.isEmpty())||(unitDeal.name.isEmpty()))
     {
-        QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名！"));
+        QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名/检测测试动作是否为空！"));
         return ;
     }
     changedInfoFlagDeal();
@@ -1139,6 +1158,31 @@ void defTheUnit::on_actSave_triggered()
     {
         xmlSave.createSequenceXML(unitDEFINEFile);
     }
+    //查询是否已经存在该测试单元
+    if(xmlSave.hasUnitInfomation(unitDEFINEFile,unitDeal.name))
+    {
+        if(QMessageBox::information(NULL, "提示", "文件中该测试单元已存在，是否替换？？", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::No)
+            return;
+        else
+        {
+            xmlSave.removeUnitXML(unitDEFINEFile,unitDeal.name);
+
+            ui->comboUnitList->setCurrentText(unitDeal.name);
+            for(int i=0;i<unitList.length();i++)
+            {
+                if(unitList.at(i).name==unitDeal.name)
+                {
+                    unitList.replace(i,unitDeal);
+                }
+            }
+        }
+
+    }
+    else
+    {
+        ui->comboUnitList->addItem(unitDeal.name);
+        unitList.append(unitDeal);
+    }
 
     infoList.clear();
     infoList<<unitDeal.name<<QString::number(unitDeal.cycleCount)<<unitDeal.unitDes;//"this is test"
@@ -1147,11 +1191,13 @@ void defTheUnit::on_actSave_triggered()
     {
         xmlSave.appendSequenceXML(unitDEFINEFile,infoList,unitDeal.actTest.at(j));
     }
-
-    ui->comboUnitList->addItem(unitDeal.name);
-    unitList.append(unitDeal);
 }
 
+/*************************************************************
+/函数功能：应用测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
 void defTheUnit::on_actApply_triggered()
 {
     changedInfoFlagDeal();

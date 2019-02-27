@@ -583,6 +583,7 @@ continueAppendList:
                 if(filename.contains(".bat") || filename.contains(".BAT"))
                 {
                 curUnit.name =unit.name + "_"+Script;
+                actDeal.actName = Script;
                 actDeal.actStr += "/"+Script+".bat";
                 curUnit.actTest.append(actDeal);
                 }

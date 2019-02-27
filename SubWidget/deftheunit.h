@@ -29,6 +29,7 @@ private slots:
     void CCDOFFActionSlot();
     void keyActionSlot();
     void scriptActionSlot();
+    void clearActionSlot();
 
     void editTimeDealSlot();
     void editCheckDealSlot(bool checked);
