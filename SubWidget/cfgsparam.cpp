@@ -624,7 +624,6 @@ void CfgSParam::accept()
                 tAction theAction;
                 QString Script = filename.split('/').last().remove(".bat");
 
-
                 theUnit.name = getBatKey().split(":").last()+"_"+Script;
                 theUnit.cycleCount = ui->spinBatCycle->value();
                 theUnit.unitDes = ui->textBatDescription->toPlainText();

@@ -15,6 +15,7 @@
 #define ON          true
 #define OFF         false
 #define KeyINFOFile QCoreApplication::applicationDirPath()+"/config/KeyInfo.xml"
+#define unitDEFINEFile QCoreApplication::applicationDirPath()+"/config/unitDefined.xml"
 #define SYSInfo     QCoreApplication::applicationDirPath()+"/config/config.ini"
 #define ResultPath  QCoreApplication::applicationDirPath()+"/result"
 #define REPORTPath  QCoreApplication::applicationDirPath()+"/ATReport/run.py"

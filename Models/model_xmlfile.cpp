@@ -13,14 +13,7 @@ Model_XMLFile::Model_XMLFile()
 void Model_XMLFile::createSequenceXML(QString filePath)
 {
     QFile file(filePath); //关联文件名字
-    /*if( true == file.exists() ) //如果存在不创建
-    {
-        cout << "文件已经存在";
-        return;
-    }
-    else
-    {//不存在,只写方式打开文件
-    */
+
         //此为刷新文件，覆盖
         if(true == file.open(QIODevice::WriteOnly))
         {
@@ -50,7 +43,7 @@ void Model_XMLFile::createSequenceXML(QString filePath)
             cout << "WriteOnly error";
             return;
         }
-    //}
+
 }
 
 /*************************************************************
@@ -168,6 +161,11 @@ void Model_XMLFile::writeSequenceActXML(QDomDocument &doc, QDomElement &root, tA
     QDomElement stringEle = doc.createElement("String");
     stringEle.appendChild(doc.createTextNode(list.actStr));
     actEmt.appendChild(stringEle);
+
+    //添加act类型标志位：actFlag
+    QDomElement actflagEle = doc.createElement("actFlag");
+    actflagEle.appendChild(doc.createTextNode(toStr(list.actFlag)));
+    actEmt.appendChild(actflagEle);
 
     //添加信息采集标志位：infoFlag
     QDomElement infoEle = doc.createElement("InfoFlag");
@@ -352,6 +350,8 @@ void Model_XMLFile::readSequenceXML(QString filePath,QList <tUnit> &tFlow)
                                     act.actName = actEle.toElement().text();
                                 else if(emtName == "String")
                                     act.actStr = actEle.toElement().text();
+                                else if(emtName == "actFlag")
+                                    act.actFlag = actEle.toElement().text().toUInt();
                                 else if(emtName == "InfoFlag")
                                     act.infoFlag = actEle.toElement().text().toUInt();
                                 else if(emtName == "Time")
@@ -371,6 +371,7 @@ void Model_XMLFile::readSequenceXML(QString filePath,QList <tUnit> &tFlow)
                                 {
                                     QDomNodeList checklist = actEle.childNodes();
                                     checkParam chkDat;
+                                    initNullChkParam(&chkDat);
 
                                     for(int c=0;c<checklist.length();c++)
                                     {

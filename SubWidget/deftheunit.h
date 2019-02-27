@@ -21,6 +21,12 @@ public:
     ~defTheUnit();
 
 private slots:
+    void ACCONActionSlot();
+    void ACCOFFActionSlot();
+    void BATONActionSlot();
+    void BATOFFActionSlot();
+    void CCDONActionSlot();
+    void CCDOFFActionSlot();
     void keyActionSlot();
     void scriptActionSlot();
 
@@ -28,8 +34,6 @@ private slots:
     void editCheckDealSlot(bool checked);
 
     void on_tableAction_customContextMenuRequested(const QPoint &pos);
-
-
 
     void on_tableAction_clicked(const QModelIndex &index);
 
@@ -53,20 +57,26 @@ private slots:
 
     void on_spinUnitCycle_editingFinished();
 
-    void on_editUnitDes_destroyed();
+    void on_editUnitDes_textChanged();
+
+    void on_actSave_triggered();
+
+    void on_actApply_triggered();
+
+    void on_comboUnitList_activated(int index);
 
 private:
     Ui::defTheUnit *ui;
     QList <keyControl> keyList;
 
     tUnit unitDeal;
+    QList <tUnit> unitList; //文件中存储的测试单元序列
+
 
     typedef enum
     {
-
         Col_Name,
         Col_Str
-
     }actCol_e;
 
     void inittActionParam(tAction *tact);
@@ -75,7 +85,12 @@ private:
     void refreshKeyList(QString actStr);
     void refreshTimeDeal(tAction act);
     void refreshCheckDeal(QList<checkParam> chkDeal);
+    void changedInfoFlagDeal();
     int getTableActionSelRanges();
+
+signals:
+    void applyTheUnit(tUnit unit);
+
 };
 
 #endif // DEFTHEUNIT_H

@@ -13,7 +13,6 @@
 #include "Models/model_include.h"
 #include "Models/model_xmlfile.h"
 #include "SubWidget/cfgsparam.h"
-#include "SubWidget/cfgaddunit.h"
 #include "SubWidget/deftheunit.h"
 #include "SubWidget/cfglookunit.h"
 
@@ -64,6 +63,8 @@ private slots:
     void AddTestCasetoListSlot();
     void LookTheUnitSlot();
     void EditTheUnitSlot();
+
+    void applyDefineUnitSlot(tUnit unit);
 
 public slots:
     void onNewSequenceSlot();

@@ -25,6 +25,9 @@ public:
     bool ReadIni_ReportCreat();
     void WriteIni_ReportCreat(QVariant value);
 
+    QString ReadIni_defineInfo(QString str);
+    void WriteIni_defineInfo(QString str,QVariant value);
+
 
 
 

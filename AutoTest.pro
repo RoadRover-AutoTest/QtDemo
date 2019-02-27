@@ -67,7 +67,6 @@ SOURCES += \
     SubWidget/reshardedit.cpp \
     SubWidget/resupanddownloads.cpp \
     Rewrite/retreewidget.cpp \
-    SubWidget/cfgaddunit.cpp \
     SubWidget/chartwidget.cpp \
     Models/model_winapi.cpp \
     Models/model_tunit.cpp \
@@ -94,7 +93,6 @@ HEADERS += \
     SubWidget/reshardedit.h \
     SubWidget/resupanddownloads.h \
     Rewrite/retreewidget.h \
-    SubWidget/cfgaddunit.h \
     SubWidget/chartwidget.h \
     Models/model_winapi.h \
     Models/model_tunit.h \
@@ -111,7 +109,6 @@ FORMS += \
     SubWidget/reshardware.ui \
     SubWidget/reshardedit.ui \
     SubWidget/resupanddownloads.ui \
-    SubWidget/cfgaddunit.ui \
     SubWidget/chartwidget.ui \
     SubWidget/diareport.ui \
     SubWidget/toolconfig.ui \

@@ -6,16 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>868</width>
-    <height>702</height>
+    <width>867</width>
+    <height>723</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_11">
-    <item row="0" column="0" colspan="2">
+   <layout class="QGridLayout" name="gridLayout_8">
+    <item row="1" column="0" colspan="3">
      <layout class="QVBoxLayout" name="verticalLayout" stretch="2,1">
       <item>
        <widget class="QGroupBox" name="groupBox">
@@ -128,7 +128,7 @@
             <enum>QTabWidget::West</enum>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabAct">
             <attribute name="title">
@@ -175,7 +175,7 @@
                  <item row="0" column="0" colspan="2">
                   <widget class="QCheckBox" name="checkfileMore">
                    <property name="text">
-                    <string>批量</string>
+                    <string>批量(测试单元中仅支持一个批量文件处理)</string>
                    </property>
                   </widget>
                  </item>
@@ -239,43 +239,7 @@
                    <property name="checked">
                     <bool>false</bool>
                    </property>
-                   <layout class="QGridLayout" name="gridLayout_20">
-                    <item row="0" column="0">
-                     <widget class="QLabel" name="label_12">
-                      <property name="text">
-                       <string>Volt:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QLineEdit" name="editVolMin">
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="2">
-                     <widget class="QLineEdit" name="editVolMax">
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="3">
-                     <widget class="QLabel" name="label_13">
-                      <property name="text">
-                       <string>Step(mS):</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="4">
-                     <widget class="QLineEdit" name="editVolStep">
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
+                   <layout class="QGridLayout" name="gridLayout_20"/>
                   </widget>
                  </item>
                  <item row="0" column="2" rowspan="2">
@@ -365,7 +329,7 @@
                 <string notr="true"/>
                </property>
                <property name="currentIndex">
-                <number>4</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="tabCurrent">
                 <attribute name="title">
@@ -828,6 +792,22 @@
       </item>
      </layout>
     </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_11">
+      <property name="maximumSize">
+       <size>
+        <width>70</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>测试单元：</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="2">
+     <widget class="QComboBox" name="comboUnitList"/>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -835,7 +815,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>868</width>
+     <width>867</width>
      <height>23</height>
     </rect>
    </property>

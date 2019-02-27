@@ -7,17 +7,32 @@ defTheUnit::defTheUnit(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //初始化窗口界面
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     //tab标签栏优化
     ui->tabProperties->tabBar()->setStyle(new CustomTabStyle);
     //ui->tabChkParam->tabBar()->setStyle(new CustomTabStyle);
 
+    //获取文件中存储的测试单元
+    Model_XMLFile xmlRead;
+    int len = unitList.length();
+    xmlRead.readSequenceXML(unitDEFINEFile,unitList);
+
+    for(int i=len;i<unitList.length();i++)
+    {
+        ui->comboUnitList->addItem(unitList.at(i).name);
+    }
+
+    //初始化测试单元基本信息
     unitDeal.name = "";
     unitDeal.cycleCount = 1;
     unitDeal.unitDes = "";
+    ui->editUnitName->setText(unitDeal.name);
+    ui->spinUnitCycle->setValue(unitDeal.cycleCount);
+    ui->editUnitDes->setText(unitDeal.unitDes);
+
 
     //初始化按键列表
-    Model_XMLFile xmlRead;
     xmlRead.readKeyInfoXML(WorkItem,&keyList);
 
     for(int i=0;i<keyList.length();i++)
@@ -27,6 +42,7 @@ defTheUnit::defTheUnit(QWidget *parent) :
     }
     ui->comboKeyList->setCurrentIndex(-1);
 
+    //创建窗口组件信号槽函数
     connect(ui->editWaitMin,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
     connect(ui->editWaitMax,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
     connect(ui->editWaitStep,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
@@ -39,9 +55,6 @@ defTheUnit::defTheUnit(QWidget *parent) :
     connect(ui->checkSetLogStr,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
     connect(ui->checkSetInterface,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
     connect(ui->checkSetPic,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
-    //connect(ui->checkSetCurrent,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
-    //connect(ui->checkSetCurrent,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
-
 }
 
 defTheUnit::~defTheUnit()
@@ -50,46 +63,10 @@ defTheUnit::~defTheUnit()
 }
 
 /*************************************************************
-/函数功能：tableAction右键创建菜单栏
-/函数参数：位置
+/函数功能：初始化动作参数
+/函数参数：动作
 /函数返回：wu
 *************************************************************/
-void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
-{
-    QMenu *popMenu = new QMenu( this );
-    QMenu *addMenu = new QMenu("Add Action");
-    QAction *keyAction = new QAction(tr("KEY"), this);
-    QAction *ScriptAction = new QAction(tr("Script"), this);
-    addMenu->addAction(keyAction);
-    addMenu->addAction(ScriptAction);
-    connect( keyAction,        SIGNAL(triggered() ), this, SLOT( keyActionSlot()) );
-    connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( scriptActionSlot()) );
-
-
-    popMenu->addMenu(addMenu);
-
-    popMenu->exec( QCursor::pos() );
-
-    delete popMenu;
-
-}
-
-void defTheUnit::on_editUnitName_editingFinished()
-{
-    unitDeal.name = ui->editUnitName->text();
-}
-
-void defTheUnit::on_spinUnitCycle_editingFinished()
-{
-    unitDeal.cycleCount = ui->spinUnitCycle->value();
-}
-
-void defTheUnit::on_editUnitDes_destroyed()
-{
-    //unitDeal.unitDes = ui->editUnitDes
-}
-
-
 void defTheUnit::inittActionParam(tAction *tact)
 {
     tact->actName = "";
@@ -101,6 +78,328 @@ void defTheUnit::inittActionParam(tAction *tact)
     tact->infoFlag=0;
     tact->checkDeal.clear();
     tact->changedDeal.clear();
+}
+
+/*************************************************************
+/函数功能：测试单元名修改
+/函数参数：
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_editUnitName_editingFinished()
+{
+    unitDeal.name = ui->editUnitName->text();
+}
+
+/*************************************************************
+/函数功能：测试次数修改
+/函数参数：
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_spinUnitCycle_editingFinished()
+{
+    unitDeal.cycleCount = ui->spinUnitCycle->value();
+}
+
+/*************************************************************
+/函数功能：测试单元描述
+/函数参数：
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_editUnitDes_textChanged()
+{
+    unitDeal.unitDes = ui->editUnitDes->toPlainText();
+}
+
+/*************************************************************
+/函数功能：tableAction右键创建菜单栏
+/函数参数：位置
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
+{
+    QMenu *popMenu = new QMenu( this );
+    QMenu *addMenu = new QMenu("Add Action");
+    QAction *ScriptAction = new QAction(tr("Script"), this);
+
+    QMenu *keyMenu = new QMenu("Key");
+    QAction *ACCONAction = new QAction(tr("ACCON"), this);
+    QAction *ACCOFFAction = new QAction(tr("ACCOFF"), this);
+    QAction *BATONAction = new QAction(tr("BATON"), this);
+    QAction *BATOFFAction = new QAction(tr("BATOFF"), this);
+    QAction *CCDONAction = new QAction(tr("CCDON"), this);
+    QAction *CCDOFFAction = new QAction(tr("CCDOFF"), this);
+    QAction *OtherAction = new QAction(tr("Other"), this);
+    keyMenu->addAction(ACCONAction);
+    keyMenu->addAction(ACCOFFAction);
+    keyMenu->addAction(BATONAction);
+    keyMenu->addAction(BATOFFAction);
+    keyMenu->addAction(CCDONAction);
+    keyMenu->addAction(CCDOFFAction);
+    keyMenu->addAction(OtherAction);
+    connect( ACCONAction,        SIGNAL(triggered() ), this, SLOT( ACCONActionSlot()) );
+    connect( ACCOFFAction,        SIGNAL(triggered() ), this, SLOT( ACCOFFActionSlot()) );
+    connect( BATONAction,        SIGNAL(triggered() ), this, SLOT( BATONActionSlot()) );
+    connect( BATOFFAction,        SIGNAL(triggered() ), this, SLOT( BATOFFActionSlot()) );
+    connect( CCDONAction,        SIGNAL(triggered() ), this, SLOT( CCDONActionSlot()) );
+    connect( CCDOFFAction,        SIGNAL(triggered() ), this, SLOT( CCDOFFActionSlot()) );
+    connect( OtherAction,        SIGNAL(triggered() ), this, SLOT( keyActionSlot()) );
+
+    addMenu->addMenu(keyMenu);
+    addMenu->addAction(ScriptAction);
+
+    connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( scriptActionSlot()) );
+
+
+    popMenu->addMenu(addMenu);
+
+    popMenu->exec( QCursor::pos() );
+
+    delete popMenu;
+
+}
+
+/*************************************************************
+/函数功能：ACCON槽函数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::ACCONActionSlot()
+{
+    tAction kAction;
+    inittActionParam(&kAction);
+    kAction.actName = "ACCON";
+    kAction.actFlag = ACT_KEY;
+
+    for(int i=0;i<keyList.length();i++)
+    {
+        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardACC))
+        {
+            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":on";
+            break;
+        }
+    }
+
+    kAction.timeDeal.wait = 5000;
+    kAction.timeDeal.check = 0;
+    kAction.timeDeal.end = 60000;
+
+    checkParam checkCurrent;
+    initNullChkParam(&checkCurrent);
+    checkCurrent.check = CHKCurrent;
+    checkCurrent.range = GE;
+    checkCurrent.min = WorkCurrent;
+    kAction.checkDeal.append(checkCurrent);
+
+    checkParam checkMemoey;
+    initNullChkParam(&checkMemoey);
+    checkMemoey.check = CHKInterface;
+    checkMemoey.infoCompare = MemoryCompare;
+    kAction.checkDeal.append(checkMemoey);
+
+    appendTableAction(kAction);
+}
+
+/*************************************************************
+/函数功能：按键动作添加槽函数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::ACCOFFActionSlot()
+{
+    tAction kAction;
+    inittActionParam(&kAction);
+    kAction.actName = "ACCOFF";
+    kAction.actFlag = ACT_KEY;
+
+    for(int i=0;i<keyList.length();i++)
+    {
+        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardACC))
+        {
+            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":off";
+            break;
+        }
+    }
+
+    kAction.timeDeal.wait = 10000;
+    kAction.timeDeal.check = 15000;
+    kAction.timeDeal.end = 0;
+
+    changedParam changeTime;
+    changeTime.changed = WaitTime;
+    changeTime.dir = true;
+    changeTime.min  = kAction.timeDeal.wait;
+    changeTime.max  = 30000;
+    changeTime.step = 100;
+    kAction.changedDeal.append(changeTime);
+
+    checkParam checkCurrent;
+    initNullChkParam(&checkCurrent);
+    checkCurrent.check = CHKCurrent;
+    checkCurrent.range = LE;
+    checkCurrent.min = 20;
+    kAction.checkDeal.append(checkCurrent);
+
+    appendTableAction(kAction);
+}
+
+/*************************************************************
+/函数功能：按键动作添加槽函数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::BATONActionSlot()
+{
+    tAction kAction;
+    inittActionParam(&kAction);
+    kAction.actName = "BATON";
+    kAction.actFlag = ACT_KEY;
+
+    for(int i=0;i<keyList.length();i++)
+    {
+        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardBAT))
+        {
+            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":on";
+            break;
+        }
+    }
+
+    kAction.timeDeal.wait = 10000;
+    kAction.timeDeal.check = 0;
+    kAction.timeDeal.end = 60000;
+
+
+    checkParam checkCurrent;
+    initNullChkParam(&checkCurrent);
+    checkCurrent.check = CHKCurrent;
+    checkCurrent.range = GE;
+    checkCurrent.min = WorkCurrent;
+    kAction.checkDeal.append(checkCurrent);
+
+    checkParam checkMemoey;
+    initNullChkParam(&checkMemoey);
+    checkMemoey.check = CHKInterface;
+    checkMemoey.infoCompare = MemoryCompare;
+    kAction.checkDeal.append(checkMemoey);
+
+    appendTableAction(kAction);
+}
+
+/*************************************************************
+/函数功能：按键动作添加槽函数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::BATOFFActionSlot()
+{
+    tAction kAction;
+    inittActionParam(&kAction);
+    kAction.actName = "BATOFF";
+    kAction.actFlag = ACT_KEY;
+
+    for(int i=0;i<keyList.length();i++)
+    {
+        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardBAT))
+        {
+            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":off";
+            break;
+        }
+    }
+
+    kAction.timeDeal.wait = 5000;
+    kAction.timeDeal.check = 0;
+    kAction.timeDeal.end = 0;
+
+    changedParam changeTime;
+    changeTime.changed = WaitTime;
+    changeTime.dir = true;
+    changeTime.min  = kAction.timeDeal.wait;
+    changeTime.max  = 30000;
+    changeTime.step = 100;
+    kAction.changedDeal.append(changeTime);
+
+    appendTableAction(kAction);
+}
+
+/*************************************************************
+/函数功能：按键动作添加槽函数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::CCDONActionSlot()
+{
+    tAction kAction;
+    inittActionParam(&kAction);
+    kAction.actName = "CCDON";
+    kAction.actFlag = ACT_KEY;
+
+    for(int i=0;i<keyList.length();i++)
+    {
+        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardCCD))
+        {
+            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":on";
+            break;
+        }
+    }
+
+    kAction.timeDeal.wait = 5000;
+    kAction.timeDeal.check = 0;
+    kAction.timeDeal.end = 60000;
+
+    changedParam changeTime;
+    changeTime.changed = WaitTime;
+    changeTime.dir = true;
+    changeTime.min  = kAction.timeDeal.wait;
+    changeTime.max  = 30000;
+    changeTime.step = 100;
+    kAction.changedDeal.append(changeTime);
+
+    checkParam checkPicture;
+    initNullChkParam(&checkPicture);
+    checkPicture.check = CHKADBPIC;
+    checkPicture.infoCompare = SelfCompare;
+    kAction.checkDeal.append(checkPicture);
+
+    appendTableAction(kAction);
+}
+
+/*************************************************************
+/函数功能：按键动作添加槽函数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::CCDOFFActionSlot()
+{
+    tAction kAction;
+    inittActionParam(&kAction);
+    kAction.actName = "CCDOFF";
+    kAction.actFlag = ACT_KEY;
+
+    for(int i=0;i<keyList.length();i++)
+    {
+        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardCCD))
+        {
+            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":off";
+            break;
+        }
+    }
+
+    kAction.timeDeal.wait = 5000;
+    kAction.timeDeal.check = 0;
+    kAction.timeDeal.end = 60000;
+
+    checkParam checkMemoey;
+    initNullChkParam(&checkMemoey);
+    checkMemoey.check = CHKInterface;
+    checkMemoey.infoCompare = MemoryCompare;
+    kAction.checkDeal.append(checkMemoey);
+
+    checkParam checkSound;
+    initNullChkParam(&checkSound);
+    checkSound.check = CHKSound;
+    checkSound.sound = endHAVESound;
+    kAction.checkDeal.append(checkSound);
+
+    appendTableAction(kAction);
 }
 
 /*************************************************************
@@ -663,8 +962,8 @@ void defTheUnit::editCheckDealSlot(bool checked)
         {
             chkDeal.check = CHKVlot;
             chkDeal.range = (range_type_e)ui->comboVJudge->currentIndex();
-            chkDeal.min = ui->editVolMin->text().toUInt();
-            chkDeal.max = ui->editVolMax->text().toUInt();
+            chkDeal.min = ui->editVoltMin->text().toUInt();
+            chkDeal.max = ui->editVoltMax->text().toUInt();
             curAct.checkDeal.append(chkDeal);
         }
         else if(sender == ui->checkSetSound)
@@ -728,8 +1027,12 @@ void defTheUnit::editCheckDealSlot(bool checked)
     unitDeal.actTest.replace(selRow,curAct);
 }
 
-
-void defTheUnit::on_actLook_triggered()
+/*************************************************************
+/函数功能：修改INFO信息采集标志
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::changedInfoFlagDeal()
 {
     for(int j=0;j<unitDeal.actTest.length();j++)
     {
@@ -799,8 +1102,94 @@ void defTheUnit::on_actLook_triggered()
             unitDeal.actTest.replace(j,act);
         }
     }
+}
+
+/*************************************************************
+/函数功能：预览
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_actLook_triggered()
+{
+    changedInfoFlagDeal();
     CfgLookUnit lookUnit(&unitDeal);
 
     lookUnit.exec();//any：是否可修改
 }
 
+/*************************************************************
+/函数功能：保存测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_actSave_triggered()
+{
+    if(unitDeal.name.isEmpty())
+    {
+        QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名！"));
+        return ;
+    }
+    changedInfoFlagDeal();
+
+    QFile file(unitDEFINEFile); //关联文件名字
+    Model_XMLFile xmlSave;
+    QStringList infoList;
+
+    if( false == file.exists() ) //如果存在不创建
+    {
+        xmlSave.createSequenceXML(unitDEFINEFile);
+    }
+
+    infoList.clear();
+    infoList<<unitDeal.name<<QString::number(unitDeal.cycleCount)<<unitDeal.unitDes;//"this is test"
+
+    for(int j=0;j<unitDeal.actTest.length();j++)
+    {
+        xmlSave.appendSequenceXML(unitDEFINEFile,infoList,unitDeal.actTest.at(j));
+    }
+
+    ui->comboUnitList->addItem(unitDeal.name);
+    unitList.append(unitDeal);
+}
+
+void defTheUnit::on_actApply_triggered()
+{
+    changedInfoFlagDeal();
+    applyTheUnit(unitDeal);
+}
+
+/*************************************************************
+/函数功能：选择当前测试单元
+/函数参数：指针
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_comboUnitList_activated(int index)
+{
+    if(index<unitList.length())
+    {
+        unitDeal = unitList.at(index);
+
+        ui->editUnitName->setText(unitDeal.name);
+        ui->spinUnitCycle->setValue(unitDeal.cycleCount);
+        ui->editUnitDes->setText(unitDeal.unitDes);
+
+        //clear
+        for(uint16_t i=ui->tableAction->rowCount();i>0;i--)
+        {
+            ui->tableAction->removeRow(i-1);
+        }
+
+        //append
+        for(int i=0;i<unitDeal.actTest.length();i++)
+        {
+            int row=ui->tableAction->rowCount();
+            ui->tableAction->setRowCount(row+1);
+
+            ui->tableAction->selectRow(row);
+            ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(unitDeal.actTest.at(i).actName));
+            ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(unitDeal.actTest.at(i).actStr));
+
+            refreshPropertiesParam(unitDeal.actTest.at(i));
+        }
+    }
+}

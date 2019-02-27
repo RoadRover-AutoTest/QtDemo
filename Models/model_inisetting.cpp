@@ -151,3 +151,25 @@ void Model_iniSetting::WriteIni_ReportCreat(QVariant value)
 {
     WriteIni(SYSInfo,"ITEM_Information","ReportCreat",value);
 }
+
+/*************************************************************
+/函数功能：读取定义信息
+/函数参数：
+/函数返回：值
+*************************************************************/
+QString Model_iniSetting::ReadIni_defineInfo(QString str)
+{
+    QVariant value;
+    ReadIni(SYSInfo,"TEST_DEFINE_INFO",str,&value);
+    return value.toString();
+}
+
+/*************************************************************
+/函数功能：写定义信息
+/函数参数：value：写入的值
+/函数返回：无
+*************************************************************/
+void Model_iniSetting::WriteIni_defineInfo(QString str,QVariant value)
+{
+    WriteIni(SYSInfo,"TEST_DEFINE_INFO",str,value);
+}
