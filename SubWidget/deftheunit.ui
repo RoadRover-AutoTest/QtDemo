@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Define-Unit</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../Images/images.qrc">
+    <normaloff>:/Title/defUnit.png</normaloff>:/Title/defUnit.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_8">
@@ -24,7 +28,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
-          <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,1">
+          <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,1">
            <item>
             <widget class="QTableWidget" name="tableAction">
              <property name="contextMenuPolicy">
@@ -823,7 +827,10 @@
     <property name="title">
      <string>文件</string>
     </property>
+    <addaction name="actnew"/>
     <addaction name="actSave"/>
+    <addaction name="actdel"/>
+    <addaction name="actclear"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -852,8 +859,12 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actLook"/>
+   <addaction name="actnew"/>
    <addaction name="actSave"/>
+   <addaction name="actdel"/>
+   <addaction name="actclear"/>
+   <addaction name="separator"/>
+   <addaction name="actLook"/>
    <addaction name="actApply"/>
    <addaction name="actexit"/>
   </widget>
@@ -903,6 +914,36 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actnew">
+   <property name="icon">
+    <iconset resource="../Images/images.qrc">
+     <normaloff>:/Title/newTest.png</normaloff>:/Title/newTest.png</iconset>
+   </property>
+   <property name="text">
+    <string>新建</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actdel">
+   <property name="icon">
+    <iconset resource="../Images/images.qrc">
+     <normaloff>:/Title/delUnit.png</normaloff>:/Title/delUnit.png</iconset>
+   </property>
+   <property name="text">
+    <string>删除</string>
+   </property>
+  </action>
+  <action name="actclear">
+   <property name="icon">
+    <iconset resource="../Images/images.qrc">
+     <normaloff>:/Title/clearUnit.png</normaloff>:/Title/clearUnit.png</iconset>
+   </property>
+   <property name="text">
+    <string>清空</string>
    </property>
   </action>
  </widget>

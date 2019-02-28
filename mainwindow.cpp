@@ -122,6 +122,7 @@ void MainWindow::setIsRunInterface(bool IsRun)
         ui->acttest->setText("Ending");
         ui->acttest->setIcon(QIcon(":/Title/actEnding.png"));
         ui->acttest->setChecked(IsRun);
+        ui->treeWidget->setEnabled(false);
     }
     else
     {
@@ -129,6 +130,7 @@ void MainWindow::setIsRunInterface(bool IsRun)
         ui->acttest->setText("Running");
         ui->acttest->setIcon(QIcon(":/Title/actRunning.png"));
         ui->acttest->setChecked(IsRun);
+        ui->treeWidget->setEnabled(true);
     }
 }
 

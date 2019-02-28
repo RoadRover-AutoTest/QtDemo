@@ -23,13 +23,8 @@ defTheUnit::defTheUnit(QWidget *parent) :
         ui->comboUnitList->addItem(unitList.at(i).name);
     }
 
-    //初始化测试单元基本信息
-    unitDeal.name = "";
-    unitDeal.cycleCount = 1;
-    unitDeal.unitDes = "";
-    ui->editUnitName->setText(unitDeal.name);
-    ui->spinUnitCycle->setValue(unitDeal.cycleCount);
-    ui->editUnitDes->setText(unitDeal.unitDes);
+    //创立之初为空
+    on_actnew_triggered();
 
 
     //初始化按键列表
@@ -85,9 +80,9 @@ void defTheUnit::inittActionParam(tAction *tact)
 /函数参数：
 /函数返回：wu
 *************************************************************/
-void defTheUnit::on_editUnitName_editingFinished()
+void defTheUnit::on_editUnitName_textChanged(const QString &arg1)
 {
-    unitDeal.name = ui->editUnitName->text();
+    unitDeal.name = arg1;
 }
 
 /*************************************************************
@@ -118,7 +113,9 @@ void defTheUnit::on_editUnitDes_textChanged()
 void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
 {
     QMenu *popMenu = new QMenu( this );
-    QAction *clear = new QAction(tr("clear"), this);
+    QAction *deleteAct = new QAction(tr("delete"), this);
+    QAction *upAct = new QAction(tr("上移"), this);
+    QAction *downAct = new QAction(tr("下移"), this);
     QAction *ScriptAction = new QAction(tr("Add Script"), this);
 
     QMenu *keyMenu = new QMenu("Add Key");
@@ -142,7 +139,9 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     popMenu->addMenu(keyMenu);
     popMenu->addAction(ScriptAction);
     popMenu->addSeparator();
-    popMenu->addAction(clear);
+    popMenu->addAction(upAct);
+    popMenu->addAction(downAct);
+    popMenu->addAction(deleteAct);
 
     connect( ACCONAction,        SIGNAL(triggered() ), this, SLOT( ACCONActionSlot()) );
     connect( ACCOFFAction,        SIGNAL(triggered() ), this, SLOT( ACCOFFActionSlot()) );
@@ -154,7 +153,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
 
     connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( scriptActionSlot()) );
 
-    connect( clear,        SIGNAL(triggered() ), this, SLOT( clearActionSlot()) );
+    connect( deleteAct,        SIGNAL(triggered() ), this, SLOT( deleteActionSlot()) );
 
     popMenu->exec( QCursor::pos() );
 
@@ -162,19 +161,9 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
 
 }
 
-void defTheUnit::clearActionSlot()
+void defTheUnit::deleteActionSlot()
 {
-    if (QMessageBox::warning(NULL, "Warning","Are you sure you want to clear Unit ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
-        return;
 
-    //主窗口涉及清楚任务，因此放置上层处理
-    int row=ui->tableAction->rowCount();
-    for(uint16_t i=row;i>0;i--)
-    {
-        ui->tableAction->removeRow(i-1);
-    }
-
-    unitDeal.actTest.clear();
 }
 
 /*************************************************************
@@ -241,7 +230,7 @@ void defTheUnit::ACCOFFActionSlot()
 
     kAction.timeDeal.wait = 10000;
     kAction.timeDeal.check = 15000;
-    kAction.timeDeal.end = 0;
+    kAction.timeDeal.end = 60000;
 
     changedParam changeTime;
     changeTime.changed = WaitTime;
@@ -326,7 +315,7 @@ void defTheUnit::BATOFFActionSlot()
 
     kAction.timeDeal.wait = 5000;
     kAction.timeDeal.check = 0;
-    kAction.timeDeal.end = 0;
+    kAction.timeDeal.end = 60000;
 
     changedParam changeTime;
     changeTime.changed = WaitTime;
@@ -528,6 +517,13 @@ void defTheUnit::refreshPropertiesParam(tAction act)
     {
         ui->stackedWidget->setCurrentWidget(ui->pageScript);
         ui->editFilePath->setText(act.actStr);
+
+        if((act.actStr.isEmpty())||(act.actStr.endsWith(".bat"))||(act.actStr.endsWith(".BAT")))
+        {
+            ui->checkfileMore->setChecked(false);
+        }
+        else
+            ui->checkfileMore->setChecked(true);
     }
 
     //刷新时间属性
@@ -574,6 +570,12 @@ void defTheUnit::on_tableAction_itemChanged(QTableWidgetItem *item)
         {
             ui->stackedWidget->setCurrentWidget(ui->pageScript);
             ui->editFilePath->setText(curAct.actStr);
+            if((curAct.actStr.isEmpty())||(curAct.actStr.endsWith(".bat"))||(curAct.actStr.endsWith(".BAT")))
+            {
+                ui->checkfileMore->setChecked(false);
+            }
+            else
+                ui->checkfileMore->setChecked(true);
         }
     }
 }
@@ -1171,16 +1173,14 @@ void defTheUnit::on_actSave_triggered()
             for(int i=0;i<unitList.length();i++)
             {
                 if(unitList.at(i).name==unitDeal.name)
-                {
                     unitList.replace(i,unitDeal);
-                }
             }
         }
-
     }
     else
     {
         ui->comboUnitList->addItem(unitDeal.name);
+        ui->comboUnitList->setCurrentText(unitDeal.name);
         unitList.append(unitDeal);
     }
 
@@ -1238,4 +1238,80 @@ void defTheUnit::on_comboUnitList_activated(int index)
             refreshPropertiesParam(unitDeal.actTest.at(i));
         }
     }
+}
+
+/*************************************************************
+/函数功能：新建测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_actnew_triggered()
+{
+    int row=ui->tableAction->rowCount();
+
+    if(row)
+    {
+        if (QMessageBox::warning(NULL, "Warning","Are you sure you want to clear Unit ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+            return;
+    }
+
+    //主窗口涉及清楚任务，因此放置上层处理
+    for(uint16_t i=row;i>0;i--)
+    {
+        ui->tableAction->removeRow(i-1);
+    }
+
+    //初始化测试单元基本信息
+    unitDeal.actTest.clear();
+    unitDeal.name = "";
+    unitDeal.cycleCount = 1;
+    unitDeal.unitDes = "";
+    ui->editUnitName->setText(unitDeal.name);
+    ui->spinUnitCycle->setValue(unitDeal.cycleCount);
+    ui->editUnitDes->setText(unitDeal.unitDes);
+}
+
+/*************************************************************
+/函数功能：删除测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_actdel_triggered()
+{
+    int index = ui->comboUnitList->currentIndex();
+    QString delStr = ui->comboUnitList->currentText();
+    Model_XMLFile xmlFile;
+    if(xmlFile.hasUnitInfomation(unitDEFINEFile,delStr))
+    {
+        if (QMessageBox::warning(NULL, "Warning","Are you sure you want to delete the Unit ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+            return;
+
+        xmlFile.removeUnitXML(unitDEFINEFile,delStr);
+
+        ui->comboUnitList->removeItem(index);
+
+        if(index<unitList.length())
+            unitList.removeAt(index);
+    }
+}
+
+/*************************************************************
+/函数功能：清空测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_actclear_triggered()
+{
+    Model_XMLFile xmlFile;
+    if (QMessageBox::warning(NULL, "Warning","Are you sure you want to clear all Unit ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+        return;
+
+    for(int i=0;i<unitList.length();i++)
+    {
+        xmlFile.removeUnitXML(unitDEFINEFile,unitList.at(i).name);
+    }
+
+
+    ui->comboUnitList->clear();
+    unitList.clear();
 }

@@ -65,6 +65,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 timeState = collectInfo;
                 nextState = exeAction;
                 ShowList << "采集信息：";
+                collectTimeDelay=0;
             }
             else
                 timeState = exeAction;
@@ -121,7 +122,9 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         }
         case collectInfo:
         {
-            collectInfoDeal(infoFlag);
+            if((!collectTimeDelay)||(collectTimeDelay % 1000 == 0))
+                collectInfoDeal(infoFlag);
+            collectTimeDelay++;
             break;
         }
         case wait://计数并判断时间
@@ -156,6 +159,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 timeState = collectInfo;
                 nextState = chkAction;
                 ShowList << "采集信息：";
+                collectTimeDelay=0;
             }
             else
                 timeState = chkAction;
@@ -266,7 +270,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     //采集声音：
     if((!(colInfoFlag & COLSOUND))&&(infoFlag & COLSOUND))
     {
-
+        colInfoFlag |= COLSOUND;
     }
 
     //信息采集完成，执行下一步：
@@ -279,7 +283,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     toContinue:
     {
         //添加超时处理机制：
-        if(reChkCount >= actionDeal->timeDeal.end)
+        if(reChkCount >= (actionDeal->timeDeal.end / 1000))
         {
             ShowList <<"Warn:采集信息超时；";
             timeState=nextState;
@@ -664,6 +668,7 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
                 {
                     lastPicInfo = fixedInfo.at(i).information.toString();
                     //picDeal.Cameracompare(curPicInfo,lastPicInfo);
+                    result = true;
                     break;
                 }
             }

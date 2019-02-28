@@ -74,10 +74,12 @@ bool Model_XMLFile::hasUnitInfomation(QString filePath,QString unitName)
                 while(!n.isNull())
                 {
                     QDomElement thisEmt = n.toElement();
+                    //cout << thisEmt.attribute("name");
 
                     if( (!thisEmt.isNull()) && (thisEmt.attribute("name") == unitName) )
                     {
                         //已存在该项目，修改数据
+                        //cout << unitName;
                         return true;
                     }
                     n=n.nextSibling();

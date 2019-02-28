@@ -59,6 +59,7 @@ private:
     bool testResult;
     uint64_t reChkCount;     //重复监测计数
     uint64_t overtimeAct;
+    uint64_t collectTimeDelay;
 
     uint16_t colInfoFlag;       //用来标记已完成的信息采集
     uint16_t infoFlag;

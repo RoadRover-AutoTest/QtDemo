@@ -24,6 +24,9 @@
         <file>actRunning.png</file>
         <file>apply.png</file>
         <file>preview.png</file>
+        <file>defUnit.png</file>
+        <file>clearUnit.png</file>
+        <file>delUnit.png</file>
     </qresource>
     <qresource prefix="/flow">
         <file>offScriptFlow.png</file>

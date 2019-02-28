@@ -542,6 +542,7 @@ void reTableWidget::applyDefineUnitSlot(tUnit unit)
 {
     int fileIndex=0;
     bool isOver=false;
+    QString reString;
 
     tUnit curUnit;
     curUnit.name = unit.name;
@@ -601,17 +602,36 @@ continueAppendList:
         }
     }
 
-    theSeqList.append(curUnit);
-    QStringList unitInfo;
-    int len = theSeqList.length()-1;
+    //查询，若序列中已存在，跳过添加，若不存在添加测试单元
+    int index;
+    for(index=0;index<theSeqList.length();index++)
+    {
+        //测试序列中已存在将跳过应用
+        if(curUnit.name == theSeqList.at(index).name)
+        {
+            reString+="\n"+curUnit.name;
+            break;
+        }
+    }
+    if(index>=theSeqList.length())
+    {
+        theSeqList.append(curUnit);
+        QStringList unitInfo;
+        int len = theSeqList.length()-1;
 
-    unitInfo.append(theSeqList.at(len).name);
-    unitInfo.append(toStr(theSeqList.at(len).cycleCount));
-    unitInfo.append(theSeqList.at(len).unitDes);
+        unitInfo.append(theSeqList.at(len).name);
+        unitInfo.append(toStr(theSeqList.at(len).cycleCount));
+        unitInfo.append(theSeqList.at(len).unitDes);
 
-    appendTableWidget(unitInfo);
+        appendTableWidget(unitInfo);
+    }
+
 
     if((fileIndex)&&(!isOver))
         goto continueAppendList;
+    else if(reString.isEmpty()==false)
+    {
+        QMessageBox::warning(NULL, QString("Warn"), QString("存在重复测试单元添加，如下所示："+reString));
+    }
 }
 

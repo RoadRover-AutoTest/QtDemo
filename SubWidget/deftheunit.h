@@ -29,7 +29,7 @@ private slots:
     void CCDOFFActionSlot();
     void keyActionSlot();
     void scriptActionSlot();
-    void clearActionSlot();
+    void deleteActionSlot();
 
     void editTimeDealSlot();
     void editCheckDealSlot(bool checked);
@@ -54,7 +54,7 @@ private slots:
 
     void on_actLook_triggered();
 
-    void on_editUnitName_editingFinished();
+    void on_editUnitName_textChanged(const QString &arg1);
 
     void on_spinUnitCycle_editingFinished();
 
@@ -65,6 +65,14 @@ private slots:
     void on_actApply_triggered();
 
     void on_comboUnitList_activated(int index);
+
+    void on_actnew_triggered();
+
+
+
+    void on_actdel_triggered();
+
+    void on_actclear_triggered();
 
 private:
     Ui::defTheUnit *ui;
