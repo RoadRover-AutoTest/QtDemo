@@ -154,6 +154,8 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( scriptActionSlot()) );
 
     connect( deleteAct,        SIGNAL(triggered() ), this, SLOT( deleteActionSlot()) );
+    connect( upAct,        SIGNAL(triggered() ), this, SLOT( upActionSlot()) );
+    connect( downAct,        SIGNAL(triggered() ), this, SLOT( downActionSlot()) );
 
     popMenu->exec( QCursor::pos() );
 
@@ -161,9 +163,106 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
 
 }
 
+/*************************************************************
+/函数功能：上移
+/函数参数：
+/函数返回：无
+*************************************************************/
+void defTheUnit::upActionSlot()
+{
+    QTableWidgetItem * item = ui->tableAction->currentItem();
+    if( item == NULL )
+        return;
+
+    int curIndex = ui->tableAction->row(item);
+
+    moveRow(curIndex, curIndex-1 );
+}
+
+/*************************************************************
+/函数功能：下移
+/函数参数：
+/函数返回：无
+*************************************************************/
+void defTheUnit::downActionSlot()
+{
+    QTableWidgetItem * item = ui->tableAction->currentItem();
+    if( item == NULL )
+        return;
+
+    int curIndex = ui->tableAction->row(item);
+    moveRow(curIndex, curIndex+1 );
+}
+
+/*************************************************************
+/函数功能：移动行：表格显示及序列排序
+/函数参数：
+/函数返回：无
+*************************************************************/
+void defTheUnit::moveRow(int nFrom, int nTo )
+{
+    if( ui->tableAction == NULL )
+        return;
+    ui->tableAction->setFocus();
+
+    if( nFrom == nTo )
+        return;
+    if( nFrom < 0 || nTo < 0 )
+        return;
+    int nRowCount = ui->tableAction->rowCount();
+    if( nFrom >= nRowCount  || nTo > nRowCount )
+        return;
+    if( nFrom >= unitDeal.actTest.length()  || nTo > unitDeal.actTest.length() )
+        return;
+
+    //交换序列
+    tAction testAct=unitDeal.actTest.at(nFrom);
+    tAction swopAct=unitDeal.actTest.at(nTo);
+
+    unitDeal.actTest.replace(nFrom,swopAct);
+    unitDeal.actTest.replace(nTo,testAct);
+
+    //交换表格显示表格显示
+    if( nTo < nFrom )
+        nFrom++;
+    else
+        nTo++;
+
+    ui->tableAction->insertRow( nTo );//即在当前号增加一个空的行，原有数据下移
+
+    //取消链接，避免设置项目时，跳转到处理项目改变槽函数，影响测试动作改变
+    disconnect(ui->tableAction,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_tableAction_itemChanged(QTableWidgetItem*)));
+    for( int i=0; i<ui->tableAction->columnCount(); i++ )
+    {
+        ui->tableAction->setItem( nTo, i, ui->tableAction->takeItem( nFrom , i ) );
+    }
+    connect(ui->tableAction,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_tableAction_itemChanged(QTableWidgetItem*)));
+
+    if( nFrom < nTo  )
+        nTo--;
+
+    ui->tableAction->removeRow( nFrom );
+    ui->tableAction->selectRow( nTo );
+}
+
+/*************************************************************
+/函数功能：删除行
+/函数参数：
+/函数返回：无
+*************************************************************/
 void defTheUnit::deleteActionSlot()
 {
+    QTableWidgetItem * item = ui->tableAction->currentItem();
+    if( item == NULL )
+        return;
 
+    int curIndex = ui->tableAction->row(item);
+    ui->tableAction->removeRow(curIndex);          //delete item;因已移除行，无需再删除项目
+
+    if((curIndex>=0)&&(curIndex<unitDeal.actTest.length()))
+    {
+        unitDeal.actTest.removeAt(curIndex);
+    }
 }
 
 /*************************************************************
@@ -544,6 +643,7 @@ void defTheUnit::on_tableAction_itemChanged(QTableWidgetItem *item)
 
     if(selRow>=unitDeal.actTest.length())
         return ;
+
 
     if(colNum == Col_Name)
     {

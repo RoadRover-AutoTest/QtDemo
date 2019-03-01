@@ -30,6 +30,8 @@ private slots:
     void keyActionSlot();
     void scriptActionSlot();
     void deleteActionSlot();
+    void downActionSlot();
+    void upActionSlot();
 
     void editTimeDealSlot();
     void editCheckDealSlot(bool checked);
@@ -96,6 +98,8 @@ private:
     void refreshCheckDeal(QList<checkParam> chkDeal);
     void changedInfoFlagDeal();
     int getTableActionSelRanges();
+
+    void moveRow(int nFrom, int nTo );
 
 signals:
     void applyTheUnit(tUnit unit);

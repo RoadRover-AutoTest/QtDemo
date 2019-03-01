@@ -41,7 +41,6 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 private:
-    bool isSel;
     defTheUnit *defUnit;
 
 
@@ -50,6 +49,8 @@ private:
 
     void SaveTheSeq_Deal(QString path);
     void moveRow(int nFrom, int nTo );
+
+    QList <int> selTableRanges();
 private slots:
     void deleteSeqfromTableSlot();
     void clearSeqfromTableSlot();
@@ -58,7 +59,6 @@ private slots:
     void UpTheUnitSlot();
     void DownTheUnitSlot();
     void onSpbColumnChanged(int value);
-    void SelTheTestCaseSlot(bool checked);
     void ScriptCase1Slot();
     void AddTestCasetoListSlot();
     void LookTheUnitSlot();

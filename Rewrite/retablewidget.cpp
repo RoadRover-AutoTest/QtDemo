@@ -5,7 +5,7 @@
 reTableWidget::reTableWidget(QWidget *parent)
     : QTableWidget(parent)
 {
-    isSel=true;
+
 }
 
 
@@ -32,7 +32,7 @@ void reTableWidget::appendTableWidget(QStringList info)
     this->setRowCount(row+1);
 
     QTableWidgetItem *unitName = new QTableWidgetItem(info.at(0));
-    unitName->setCheckState(Qt::Checked);
+    //unitName->setCheckState(Qt::Checked);
     this->setItem(row,seqColName,unitName);
 
     QSpinBox* spinBox3 = new QSpinBox();
@@ -101,12 +101,10 @@ void reTableWidget::mousePressEvent(QMouseEvent *event)
         QAction *SaveSeq = new QAction(tr("Save"), this);
         QAction *OpenSeq = new QAction(tr("Open"), this);
         QAction *NewSeq = new QAction(tr("New"), this);
-        QAction *upCase = new QAction(tr("Up"), this);
-        QAction *downCases = new QAction(tr("Down"), this);
-        QAction *SelCase = new QAction(tr("全选"), this);
+        QAction *upCase = new QAction(tr("上移"), this);
+        QAction *downCases = new QAction(tr("下移"), this);
         QAction *LookCase = new QAction(tr("Look"), this);
         QAction *EditCase = new QAction(tr("Edit"), this);
-
 
         QMenu *addMenu = new QMenu("Add TestUnit");
         QAction *ScriptCase1 = new QAction(tr("一键生成脚本测试"), this);
@@ -116,20 +114,15 @@ void reTableWidget::mousePressEvent(QMouseEvent *event)
         connect( ScriptCase1,       SIGNAL(triggered() ), this, SLOT( ScriptCase1Slot()) );
         connect( userUnit,          SIGNAL(triggered() ), this, SLOT( AddTestCasetoListSlot()) );
 
-        SelCase->setCheckable(true);
-        SelCase->setChecked(isSel);
-
-
         popMenu->addMenu(addMenu);
-        popMenu->addAction( SelCase );
-       // popMenu->addAction( RunCuetomCase );
-       // popMenu->addAction( RunALLCases );
-        popMenu->addSeparator();
-        popMenu->addAction( NewSeq );
-        popMenu->addAction( OpenSeq );
-        popMenu->addAction( SaveSeq );
         popMenu->addAction( LookCase );
         popMenu->addAction( EditCase );
+       // popMenu->addAction( RunCuetomCase );
+       // popMenu->addAction( RunALLCases );
+        //popMenu->addSeparator();
+        //popMenu->addAction( NewSeq );
+        //popMenu->addAction( OpenSeq );
+        //popMenu->addAction( SaveSeq );
         popMenu->addSeparator();
         popMenu->addAction( upCase );
         popMenu->addAction( downCases );
@@ -145,13 +138,10 @@ void reTableWidget::mousePressEvent(QMouseEvent *event)
         connect( SaveSeq,           SIGNAL(triggered() ), this, SLOT( onSaveSequenceSlot()) );
         connect( upCase,            SIGNAL(triggered() ), this, SLOT( UpTheUnitSlot()) );
         connect( downCases,         SIGNAL(triggered() ), this, SLOT( DownTheUnitSlot()) );
-        connect( SelCase,           SIGNAL(triggered(bool)), this, SLOT( SelTheTestCaseSlot(bool)) );
         connect( LookCase,          SIGNAL(triggered() ), this, SLOT( LookTheUnitSlot()) );
         connect( EditCase,          SIGNAL(triggered(bool)), this, SLOT( EditTheUnitSlot()) );
 
         popMenu->exec( QCursor::pos() );
-
-        isSel=!isSel;
 
         delete popMenu;
     }
@@ -161,25 +151,63 @@ void reTableWidget::mousePressEvent(QMouseEvent *event)
 }
 
 /*************************************************************
+/函数功能：获取选择范围
+/函数参数：
+/函数返回：选择行号列表
+*************************************************************/
+QList <int> reTableWidget::selTableRanges()
+{
+    QList <int> vecItemIndex;//保存选中行的索引
+    QItemSelectionModel *selections = this->selectionModel(); //返回当前的选择模式
+    QModelIndexList selectedsList = selections->selectedIndexes(); //返回所有选定的模型项目索引列表
+
+    for (int i = 0; i < selectedsList.count(); i++)
+    {
+        //vecItemIndex.push_back(selectedsList.at(i).row());
+        //cout <<selectedsList.at(i).row();
+        vecItemIndex.append(selectedsList.at(i).row());
+    }
+    //std::sort(vecItemIndex.begin(), vecItemIndex.end());
+    //vecItemIndex.erase(std::unique(vecItemIndex.begin(), vecItemIndex.end()), vecItemIndex.end());
+    return vecItemIndex;
+}
+
+/*************************************************************
 /函数功能：删除列表当前选中项
 /函数参数：
 /函数返回：无
 *************************************************************/
 void reTableWidget::deleteSeqfromTableSlot()
 {
-    if (QMessageBox::warning(NULL, "Warning","Are you sure to delete Sequence ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+    if (QMessageBox::warning(NULL, "Warning","Are you sure to delete the selected Unit?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
         return;
 
-    QTableWidgetItem * item = this->currentItem();
-    if( item == NULL )
-        return;
+    QList <int> itemIndex = selTableRanges();
+    int index=0;
+    int maxSel=0;
 
-    int curIndex = this->row(item);
-    this->removeRow(curIndex);          //delete item;因已移除行，无需再删除项目
-
-    if((curIndex>=0)&&(curIndex<theSeqList.length()))
+    while(itemIndex.length())
     {
-        theSeqList.removeAt(curIndex);
+        //查找所选行号中最大行号
+        maxSel =itemIndex.at(index);
+        for(int i=1;i<itemIndex.length();i++)
+        {
+            if(maxSel<itemIndex.at(i))
+            {
+                maxSel = itemIndex.at(i);
+                index = i;
+            }
+        }
+
+        //删除该行号的数据
+        this->removeRow(maxSel);
+        if((maxSel>=0)&&(maxSel<theSeqList.length()))
+        {
+            theSeqList.removeAt(maxSel);
+        }
+        //移除，重新查找，知道无数据选中
+        itemIndex.removeAt(index);
+        index = 0;
     }
 }
 
@@ -421,7 +449,7 @@ void reTableWidget::DownTheUnitSlot()
         return;
 
     int curIndex = this->row(item);
-    moveRow(curIndex, curIndex+2 );
+    moveRow(curIndex, curIndex+1 );//2
 }
 
 /*************************************************************
@@ -452,10 +480,11 @@ void reTableWidget::moveRow(int nFrom, int nTo )
     theSeqList.replace(nFrom,swopUnit);
     theSeqList.replace(nTo,testUnit);
 
-
     //交换表格显示表格显示
     if( nTo < nFrom )
         nFrom++;
+    else
+        nTo++;
     this->insertRow( nTo );
 
     int nCol = this->columnCount();
@@ -473,24 +502,6 @@ void reTableWidget::moveRow(int nFrom, int nTo )
 
     this->removeRow( nFrom );
     this->selectRow( nTo );
-}
-
-
-/*************************************************************
-/函数功能：全选/全不选
-/函数参数：
-/函数返回：无
-*************************************************************/
-void reTableWidget::SelTheTestCaseSlot(bool checked)
-{
-    for(int i=0;i<this->rowCount();i++)
-    {
-        QTableWidgetItem *elem1 = this->item(i,seqColName);
-        if(checked)
-            elem1->setCheckState(Qt::Checked);
-        else
-            elem1->setCheckState(Qt::Unchecked);
-    }
 }
 
 /*************************************************************
