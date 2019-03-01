@@ -1233,9 +1233,9 @@ void defTheUnit::changedInfoFlagDeal()
 void defTheUnit::on_actLook_triggered()
 {
     changedInfoFlagDeal();
-    CfgLookUnit lookUnit(&unitDeal);
+    CfgLookUnit lookUnit(&unitDeal,false);
 
-    lookUnit.exec();//any：是否可修改
+    lookUnit.exec();//不可修改,该窗口即为配置窗口，无需再修改
 }
 
 /*************************************************************
@@ -1291,6 +1291,7 @@ void defTheUnit::on_actSave_triggered()
     {
         xmlSave.appendSequenceXML(unitDEFINEFile,infoList,unitDeal.actTest.at(j));
     }
+
 }
 
 /*************************************************************
@@ -1351,8 +1352,11 @@ void defTheUnit::on_actnew_triggered()
 
     if(row)
     {
-        if (QMessageBox::warning(NULL, "Warning","Are you sure you want to clear Unit ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
-            return;
+        int selKey = QMessageBox::warning(NULL, "提示","是否已经保存当前测试单元?",QMessageBox::Save | QMessageBox::Yes | QMessageBox::Cancel,QMessageBox::Yes);
+        if (selKey == QMessageBox::Cancel )
+            return ;
+        else if (selKey == QMessageBox::Save )
+            on_actSave_triggered();
     }
 
     //主窗口涉及清楚任务，因此放置上层处理
@@ -1364,11 +1368,13 @@ void defTheUnit::on_actnew_triggered()
     //初始化测试单元基本信息
     unitDeal.actTest.clear();
     unitDeal.name = "";
-    unitDeal.cycleCount = 1;
+    unitDeal.cycleCount = 2;
     unitDeal.unitDes = "";
     ui->editUnitName->setText(unitDeal.name);
     ui->spinUnitCycle->setValue(unitDeal.cycleCount);
     ui->editUnitDes->setText(unitDeal.unitDes);
+
+
 }
 
 /*************************************************************

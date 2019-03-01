@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    countTime=0;
+
     initMainWindow();
 
     initUartParam();
@@ -207,6 +209,14 @@ void MainWindow::timerEvent(QTimerEvent *event)
             if(proList.isEmpty())
                 proList.append(ADBDevs);
             //cout;
+        }
+
+        //计时10分钟清理一次检测窗口:600
+        if(++countTime>600)
+        {
+            countTime=0;
+            appendTheExecLogInfo(ui->textBrowser_EXEShow->toPlainText());
+            ui->textBrowser_EXEShow->clear();
         }
     }
 }
@@ -468,6 +478,7 @@ void MainWindow::timerTestIDDeal()
     {
     case start:
     {
+        ui->textBrowser_EXEShow->clear();
         isRunning = true;
         setIsRunInterface(true);
         testTime = QDateTime::currentDateTime();
@@ -515,6 +526,8 @@ void MainWindow::timerTestIDDeal()
         killTimer(timerTestID);
         isRunning=false;
         setIsRunInterface(false);
+        appendTheExecLogInfo(ui->textBrowser_EXEShow->toPlainText());
+
         break;
     }
     }

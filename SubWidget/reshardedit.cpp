@@ -11,6 +11,9 @@ ResHardEdit::ResHardEdit(keyControl *keyInfo,QWidget *parent) :
 
     ui->stackedWidget->setCurrentIndex(0);
 
+    connect(ui->comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(comBoxChangedSlot(int)));
+    connect(ui->comboBox,SIGNAL(activated(int)),this,SLOT(comBoxChangedSlot(int)));
+
     keyEditInit();
 
     connect(ui->lineEditCAN1ID,SIGNAL(editingFinished()),this,SLOT(on_CAN1Changed()));
@@ -85,10 +88,17 @@ toHardPage:
 /函数参数：选择的类型指针：0：硬件 1：单协议 2：双协议
 /函数返回：无
 *************************************************************/
-void ResHardEdit::on_comboBox_currentIndexChanged(int index)
+void ResHardEdit::comBoxChangedSlot(int index)
 {
     ui->stackedWidget->setCurrentIndex(index);
-    showlabel();
+
+    switch (index)
+    {
+    case 0:ui->label->setText("硬件控制车机！");break;
+    case 1:ui->label->setText("单协议：单帧协议控制车机");break;
+    case 2:ui->label->setText("双协议：双帧控制车机，常用来处理翻转操作");break;
+    default:break;
+    }
 
     if(index)
     {
@@ -97,29 +107,6 @@ void ResHardEdit::on_comboBox_currentIndexChanged(int index)
     else
     {
         on_KeyTypeChanged();
-    }
-}
-
-/*************************************************************
-/函数功能：根据测试类型，更新信息提示
-/函数参数：无
-/函数返回：无
-*************************************************************/
-void ResHardEdit::showlabel()
-{
-    switch (ui->stackedWidget->currentIndex())
-    {
-    case 0:
-        ui->label->setText("硬件控制车机！");
-        break;
-    case 1:
-        ui->label->setText("单协议：单帧协议控制车机");
-        break;
-    case 2:
-        ui->label->setText("双协议：双帧控制车机，常用来处理翻转操作");
-        break;
-    default:
-        break;
     }
 }
 
@@ -183,3 +170,15 @@ void ResHardEdit::on_KeyTypeChanged()
     if(ui->radioButtonRES->isChecked())
         editKeyInfo->type = HardRes;
 }
+
+void ResHardEdit::accept()
+{
+    if(editKeyInfo->name.isEmpty())
+    {
+        QMessageBox::warning(NULL, QString("提示"), QString("按键名为空，请输入！"));
+    }
+    else
+        QDialog::accept();
+}
+
+

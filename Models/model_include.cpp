@@ -151,6 +151,19 @@ QString getCheckType(chk_type_e chk)
     return str;
 }
 
+QString getCompareType(compare_type_e compare)
+{
+    QString str;
+    switch(compare)
+    {
+        case NoCompare:str = "不比较";break;
+        case MemoryCompare:str = "记忆检测";break;
+        case SelfCompare:str = "自身校验";break;
+        case LocalCompare:str = "本地校验";break;
+    }
+    return str;
+}
+
 /*************************************************************
 /函数功能：保存文件
 /函数参数：SaveStr :保存字符串
@@ -238,6 +251,48 @@ bool appendThePropertiesToFile(QString SaveStr)
 
     file.close();
     return true;
+}
+
+void appendTheExecLogInfo(QString SaveStr)
+{
+    QStringList pathList = savePath.split("/");
+
+    QString path ;
+
+    //路径拆分方式增加处理："\\"
+    if(pathList.length() == 1)
+    {
+        pathList.clear();
+        pathList = savePath.split("\\");
+    }
+
+    //组合路径
+    for(int i=0;i<pathList.length()-2;i++)
+    {
+        path += pathList.at(i) + "/";
+    }
+
+    QDir dir(path);
+    if(!dir.exists())
+    {
+        if(dir.mkpath(path) == false) //创建多级目录
+        {
+            cout << "创建属性文件夹失败！创建路径为："<<path;
+            return ;
+        }
+    }
+
+    QFile file(path+"ExecLog.txt");
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        cout << "Cannot open file " << path+"properties.txt";
+        return ;
+    }
+
+    QTextStream out(&file);
+    out << SaveStr;
+    file.close();
 }
 
 /*************************************************************

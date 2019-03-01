@@ -20,8 +20,6 @@ public:
     keyControl *getCurrentKeyInfo();
 
 private slots:
-    void on_comboBox_currentIndexChanged(int index);
-
     void on_lineEdit_editingFinished();
 
     void on_CAN1Changed();
@@ -30,13 +28,17 @@ private slots:
 
     void on_KeyTypeChanged();
 
+    void comBoxChangedSlot(int index);
+
 private:
     Ui::ResHardEdit *ui;
 
     keyControl *editKeyInfo;
 
-    void showlabel();
     void keyEditInit();
+
+protected:
+    void accept();
 };
 
 #endif // RESHARDEDIT_H

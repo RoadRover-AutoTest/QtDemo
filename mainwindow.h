@@ -129,6 +129,7 @@ private:
     QStringList proList;            //进程处理解析字符串列表：用来显示
 
 
+    int countTime;
     //运行状态列表
     enum
     {

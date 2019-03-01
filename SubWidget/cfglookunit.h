@@ -14,8 +14,11 @@ class CfgLookUnit : public QDialog
     Q_OBJECT
 
 public:
-    explicit CfgLookUnit(tUnit *unit, QWidget *parent = 0);
+    explicit CfgLookUnit(tUnit *unit,bool isEdit, QWidget *parent = 0);
     ~CfgLookUnit();
+
+private slots:
+    void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
 
 private:
     Ui::CfgLookUnit *ui;

@@ -19,9 +19,6 @@
      <property name="lineWidth">
       <number>2</number>
      </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
      <column>
       <property name="text">
        <string>Unit</string>

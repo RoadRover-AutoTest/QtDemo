@@ -105,18 +105,19 @@ void reTableWidget::mousePressEvent(QMouseEvent *event)
         QAction *downCases = new QAction(tr("下移"), this);
         QAction *LookCase = new QAction(tr("Look"), this);
         QAction *EditCase = new QAction(tr("Edit"), this);
+        QAction *addMenu = new QAction("Add TestUnit");
 
-        QMenu *addMenu = new QMenu("Add TestUnit");
-        QAction *ScriptCase1 = new QAction(tr("一键生成脚本测试"), this);
-        QAction *userUnit = new QAction(tr("自定义测试单元"), this);
-        addMenu->addAction(userUnit);
-        addMenu->addAction(ScriptCase1);
-        connect( ScriptCase1,       SIGNAL(triggered() ), this, SLOT( ScriptCase1Slot()) );
-        connect( userUnit,          SIGNAL(triggered() ), this, SLOT( AddTestCasetoListSlot()) );
+        //QMenu *addMenu = new QMenu("Add TestUnit");
+        //QAction *ScriptCase1 = new QAction(tr("一键生成脚本测试"), this);
+        //QAction *userUnit = new QAction(tr("自定义测试单元"), this);
+        //addMenu->addAction(userUnit);
+        //addMenu->addAction(ScriptCase1);
+        //connect( ScriptCase1,       SIGNAL(triggered() ), this, SLOT( ScriptCase1Slot()) );
+        //connect( userUnit,          SIGNAL(triggered() ), this, SLOT( AddTestCasetoListSlot()) );
 
-        popMenu->addMenu(addMenu);
+        popMenu->addAction(addMenu);
         popMenu->addAction( LookCase );
-        popMenu->addAction( EditCase );
+        //popMenu->addAction( EditCase );
        // popMenu->addAction( RunCuetomCase );
        // popMenu->addAction( RunALLCases );
         //popMenu->addSeparator();
@@ -129,6 +130,7 @@ void reTableWidget::mousePressEvent(QMouseEvent *event)
         popMenu->addAction( deleteCase );
         popMenu->addAction( clearCases );
 
+        connect( addMenu,          SIGNAL(triggered() ), this, SLOT( AddTestCasetoListSlot()) );
         connect( deleteCase,        SIGNAL(triggered() ), this, SLOT( deleteSeqfromTableSlot()) );
         connect( clearCases,        SIGNAL(triggered() ), this, SLOT( clearSeqfromTableSlot()) );
         connect( RunCuetomCase,     SIGNAL(triggered() ), this, SLOT( RunSeqCustomSlot()) );
@@ -392,9 +394,12 @@ void reTableWidget::LookTheUnitSlot()
 
     int curIndex = this->row(item);
     tUnit unit=theSeqList.at(curIndex);
-    CfgLookUnit lookUnit(&unit);
+    CfgLookUnit lookUnit(&unit,true);
 
-    lookUnit.exec();//any：是否可修改
+    if(lookUnit.exec()==QDialog::Accepted)
+    {
+        theSeqList.replace(curIndex,unit);//修改参数
+    }
 }
 
 /*************************************************************

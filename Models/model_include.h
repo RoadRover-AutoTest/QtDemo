@@ -455,6 +455,7 @@ bool rangeJudgeTheParam(range_type_e rJudge,uint16_t param1,uint16_t param2,uint
 QString getRangeJudge(range_type_e judge);
 QString getSoundJudge(sound_type_e judge);
 QString getCheckType(chk_type_e chk);
+QString getCompareType(compare_type_e compare);
 
 
 //keyControl *getkeyControlNull();
@@ -464,6 +465,7 @@ QString getKeyType(kType type);
 
 bool appendTheResultToFile(QString SaveStr);
 bool appendThePropertiesToFile(QString SaveStr);
+void appendTheExecLogInfo(QString SaveStr);
 
 
 QTreeWidgetItem *AddTreeNode(QTreeWidgetItem *parent, uint8_t flags,QStringList list);
