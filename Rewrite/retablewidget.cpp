@@ -117,7 +117,7 @@ void reTableWidget::mousePressEvent(QMouseEvent *event)
 
         popMenu->addAction(addMenu);
         popMenu->addAction( LookCase );
-        //popMenu->addAction( EditCase );
+        popMenu->addAction( EditCase );
        // popMenu->addAction( RunCuetomCase );
        // popMenu->addAction( RunALLCases );
         //popMenu->addSeparator();
@@ -394,12 +394,9 @@ void reTableWidget::LookTheUnitSlot()
 
     int curIndex = this->row(item);
     tUnit unit=theSeqList.at(curIndex);
-    CfgLookUnit lookUnit(&unit,true);
+    CfgLookUnit lookUnit(&unit);
 
-    if(lookUnit.exec()==QDialog::Accepted)
-    {
-        theSeqList.replace(curIndex,unit);//修改参数
-    }
+    lookUnit.exec();
 }
 
 /*************************************************************
@@ -409,21 +406,14 @@ void reTableWidget::LookTheUnitSlot()
 *************************************************************/
 void reTableWidget::EditTheUnitSlot()
 {
-#if 0
     QTableWidgetItem * item = this->currentItem();
     if( item == NULL )
         return;
-
     int curIndex = this->row(item);
-    tUnit unit=theSeqList.at(curIndex);
-    CfgEditUnit *editUnit = new CfgEditUnit(&unit);
-
-    if(editUnit->exec()==QDialog::Accepted)
-    {
-
-    }
-    delete editUnit;
-#endif
+    tUnit unitDeal = theSeqList.at(curIndex);
+    defUnit = new defTheUnit(&unitDeal);
+    connect(defUnit ,SIGNAL(applyTheUnit(tUnit)),this,SLOT(replaceDefineUnitSlot(tUnit)));
+    defUnit->show();
 }
 
 /*************************************************************
@@ -544,7 +534,10 @@ void reTableWidget::ScriptCase1Slot()
 *************************************************************/
 void reTableWidget::AddTestCasetoListSlot()
 {
-    defUnit = new defTheUnit;
+    tUnit unitDeal;
+    unitDeal.name.clear();
+    unitDeal.actTest.clear();
+    defUnit = new defTheUnit(&unitDeal);
     connect(defUnit ,SIGNAL(applyTheUnit(tUnit)),this,SLOT(applyDefineUnitSlot(tUnit)));
     defUnit->show();
 }
@@ -601,7 +594,7 @@ continueAppendList:
                 {
                 curUnit.name =unit.name + "_"+Script;
                 actDeal.actName = Script;
-                actDeal.actStr += "/"+Script+".bat";
+                actDeal.actStr += "\\"+Script+".bat";
                 curUnit.actTest.append(actDeal);
                 }
                 else
@@ -651,3 +644,22 @@ continueAppendList:
     }
 }
 
+/*************************************************************
+/函数功能：替换测试单元
+/函数参数：编辑后的测试单元
+/函数返回：无
+*************************************************************/
+void reTableWidget::replaceDefineUnitSlot(tUnit unit)
+{
+    int index;
+    for(index=0;index<theSeqList.length();index++)
+    {
+        if(theSeqList.at(index).name == unit.name)
+        {
+            theSeqList.replace(index,unit);
+            break;
+        }
+    }
+    if(index==theSeqList.length())
+        QMessageBox::warning(NULL, QString("Warn"), QString("编辑后未找到对应的测试单元，编辑失效！"));
+}

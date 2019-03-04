@@ -200,7 +200,8 @@ void MainWindow::timerEvent(QTimerEvent *event)
         //1S获取下物理参数:any:Error
         if((getTestRunState())||(testState!=overtest))
         {
-            chkParamFromHardware(0x00);
+            chkParamFromHardware(CHKCurrent);
+            chkParamFromHardware(CHKSound);
         }
 
         //实时扫描设备
@@ -285,8 +286,8 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, "About", "自动化测试系统 V1.01\n"
-                                            "日期：2019.01.17\n"
+    QMessageBox::information(NULL, "About", "自动化测试系统 V1.02\n"
+                                            "日期：2019.03.01\n"
                                             "版权：roadrover\n"
                                             "反馈邮箱：lishuhui@roadrover.cn");
 }
@@ -497,7 +498,7 @@ void MainWindow::timerTestIDDeal()
     }
     case getprop:
     {
-        if(!isPRORunning)
+        if((!isPRORunning)&&((!proDelayTime1S)||(proDelayTime1S % 100 == 0)))
         {
             isHadProp=false;
             //机器版本信息:
@@ -509,6 +510,13 @@ void MainWindow::timerTestIDDeal()
             else
                 proList.append(GETPROP_S(getDevNumber()));
         }
+        else if(proDelayTime1S>6000)
+        {
+            ui->textBrowser_EXEShow->append("设备未连接，无法获取属性信息... ...");
+            testState = overtest;
+        }
+
+        proDelayTime1S++;
         break;
     }
     case report:
@@ -615,6 +623,7 @@ void MainWindow::endTheFlow()
 *************************************************************/
 void MainWindow::onEndTestSlot()
 {
+    proDelayTime1S=0;
     ui->textBrowser_EXEShow->append("结束测试！");
     testState = getprop;
 }
@@ -706,14 +715,10 @@ void MainWindow::chkParamFromHardware(uint8_t chk)
 {
     char buf=0;
 
-    switch (chk)
-    {
-    case CHKCurrent:
+    if(chk==CHKCurrent)
         appendTxList(CMDWorkCurrent,&buf,1,CMD_NEEDNACK);
-        break;
-    default:
-        break;
-    }
+    else if(chk==CHKSound)
+        appendTxList(CMDSoundCheck,&buf,1,CMD_NEEDNACK);
 }
 
 
@@ -894,6 +899,14 @@ void MainWindow::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
         Current = tempDat;
 
         chartDeal->refreshChart(CHKCurrent,tempDat/1000.0);
+    }
+    else if(cmd == CMDSoundCheck)
+    {
+        if(dLen==1)
+        {
+            SoundV = dat[0];
+            chartDeal->refreshChart(CHKSound,SoundV);
+        }
     }
 }
 

@@ -11,6 +11,7 @@ bool ReportCreat;           //创建报告
 QString devNumber;              //设备序列号
 int Current=0;                  //当前测试电流
 int Volt = 0;
+bool SoundV;
 QStringList ShowList;           //字符串列表：用来显示
 QString savePath;                //测试序列保存为xml文件；测试结果记录保存为TXT文件，路径为序列文件所在路径，文件名为序列文件名
 
@@ -125,12 +126,13 @@ QString getSoundJudge(sound_type_e judge)
     QString str;
     switch(judge)
     {
-    case endHAVESound:str="末尾值有声音";break;
-    case endNOSound:str="末尾值无声音";break;
+    case HaveSound:str="存在有声音值";break;
+    case NOSound:str="存在无声音值";break;
+    case noHSoundCount:str="声音值全为无";break;
+    case noNSoundCount:str="声音值全为有";break;
     case HCountthanNCount:str="有声音次数大于等于无声音次数";break;
     case HCountlessNCount:str="有声音次数小于等于无声音次数";break;
-    case noHSoundCount:str="不存在有声音值";break;
-    case noNSoundCount:str="不存在无声音值";break;
+
     }
     return str;
 }
@@ -255,6 +257,7 @@ bool appendThePropertiesToFile(QString SaveStr)
 
 void appendTheExecLogInfo(QString SaveStr)
 {
+    #if 1
     QStringList pathList = savePath.split("/");
 
     QString path ;
@@ -293,6 +296,7 @@ void appendTheExecLogInfo(QString SaveStr)
     QTextStream out(&file);
     out << SaveStr;
     file.close();
+    #endif
 }
 
 /*************************************************************
@@ -365,7 +369,7 @@ void initNullChkParam(checkParam *chkParam)
     chkParam->max=0;
     chkParam->min=0;
     chkParam->hReault=0;
-    chkParam->sound=endHAVESound;
+    chkParam->sound=HaveSound;
     chkParam->infoCompare=NoCompare;
     chkParam->logContains.clear();
 }

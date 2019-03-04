@@ -128,6 +128,7 @@ private:
     QString currentCMDString;
     QStringList proList;            //进程处理解析字符串列表：用来显示
 
+    int proDelayTime1S;
 
     int countTime;
     //运行状态列表

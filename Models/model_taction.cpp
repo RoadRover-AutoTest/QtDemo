@@ -51,6 +51,8 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             IsFirstMemory=true;
             actIsRunning=false;
             colInfoFlag=0;
+            TimeDelay1S=0;
+            soundTimer=0;
             infoFlag = actionDeal->infoFlag & 0x0F;
 
             tempSoundInfo.clear();
@@ -64,8 +66,6 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             {
                 timeState = collectInfo;
                 nextState = exeAction;
-                ShowList << "采集信息：";
-                collectTimeDelay=0;
             }
             else
                 timeState = exeAction;
@@ -76,8 +76,8 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         {
             if((!actIsRunning)&&(!overtimeAct))
             {
-                ShowList << "~执行动作~";
-                if(actionDeal->actStr.startsWith("KEY"))
+                ShowList << "~执行动作~"+actionDeal->actStr;
+                if(actionDeal->actFlag==ACT_KEY)
                     startAction(actionDeal->actStr);//执行按键动作
                 else
                 {
@@ -106,8 +106,12 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                     else
                     {
                         //脚本运行连续执行
-                        if((actionDeal->actStr.startsWith("KEY")==false)&&(!isPRORunning)&&(proList.isEmpty()))
-                            onProcessEXECmd(CMD_script);
+                        if((actionDeal->actFlag==ACT_SCRIPT)&&(!isPRORunning)&&(proList.isEmpty()))
+                        {
+                            if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
+                                onProcessEXECmd(CMD_script);
+                            TimeDelay1S++;
+                        }
                     }
                 }
             }
@@ -122,9 +126,9 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         }
         case collectInfo:
         {
-            if((!collectTimeDelay)||(collectTimeDelay % 1000 == 0))
+            if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
                 collectInfoDeal(infoFlag);
-            collectTimeDelay++;
+            TimeDelay1S++;
             break;
         }
         case wait://计数并判断时间
@@ -158,8 +162,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             {
                 timeState = collectInfo;
                 nextState = chkAction;
-                ShowList << "采集信息：";
-                collectTimeDelay=0;
+                TimeDelay1S=0;
             }
             else
                 timeState = chkAction;
@@ -241,6 +244,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
                 checkParam chkDeal = actionDeal->checkDeal.at(i);
                 if(chkDeal.check == CHKCurrent)
                 {
+                    ShowList << "采集信息：电流";
                     if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,Current)==false)
                         goto toContinue;
 
@@ -255,7 +259,10 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     if((!(colInfoFlag & COLFACE))&&(infoFlag & COLFACE))
     {
         if((!isPRORunning)&&(proList.isEmpty()))
+        {
+            ShowList << "采集信息：界面";
             onProcessEXECmd(CMD_FACE);
+        }
 
         goto toContinue;
     }
@@ -263,14 +270,23 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     if((!(colInfoFlag & COLPICTURE))&&(infoFlag & COLPICTURE))
     {
         if((!isPRORunning)&&(proList.isEmpty()))
+        {
+            ShowList << "采集信息：图片";
             onProcessEXECmd(CMD_ADBPic);
-
+        }
         goto toContinue;
     }
     //采集声音：
     if((!(colInfoFlag & COLSOUND))&&(infoFlag & COLSOUND))
     {
-        colInfoFlag |= COLSOUND;
+        ShowList << "采集信息：声音";
+        tempSoundInfo.append(SoundV);
+        if(++soundTimer >= ColSOUNDTimer)
+        {
+            cout <<tempSoundInfo.length();
+            colInfoFlag |= COLSOUND;
+        }
+
     }
 
     //信息采集完成，执行下一步：
@@ -474,7 +490,96 @@ bool Model_tAction::chkVolt(checkParam range)
 bool Model_tAction::chkSound(checkParam sound)
 {
     ShowList<< "checkTheAction:检测声音...";
-    return false;
+    bool result=false;
+    switch(sound.sound)
+    {
+    case HaveSound:
+    {
+        for(int i=0;i<tempSoundInfo.length();i++)
+        {
+            if(tempSoundInfo.at(i)==true)
+            {
+                result=true;
+                break;
+            }
+        }
+        break;
+    }
+    case NOSound:
+    {
+        for(int i=0;i<tempSoundInfo.length();i++)
+        {
+            if(tempSoundInfo.at(i)==false)
+            {
+                result=true;
+                break;
+            }
+        }
+        break;
+    }
+    case HCountthanNCount:
+    {
+        int timer=0;
+        for(int i=0;i<tempSoundInfo.length();i++)
+        {
+            if(tempSoundInfo.at(i)==true)
+                timer++;
+        }
+        if(timer>ColSOUNDTimer/2)
+            result=true;
+        break;
+    }
+    case HCountlessNCount:
+    {
+        int timer=0;
+        for(int i=0;i<tempSoundInfo.length();i++)
+        {
+            if(tempSoundInfo.at(i)==false)
+                timer++;
+        }
+        if(timer>ColSOUNDTimer/2)
+            result=true;
+        break;
+    }
+    case noHSoundCount:
+    {
+        int i;
+        for(i=0;i<tempSoundInfo.length();i++)
+        {
+            if(tempSoundInfo.at(i)==true)
+                break;
+        }
+
+        if(i==tempSoundInfo.length())
+            result=true;
+        break;
+    }
+
+    case noNSoundCount:
+    {
+        int i;
+        for(i=0;i<tempSoundInfo.length();i++)
+        {
+            if(tempSoundInfo.at(i)==false)
+                break;
+        }
+
+        if(i==tempSoundInfo.length())
+            result=true;
+        break;
+    }
+    }
+    QString souStr;
+    for(int i=0;i<tempSoundInfo.length();i++)
+    {
+        souStr+= " "+toStr(tempSoundInfo.at(i));
+    }
+
+    appendTheResultToFile("Judge:Sound:"+getSoundJudge(sound.sound));
+    appendTheResultToFile("Check:Sound:"+souStr);
+    appendTheResultToFile("Result:Sound:"+toStr(result));
+
+    return result;
 }
 
 /*************************************************************

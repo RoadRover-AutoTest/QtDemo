@@ -17,7 +17,7 @@ class defTheUnit : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit defTheUnit(QWidget *parent = 0);
+    explicit defTheUnit(tUnit *unit,QWidget *parent = 0);
     ~defTheUnit();
 
 private slots:

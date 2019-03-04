@@ -392,7 +392,7 @@ void CfgSParam::createCCDOffAction(tAction *offAction)
         checkParam checkSound;
         initNullChkParam(&checkSound);
         checkSound.check = CHKSound;
-        checkSound.sound = endHAVESound;
+        checkSound.sound = noNSoundCount;
         offAction->checkDeal.append(checkSound);
     }
 }

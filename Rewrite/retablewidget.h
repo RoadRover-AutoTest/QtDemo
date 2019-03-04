@@ -65,6 +65,7 @@ private slots:
     void EditTheUnitSlot();
 
     void applyDefineUnitSlot(tUnit unit);
+    void replaceDefineUnitSlot(tUnit unit);
 
 public slots:
     void onNewSequenceSlot();

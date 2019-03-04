@@ -1,7 +1,7 @@
 #include "deftheunit.h"
 #include "ui_deftheunit.h"
 
-defTheUnit::defTheUnit(QWidget *parent) :
+defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::defTheUnit)
 {
@@ -11,7 +11,6 @@ defTheUnit::defTheUnit(QWidget *parent) :
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     //tab标签栏优化
     ui->tabProperties->tabBar()->setStyle(new CustomTabStyle);
-    //ui->tabChkParam->tabBar()->setStyle(new CustomTabStyle);
 
     //获取文件中存储的测试单元
     Model_XMLFile xmlRead;
@@ -23,9 +22,6 @@ defTheUnit::defTheUnit(QWidget *parent) :
         ui->comboUnitList->addItem(unitList.at(i).name);
     }
 
-    //创立之初为空
-    on_actnew_triggered();
-
 
     //初始化按键列表
     xmlRead.readKeyInfoXML(WorkItem,&keyList);
@@ -36,6 +32,49 @@ defTheUnit::defTheUnit(QWidget *parent) :
             ui->comboKeyList->addItem("KEY"+QString::number(i+1)+":"+keyList.at(i).name);
     }
     ui->comboKeyList->setCurrentIndex(-1);
+
+    //初始化当前测试单元
+    if((unit->name.isEmpty())&&(unit->actTest.isEmpty()))
+    {
+        this->setWindowTitle("Add-Unit");
+        //创立之初为空
+        on_actnew_triggered();
+
+    }
+    else
+    {
+        this->setWindowTitle("Edit-Unit");
+        unitDeal = *unit;
+
+        ui->editUnitName->setText(unitDeal.name);
+        ui->spinUnitCycle->setValue(unitDeal.cycleCount);
+        ui->editUnitDes->setText(unitDeal.unitDes);
+
+        ui->editUnitName->setEnabled(false);
+
+        //clear
+        for(uint16_t i=ui->tableAction->rowCount();i>0;i--)
+        {
+            ui->tableAction->removeRow(i-1);
+        }
+
+        //append
+        for(int i=0;i<unitDeal.actTest.length();i++)
+        {
+            int row=ui->tableAction->rowCount();
+            ui->tableAction->setRowCount(row+1);
+
+            ui->tableAction->selectRow(row);
+            ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(unitDeal.actTest.at(i).actName));
+            ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(unitDeal.actTest.at(i).actStr));
+
+            refreshPropertiesParam(unitDeal.actTest.at(i));
+        }
+    }
+
+
+
+
 
     //创建窗口组件信号槽函数
     connect(ui->editWaitMin,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
@@ -303,6 +342,12 @@ void defTheUnit::ACCONActionSlot()
     checkMemoey.infoCompare = MemoryCompare;
     kAction.checkDeal.append(checkMemoey);
 
+    /*checkParam checkSound;
+    initNullChkParam(&checkSound);
+    checkSound.check = CHKSound;
+    checkSound.sound = noNSoundCount;
+    kAction.checkDeal.append(checkSound);*/
+
     appendTableAction(kAction);
 }
 
@@ -387,6 +432,12 @@ void defTheUnit::BATONActionSlot()
     checkMemoey.check = CHKInterface;
     checkMemoey.infoCompare = MemoryCompare;
     kAction.checkDeal.append(checkMemoey);
+
+    /*checkParam checkSound;
+    initNullChkParam(&checkSound);
+    checkSound.check = CHKSound;
+    checkSound.sound = noNSoundCount;
+    kAction.checkDeal.append(checkSound);*/
 
     appendTableAction(kAction);
 }
@@ -500,11 +551,11 @@ void defTheUnit::CCDOFFActionSlot()
     checkMemoey.infoCompare = MemoryCompare;
     kAction.checkDeal.append(checkMemoey);
 
-    checkParam checkSound;
+    /*checkParam checkSound;
     initNullChkParam(&checkSound);
     checkSound.check = CHKSound;
-    checkSound.sound = endHAVESound;
-    kAction.checkDeal.append(checkSound);
+    checkSound.sound = noNSoundCount;
+    kAction.checkDeal.append(checkSound);*/
 
     appendTableAction(kAction);
 }
@@ -536,6 +587,8 @@ void defTheUnit::scriptActionSlot()
 
     sAction.actName="Script";
     sAction.actFlag = ACT_SCRIPT;
+
+    sAction.timeDeal.end = 60000;
 
     //创建脚本检测
     checkParam checkScript;
@@ -991,6 +1044,13 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
     ui->radioPicSelf->setChecked(true);
     ui->radioFaceMemory->setChecked(true);
 
+    ui->groupBox_cur->setEnabled(true);
+    ui->groupBox_vol->setEnabled(true);
+    ui->groupBox_sound->setEnabled(true);
+    ui->groupBox_log->setEnabled(true);
+    ui->groupBox_face->setEnabled(true);
+    ui->groupBox_pic->setEnabled(true);
+
 
     if(chkDeal.isEmpty()==false)
     {
@@ -1005,6 +1065,7 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
                 ui->comboCJudge->setCurrentIndex(chkParam.range);
                 ui->editCurMin->setText(toStr(chkParam.min));
                 ui->editCurMax->setText(toStr(chkParam.max));
+                ui->groupBox_cur->setEnabled(false);
                 break;
             }
             case CHKVlot:{
@@ -1012,16 +1073,19 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
                 ui->comboVJudge->setCurrentIndex(chkParam.range);
                 ui->editCurMin->setText(toStr(chkParam.min));
                 ui->editCurMax->setText(toStr(chkParam.max));
+                ui->groupBox_pic->setEnabled(false);
                 break;
             }
             case CHKSound:{
                 ui->checkSetSound->setChecked(true);
                 ui->comboSoundChanged->setCurrentIndex(chkParam.sound);
+                ui->groupBox_sound->setEnabled(false);
                 break;
             }
             case CHKScript:{
                 ui->checkSetLogStr->setChecked(true);
                 ui->editScriptString->setText(chkParam.logContains);
+                ui->groupBox_log->setEnabled(false);
                 break;
             }
             case CHKInterface:{
@@ -1032,6 +1096,7 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
                     ui->radioFaceMemory->setChecked(true);
                 else if(chkParam.infoCompare == SelfCompare)
                     ui->radioFaceSelf->setChecked(true);
+                ui->groupBox_face->setEnabled(false);
                 break;
             }
             case CHKADBPIC:{
@@ -1044,6 +1109,7 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
                     ui->radioPicSelf->setChecked(true);
                 else if(chkParam.infoCompare == LocalCompare)
                     ui->radioPicLocal->setChecked(true);
+                ui->groupBox_pic->setEnabled(false);
                 break;
             }
             case CHKRES:{
@@ -1078,6 +1144,8 @@ void defTheUnit::editCheckDealSlot(bool checked)
             chkDeal.min = ui->editCurMin->text().toUInt();
             chkDeal.max = ui->editCurMax->text().toUInt();
             curAct.checkDeal.append(chkDeal);
+
+            ui->groupBox_cur->setEnabled(false);
         }
         else if(sender == ui->checkSetVolt)
         {
@@ -1086,18 +1154,24 @@ void defTheUnit::editCheckDealSlot(bool checked)
             chkDeal.min = ui->editVoltMin->text().toUInt();
             chkDeal.max = ui->editVoltMax->text().toUInt();
             curAct.checkDeal.append(chkDeal);
+
+            ui->groupBox_vol->setEnabled(false);
         }
         else if(sender == ui->checkSetSound)
         {
             chkDeal.check = CHKSound;
             chkDeal.sound = (sound_type_e)ui->comboSoundChanged->currentIndex();
             curAct.checkDeal.append(chkDeal);
+
+            ui->groupBox_sound->setEnabled(false);
         }
         else if(sender == ui->checkSetLogStr)
         {
             chkDeal.check = CHKScript;
             chkDeal.logContains = ui->editScriptString->text();
             curAct.checkDeal.append(chkDeal);
+
+            ui->groupBox_log->setEnabled(false);
         }
         else if(sender == ui->checkSetInterface)
         {
@@ -1111,6 +1185,8 @@ void defTheUnit::editCheckDealSlot(bool checked)
                 chkDeal.infoCompare = SelfCompare;
 
             curAct.checkDeal.append(chkDeal);
+
+            ui->groupBox_face->setEnabled(false);
         }
         else if(sender == ui->checkSetPic)
         {
@@ -1126,11 +1202,20 @@ void defTheUnit::editCheckDealSlot(bool checked)
                 chkDeal.infoCompare = SelfCompare;
 
             curAct.checkDeal.append(chkDeal);
+
+            ui->groupBox_pic->setEnabled(false);
         }
     }
     //删除
     else
     {
+        if(sender == ui->checkSetCurrent)ui->groupBox_cur->setEnabled(true);
+        else if(sender == ui->checkSetVolt)ui->groupBox_vol->setEnabled(true);
+        else if(sender == ui->checkSetSound)ui->groupBox_sound->setEnabled(true);
+        else if(sender == ui->checkSetLogStr)ui->groupBox_log->setEnabled(true);
+        else if(sender == ui->checkSetInterface)ui->groupBox_face->setEnabled(true);
+        else if(sender == ui->checkSetPic)ui->groupBox_pic->setEnabled(true);
+
         for(int i=0;i<curAct.checkDeal.length();i++)
         {
             if(((sender == ui->checkSetCurrent)&&(curAct.checkDeal.at(i).check == CHKCurrent))
@@ -1233,7 +1318,7 @@ void defTheUnit::changedInfoFlagDeal()
 void defTheUnit::on_actLook_triggered()
 {
     changedInfoFlagDeal();
-    CfgLookUnit lookUnit(&unitDeal,false);
+    CfgLookUnit lookUnit(&unitDeal);
 
     lookUnit.exec();//不可修改,该窗口即为配置窗口，无需再修改
 }

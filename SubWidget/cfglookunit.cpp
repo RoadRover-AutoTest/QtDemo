@@ -22,27 +22,25 @@ typedef enum
 
 
 
-CfgLookUnit::CfgLookUnit(tUnit *unit,bool isEdit,QWidget *parent) :
+CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CfgLookUnit)
 {
     ui->setupUi(this);
+
     uint8_t showFlag=0;
 
-    lookUnit = unit;
-    //if(isEdit)
-    //    showFlag|=0x01;
 
-    AddTreeRoot("Unit:",lookUnit->name);
+    AddTreeRoot("Unit:",unit->name);
     int row = ui->treeWidget->topLevelItemCount();
     QTreeWidgetItem * topitem=ui->treeWidget->topLevelItem(row-1);
-    AddTreeNode(topitem,showFlag,QStringList()<<"Cycle"<< toStr(lookUnit->cycleCount) );
-    AddTreeNode(topitem,showFlag,QStringList()<<"Description"<<lookUnit->unitDes);
+    AddTreeNode(topitem,showFlag,QStringList()<<"Cycle"<< toStr(unit->cycleCount) );
+    AddTreeNode(topitem,showFlag,QStringList()<<"Description"<<unit->unitDes);
 
     row = ui->treeWidget->topLevelItemCount();
-    for(int i=0;i<lookUnit->actTest.length();i++)
+    for(int i=0;i<unit->actTest.length();i++)
     {
-        tAction theAct = lookUnit->actTest.at(i);
+        tAction theAct = unit->actTest.at(i);
 
         //动作作为top节点显示：
         //AddTreeRoot("Action:",theAct.actName);
@@ -130,7 +128,4 @@ QTreeWidgetItem * CfgLookUnit::AddTreeRoot(QString name,QString desc)
     return item;
 }
 
-void CfgLookUnit::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
-{
 
-}

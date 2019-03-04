@@ -12,6 +12,8 @@
 #define ACT_Front   false
 #define ACT_Back    true
 
+#define ColSOUNDTimer 11
+
 /*存储采集数据类型：
  * 数据名：定义和动作或数据类型相关，以便查找
  * 信息：未固定数据类型，可为多种数据类型
@@ -59,7 +61,8 @@ private:
     bool testResult;
     uint64_t reChkCount;     //重复监测计数
     uint64_t overtimeAct;
-    uint64_t collectTimeDelay;
+    uint64_t TimeDelay1S;
+    uint8_t soundTimer;//
 
     uint16_t colInfoFlag;       //用来标记已完成的信息采集
     uint16_t infoFlag;

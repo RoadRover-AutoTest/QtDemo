@@ -96,8 +96,9 @@
 
 //CMD param:hardware
 #define CMDWorkCurrent      0x60
-#define CMDVoltParam        0x61
-#define CMDSoundCheck       0x62
+#define CMDSoundCheck       0x61
+#define CMDVoltParam        0x62
+
 
 
 extern QString WorkItem;
@@ -109,6 +110,7 @@ extern bool ReportCreat;           //创建报告
 extern QString devNumber;
 extern int Current;
 extern int Volt;
+extern bool SoundV;
 //extern QStringList proList;
 extern QStringList ShowList;
 extern QString savePath;
@@ -182,21 +184,21 @@ typedef enum
 
 /*************************************************************
 /定义声音判断：
-/endHAVESound:末尾值有声音
-/endNOSound:末尾值无声音
-/HCountthanNCount:有声音次数大于等于无声音次数
-/HCountlessNCount:有声音次数小于等于无声音次数
+/HaveSound:存在有声音值
+/NOSound:存在无声音值
 /noHSoundCount:不存在有声音值
 /noNSoundCount:不存在无声音值
+/HCountthanNCount:有声音次数大于等于无声音次数
+/HCountlessNCount:有声音次数小于等于无声音次数
 *************************************************************/
 typedef enum
 {
-    endHAVESound,
-    endNOSound,
-    HCountthanNCount,
-    HCountlessNCount,
+    HaveSound,
+    NOSound,
     noHSoundCount,
-    noNSoundCount
+    noNSoundCount,
+    HCountthanNCount,
+    HCountlessNCount
 }sound_type_e;
 
 /*************************************************************

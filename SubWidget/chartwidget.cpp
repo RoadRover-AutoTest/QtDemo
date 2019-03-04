@@ -44,13 +44,13 @@ void ChartWidget::refreshChart(uint8_t type,float value)
     if(type == CHKCurrent)
     {
         series1->append(QDateTime::currentDateTime().toMSecsSinceEpoch(),value);//增加新的点到曲线末端
+        ui->lineEdit_Cur->setText(QString::number(value));
     }
-    if(type & CHKVlot)
+    if(type == CHKSound)//CHKVlot
     {
         series2->append(QDateTime::currentDateTime().toMSecsSinceEpoch(),value);//增加新的点到曲线末端
+        ui->radioSound->setChecked(value);
     }
-
-    ui->lineEdit_Cur->setText(QString::number(value));
 }
 
 /*************************************************************
