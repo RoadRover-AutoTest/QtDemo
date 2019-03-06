@@ -55,7 +55,7 @@
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>工作电流：</string>
+           <string>工作电流&gt;=(mA)</string>
           </property>
          </widget>
         </item>

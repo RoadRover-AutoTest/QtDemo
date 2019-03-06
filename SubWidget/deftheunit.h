@@ -4,9 +4,11 @@
 #include <QMainWindow>
 #include <QTableWidgetItem>
 #include <QFileDialog>
+#include <QDesktopServices>
 #include "Models/model_include.h"
 #include "Models/model_xmlfile.h"
 #include "cfglookunit.h"
+
 
 namespace Ui {
 class defTheUnit;
@@ -75,6 +77,8 @@ private slots:
     void on_actdel_triggered();
 
     void on_actclear_triggered();
+
+    void on_actHelp_triggered();
 
 private:
     Ui::defTheUnit *ui;

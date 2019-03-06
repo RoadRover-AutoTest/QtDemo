@@ -125,6 +125,13 @@ void MainWindow::setIsRunInterface(bool IsRun)
         ui->acttest->setIcon(QIcon(":/Title/actEnding.png"));
         ui->acttest->setChecked(IsRun);
         ui->treeWidget->setEnabled(false);
+
+        //主窗口涉及清楚任务，因此放置上层处理
+        int row=ui->tableWidget->rowCount();
+        for(uint16_t i=row;i>0;i--)
+        {
+            ui->tableWidget->removeRow(i-1);
+        }
     }
     else
     {
@@ -271,10 +278,10 @@ void MainWindow::on_actATtool_triggered()
 *************************************************************/
 void MainWindow::on_actHelp_triggered()
 {
-    QString pdfPath=QDir::currentPath()+"/自动化测试系统方案.pdf";
+    QString pdfPath=QDir::currentPath()+"/ATtool使用说明.pdf";
     if(QDesktopServices::openUrl(QUrl::fromLocalFile(pdfPath))==false)
     {
-        QMessageBox::warning(NULL, QString("提示"), QString("该运行目录下无说明文档！"));
+        QMessageBox::warning(NULL, QString("提示"), QString("该运行目录下无《ATtool使用说明.pdf》文档！"));
     }
 
 }
@@ -286,8 +293,8 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, "About", "自动化测试系统 V1.02\n"
-                                            "日期：2019.03.01\n"
+    QMessageBox::information(NULL, "About", "自动化测试系统 V1.03\n"
+                                            "日期：2019.03.06\n"
                                             "版权：roadrover\n"
                                             "反馈邮箱：lishuhui@roadrover.cn");
 }

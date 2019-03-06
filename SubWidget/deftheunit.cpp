@@ -1317,6 +1317,11 @@ void defTheUnit::changedInfoFlagDeal()
 *************************************************************/
 void defTheUnit::on_actLook_triggered()
 {
+    if((unitDeal.actTest.isEmpty())||(unitDeal.name.isEmpty()))
+    {
+        QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名/检测测试动作是否为空！"));
+        return ;
+    }
     changedInfoFlagDeal();
     CfgLookUnit lookUnit(&unitDeal);
 
@@ -1335,6 +1340,7 @@ void defTheUnit::on_actSave_triggered()
         QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名/检测测试动作是否为空！"));
         return ;
     }
+
     changedInfoFlagDeal();
 
     QFile file(unitDEFINEFile); //关联文件名字
@@ -1386,6 +1392,12 @@ void defTheUnit::on_actSave_triggered()
 *************************************************************/
 void defTheUnit::on_actApply_triggered()
 {
+    if((unitDeal.actTest.isEmpty())||(unitDeal.name.isEmpty()))
+    {
+        QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名/检测测试动作是否为空！"));
+        return ;
+    }
+
     changedInfoFlagDeal();
     applyTheUnit(unitDeal);
 }
@@ -1505,4 +1517,13 @@ void defTheUnit::on_actclear_triggered()
 
     ui->comboUnitList->clear();
     unitList.clear();
+}
+
+void defTheUnit::on_actHelp_triggered()
+{
+    QString pdfPath=QDir::currentPath()+"/Unit编辑窗口使用说明.pdf";
+    if(QDesktopServices::openUrl(QUrl::fromLocalFile(pdfPath))==false)
+    {
+        QMessageBox::warning(NULL, QString("提示"), QString("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
+    }
 }

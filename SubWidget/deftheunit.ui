@@ -754,6 +754,7 @@
     <property name="title">
      <string>帮助</string>
     </property>
+    <addaction name="actHelp"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -855,6 +856,11 @@
    </property>
    <property name="text">
     <string>清空</string>
+   </property>
+  </action>
+  <action name="actHelp">
+   <property name="text">
+    <string>Help</string>
    </property>
   </action>
  </widget>
