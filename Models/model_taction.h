@@ -65,7 +65,7 @@ private:
     uint8_t soundTimer;//
 
     uint16_t colInfoFlag;       //用来标记已完成的信息采集
-    uint16_t infoFlag;
+    uint16_t actInfoFlag;
     int timeID_T;
 
     int iniLoop;

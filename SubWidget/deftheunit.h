@@ -35,14 +35,14 @@ private slots:
     void downActionSlot();
     void upActionSlot();
 
-    void editTimeDealSlot();
+    void editTimeDealSlot(QString arg1);
     void editCheckDealSlot(bool checked);
 
     void on_tableAction_customContextMenuRequested(const QPoint &pos);
 
     void on_tableAction_clicked(const QModelIndex &index);
 
-    void on_editActName_editingFinished();
+    void on_editActName_textChanged(const QString &arg1);
 
     void on_comboKeyList_activated(const QString &arg1);
 
@@ -60,7 +60,7 @@ private slots:
 
     void on_editUnitName_textChanged(const QString &arg1);
 
-    void on_spinUnitCycle_editingFinished();
+    void on_spinUnitCycle_valueChanged(int arg1);
 
     void on_editUnitDes_textChanged();
 
@@ -71,8 +71,6 @@ private slots:
     void on_comboUnitList_activated(int index);
 
     void on_actnew_triggered();
-
-
 
     void on_actdel_triggered();
 

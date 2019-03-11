@@ -14,7 +14,7 @@ DiaReport::DiaReport(QWidget *parent) :
     LoadFiles(ui->linePath->text(),ui->treeFile,NULL);
 
     proDeal = new Model_Process;
-    proDeal->Process_Add();//在原有基础上添加进程，报告执行进程为1
+//    proDeal->Process_Add();//在原有基础上添加进程，报告执行进程为1
 
     connect(proDeal,SIGNAL(ProcessisOver(uint8_t)),this,SLOT(onProcessOverSlot(uint8_t)));
     connect(proDeal,SIGNAL(ProcessOutDeal(int,QString)),this,SLOT(onProcessOutputSlot(int,QString)));
@@ -127,19 +127,19 @@ void DiaReport::on_CreateBtn_clicked()
 
     ui->textShow->append(path+"/");
 
-    proDeal->ProcessStart(PROREPORT,PYTHONREPORT(path+"/"));
+    proDeal->ProcessStart(PROSYS,PYTHONREPORT(path+"/"));
 }
 
 void DiaReport::onProcessOverSlot(uint8_t pNum)
 {
-    if(pNum == PROREPORT)
+    if(pNum == PROSYS)
     {
         ui->textShow->append(tr("<html><p><a>报告生成结束，请</a><a href=\"%1\">点击查阅</a></p></html>").arg("http://192.168.13.96/result/"+resultPath+"/report.html"));
     }
 }
 void DiaReport::onProcessOutputSlot(int pNum,QString string)
 {
-    if(pNum == PROREPORT)
+    if(pNum == PROSYS)
     {
         ui->textShow->append(string);
     }

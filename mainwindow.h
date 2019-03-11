@@ -12,6 +12,7 @@
 #include "Models/model_string.h"
 #include "Models/model_xmlfile.h"
 #include "Models/model_process.h"
+#include "Models/model_threadlog.h"
 
 #include "SubWidget/reshardware.h"
 #include "SubWidget/chartwidget.h"
@@ -87,62 +88,9 @@ private:
     void setIsRunInterface(bool IsRun);
     void initkeyList();
 
-    void startTheFlow(QList <tUnit> *testFlow);
-    void endTheFlow();
-    bool getTestRunState();
-    void timerTestIDDeal();
-    void testProcessOutputDeal(QString String);
-    void testProcessOverDeal();
-
-    void initUartParam();
-    void deleteUartParam();
-    void timerUartIDDeal();
-    void UartOpen(const QString &com, const QString &baud);
-    void UartClose();
-    bool UartConnectStatus();
-
-    void initProcessDeal();
-    void deleteProcessDeal();
-    void proStopSysLogcat();
-    void proStopSysUiautomator();
-    bool proSysIsRunning();
-    void timerProIDDeal();
-
-
-    int timer1SID;
-    QDateTime testTime;
-
-    Model_UART *UARTDeal;
-    QList <uartFrame> txList;      //将待发送的命令填充列表，然后在定时器中调用发送
-    int timerUartID;
-    uint8_t ackWait;
-    void appendTxList(char cmd,char* dat,char len,uint8_t ack);
-
-    Model_tFlow *tFlowDeal;
-    int timerTestID;
-
-    Model_Process *PRODeal;
-    bool isPRORunning;
-    bool isHadProp;
-    int timerProID;
-    QString currentCMDString;
-    QStringList proList;            //进程处理解析字符串列表：用来显示
-
-    int proDelayTime1S;
-
-    int countTime;
-    //运行状态列表
-    enum
-    {
-       colUnit,
-       colAct,
-       colResult,
-       colStr
-    };
-
-    bool isRunning;
-
-
+    /*
+     * 测试流处理
+    */
     typedef enum
     {
         start,
@@ -152,6 +100,79 @@ private:
         report,
     }test_type_e;
     test_type_e testState;
+    Model_tFlow *tFlowDeal;
+    int timerTestID;
+    bool isHadProp;
+    bool isRunning;
+
+    void startTheFlow(QList <tUnit> *testFlow);
+    void endTheFlow();
+    bool getTestRunState();
+    void timerTestIDDeal();
+    void testProcessOutputDeal(QString String);
+    void testProcessOverDeal();
+
+    /*
+     * 串口处理
+    */
+    Model_UART *UARTDeal;
+    QList <uartFrame> txList;      //将待发送的命令填充列表，然后在定时器中调用发送
+    int timerUartID;
+    uint8_t ackWait;
+
+    void initUartParam();
+    void deleteUartParam();
+    void timerUartIDDeal();
+    void UartOpen(const QString &com, const QString &baud);
+    void UartClose();
+    bool UartConnectStatus();
+    void appendTxList(char cmd,char* dat,char len,uint8_t ack);
+
+
+    /*
+     * 进程处理
+    */
+    Model_Process *PRODeal;         //进程处理对象
+    bool isPRORunning;              //进程是否正在运行标志
+    int timerProID;                 //进程处理定时器ID
+    QString currentCMDString;       //当前命令字符串
+    QStringList proList;            //进程处理解析字符串列表：用来显示
+    int proDelayTime1S;             //进程连续处理延时1S
+
+    void initProcessDeal();
+    void deleteProcessDeal();
+    void proStopSysLogcat();
+    void proStopSysUiautomator();
+    bool proSysIsRunning();
+    void timerProIDDeal();
+
+    /*
+     * 采集Logcat线程处理
+    */
+    model_ThreadLog *logThreadDeal;
+    bool IsLogcatEnable;
+    QString logcatPath;
+
+    void initLogcatThreadDeal();
+    void deleteLogcatThreadDeal();
+    void startLogThread();
+    void stopLogThread();
+
+
+    /*
+     * 其他
+    */
+    int timer1SID;
+    QDateTime testTime;
+    int clearWindowCountor;
+    //运行状态列表
+    enum
+    {
+       colUnit,
+       colAct,
+       colResult,
+       colStr
+    };
 
 
 protected:

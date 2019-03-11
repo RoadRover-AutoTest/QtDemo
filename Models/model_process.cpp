@@ -61,6 +61,7 @@ void Model_Process::Process_Add()
     aProcess.cmdList.clear();
     aProcess.pNum=P_List.length();
     P_List.append(aProcess);
+    //cout<< P_List.length();
 
     connect(P_List.at(P_List.length()-1).process,SIGNAL(readyRead()),this,SLOT(ProcessReadAll()));
     connect(P_List.at(P_List.length()-1).process,SIGNAL(readyReadStandardError()),this,SLOT(ProcessReadError()));

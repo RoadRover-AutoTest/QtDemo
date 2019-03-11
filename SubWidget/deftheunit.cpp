@@ -77,11 +77,11 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
 
 
     //创建窗口组件信号槽函数
-    connect(ui->editWaitMin,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
-    connect(ui->editWaitMax,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
-    connect(ui->editWaitStep,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
-    connect(ui->editChkTime,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
-    connect(ui->editOverTime,SIGNAL(editingFinished()),this,SLOT(editTimeDealSlot()));
+    connect(ui->editWaitMin,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
+    connect(ui->editWaitMax,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
+    connect(ui->editWaitStep,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
+    connect(ui->editChkTime,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
+    connect(ui->editOverTime,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
 
     connect(ui->checkSetCurrent,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
     connect(ui->checkSetVolt,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
@@ -129,9 +129,9 @@ void defTheUnit::on_editUnitName_textChanged(const QString &arg1)
 /函数参数：
 /函数返回：wu
 *************************************************************/
-void defTheUnit::on_spinUnitCycle_editingFinished()
+void defTheUnit::on_spinUnitCycle_valueChanged(int arg1)
 {
-    unitDeal.cycleCount = ui->spinUnitCycle->value();
+    unitDeal.cycleCount = arg1;
 }
 
 /*************************************************************
@@ -738,7 +738,7 @@ void defTheUnit::on_tableAction_itemChanged(QTableWidgetItem *item)
 /函数参数：无
 /函数返回：wu
 *************************************************************/
-void defTheUnit::on_editActName_editingFinished()
+void defTheUnit::on_editActName_textChanged(const QString &arg1)
 {
     int selRow = getTableActionSelRanges();
     if(selRow>=unitDeal.actTest.length())
@@ -746,11 +746,12 @@ void defTheUnit::on_editActName_editingFinished()
 
     //修改列表信息
     tAction curAct = unitDeal.actTest.at(selRow);
-    curAct.actName = ui->editActName->text();
+    curAct.actName = arg1;
     unitDeal.actTest.replace(selRow,curAct);
 
     ui->tableAction->setItem(selRow,Col_Name,new QTableWidgetItem(curAct.actName));
 }
+
 
 /*************************************************************
 /函数功能：刷新按键列表
@@ -952,7 +953,7 @@ void defTheUnit::refreshTimeDeal(tAction act)
 /函数参数：无
 /函数返回：wu
 *************************************************************/
-void defTheUnit::editTimeDealSlot()
+void defTheUnit::editTimeDealSlot(QString arg1)
 {
     int selRow = getTableActionSelRanges();
     if(selRow>=unitDeal.actTest.length())
@@ -962,9 +963,9 @@ void defTheUnit::editTimeDealSlot()
     tAction curAct = unitDeal.actTest.at(selRow);
 
     if(sender == ui->editChkTime)
-        curAct.timeDeal.check = ui->editChkTime->text().toUInt();
+        curAct.timeDeal.check = arg1.toUInt();
     else if(sender == ui->editOverTime)
-        curAct.timeDeal.end = ui->editOverTime->text().toUInt();
+        curAct.timeDeal.end = arg1.toUInt();
     else
     {
         if(sender == ui->editWaitStep)
@@ -975,7 +976,7 @@ void defTheUnit::editTimeDealSlot()
 
             cngParam.min = ui->editWaitMin->text().toUInt();
             cngParam.max = ui->editWaitMax->text().toUInt();
-            cngParam.step = ui->editWaitStep->text().toUInt();
+            cngParam.step = arg1.toUInt();
 
             if((cngParam.step!=0)&&(cngParam.min != cngParam.max))
             {
@@ -1013,7 +1014,7 @@ void defTheUnit::editTimeDealSlot()
         }
         else if(sender == ui->editWaitMin)
         {
-            curAct.timeDeal.wait = ui->editWaitMin->text().toUInt();
+            curAct.timeDeal.wait = arg1.toUInt();
         }
     }
 
@@ -1527,3 +1528,5 @@ void defTheUnit::on_actHelp_triggered()
         QMessageBox::warning(NULL, QString("提示"), QString("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
     }
 }
+
+

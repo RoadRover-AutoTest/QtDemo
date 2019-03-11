@@ -53,7 +53,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             colInfoFlag=0;
             TimeDelay1S=0;
             soundTimer=0;
-            infoFlag = actionDeal->infoFlag & 0x0F;
+            actInfoFlag = 0x00;//actionDeal->infoFlag & 0x0F;
 
             tempSoundInfo.clear();
 
@@ -127,7 +127,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         case collectInfo:
         {
             if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
-                collectInfoDeal(infoFlag);
+                collectInfoDeal(actInfoFlag);
             TimeDelay1S++;
             break;
         }
@@ -149,7 +149,8 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                     timeState = waitover;
                 else
                 {
-                    testResult =true;
+                    if(actionDeal->checkDeal.isEmpty())
+                        testResult =true;
                     timeState = actover;
                 }
             }
@@ -157,6 +158,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         }
         case waitover:
         {
+            actInfoFlag = actionDeal->infoFlag & 0x0F;
             //判断动作执行后是否采集信息：
             if(judgeIsCollectInfo(ACT_Back))
             {
@@ -199,9 +201,9 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
                 || ((actionDeal->infoFlag & COLPICTURE) && (!(actionDeal->infoFlag & COLPICTURESITE))))
         {
             if((actionDeal->infoFlag & COLFACE)&&(!(actionDeal->infoFlag & COLFACESITE)))
-                infoFlag|=COLFACE;
+                actInfoFlag|=COLFACE;
             if((actionDeal->infoFlag & COLPICTURE)&&(!(actionDeal->infoFlag & COLPICTURESITE)))
-                infoFlag|=COLPICTURE;
+                actInfoFlag|=COLPICTURE;
             return true;
         }
         else
@@ -214,9 +216,9 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
                 || ((actionDeal->infoFlag & COLPICTURE) && ((actionDeal->infoFlag & COLPICTURESITE))))
         {
             if((actionDeal->infoFlag & COLFACE)&&(actionDeal->infoFlag & COLFACESITE))
-                infoFlag|=COLFACE;
+                actInfoFlag|=COLFACE;
             if((actionDeal->infoFlag & COLPICTURE)&&(actionDeal->infoFlag & COLPICTURESITE))
-                infoFlag|=COLPICTURE;
+                actInfoFlag|=COLPICTURE;
             return true;
         }
         else
@@ -283,10 +285,9 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
         tempSoundInfo.append(SoundV);
         if(++soundTimer >= ColSOUNDTimer)
         {
-            cout <<tempSoundInfo.length();
+            //cout <<tempSoundInfo.length();
             colInfoFlag |= COLSOUND;
         }
-
     }
 
     //信息采集完成，执行下一步：

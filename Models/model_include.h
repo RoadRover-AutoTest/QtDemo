@@ -46,7 +46,6 @@
 /ADB指令宏定义
 *************************************************************/
 #define PROSYS              0                   //系统进程号
-#define PROREPORT           1                   //生成报告、避免与主函数进程相同影响判断
 #define ADBDevs                             "adb devices"       //扫描连接设备
 #define ADBWIFICNT                          "adb connect "      //连接无线
 #define ADBWIFIDISCNT                       "adb disconnect "   //端口无线

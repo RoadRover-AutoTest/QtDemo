@@ -7,13 +7,15 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    countTime=0;
+    clearWindowCountor=0;
 
     initMainWindow();
 
     initUartParam();
 
     initProcessDeal();
+
+    initLogcatThreadDeal();
 
     timer1SID=startTimer(1000);
     initkeyList();
@@ -25,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     killTimer(timer1SID);
+    deleteLogcatThreadDeal();
     deleteProcessDeal();
     deleteUartParam();
     delete chartDeal;
@@ -74,10 +77,12 @@ void MainWindow::initMainWindow()
 
     //取配置信息
     Model_iniSetting InfoINI;
-    WorkItem = InfoINI.ReadIni_item();
-    WorkCurrent = InfoINI.ReadIni_WorkCurrent();
-    WorkFrequency = InfoINI.ReadIni_WorkFrequency();
-    ReportCreat = InfoINI.ReadIni_ReportCreat();
+    WorkItem        = InfoINI.ReadIni_item("item_Name").toString();
+    WorkCurrent     = InfoINI.ReadIni_item("WorkCurrent").toInt();
+    WorkFrequency   = InfoINI.ReadIni_item("WorkFrequency").toInt();
+    ReportCreat     = InfoINI.ReadIni_item("ReportCreat").toBool();
+    IsLogcatEnable  = InfoINI.ReadIni_item("LogcatEnable").toBool();
+    logcatPath      = InfoINI.ReadIni_item("LogcatPath").toString();
 
     devNumber.clear();
 
@@ -220,9 +225,9 @@ void MainWindow::timerEvent(QTimerEvent *event)
         }
 
         //计时10分钟清理一次检测窗口:600
-        if(++countTime>600)
+        if(++clearWindowCountor>600)
         {
-            countTime=0;
+            clearWindowCountor=0;
             appendTheExecLogInfo(ui->textBrowser_EXEShow->toPlainText());
             ui->textBrowser_EXEShow->clear();
         }
@@ -266,7 +271,13 @@ void MainWindow::on_actATtool_triggered()
 {
     toolConfig *ATConfig = new toolConfig();
 
-    ATConfig->exec();
+    if(ATConfig->exec()==QDialog::Accepted)
+    {
+        //此2个参数，为主函数的局部变量，未在子函数中赋值，需重新获取
+        Model_iniSetting InfoINI;
+        IsLogcatEnable  = InfoINI.ReadIni_item("LogcatEnable").toBool();
+        logcatPath      = InfoINI.ReadIni_item("LogcatPath").toString();
+    }
 
     delete ATConfig;
 }
@@ -459,6 +470,9 @@ void MainWindow::startTheFlow(QList <tUnit> *testFlow)
                 return ;
         }
 
+        if(IsLogcatEnable)
+            startLogThread();
+
         //创建测试流程：
         tFlowDeal = new Model_tFlow(testFlow);
         connect(tFlowDeal,SIGNAL(unitStartExe(tUnit)),this,SLOT(unitStartExeSlot(tUnit)));
@@ -578,7 +592,7 @@ void MainWindow::testProcessOverDeal()
         {
             //添加时间
             appendThePropertiesToFile("start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
-            appendThePropertiesToFile("end_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
+            appendThePropertiesToFile("end_time:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
             if(ReportCreat)
                 testState = report;//采集到属性信息方可进入生成报告的操作，否则不改变测试状态继续查询属性
             else
@@ -633,6 +647,8 @@ void MainWindow::onEndTestSlot()
     proDelayTime1S=0;
     ui->textBrowser_EXEShow->append("结束测试！");
     testState = getprop;
+    if(IsLogcatEnable)
+        stopLogThread();
 }
 
 /*************************************************************
@@ -1090,8 +1106,28 @@ bool MainWindow::proSysIsRunning()
         return false;
 }
 
+/*---------------------------------------this is LogcatThread option-----------------------------------------*/
+void MainWindow::initLogcatThreadDeal()
+{
+    logThreadDeal =new model_ThreadLog();
+}
+void MainWindow::deleteLogcatThreadDeal()
+{
+    delete logThreadDeal;
+}
 
+void MainWindow::startLogThread()
+{
+    logThreadDeal->SetRunPath(logcatPath);
+    logThreadDeal->SetRunDEV(getDevNumber());
+    logThreadDeal->start();
+}
 
+void MainWindow::stopLogThread()
+{
+    logThreadDeal->stop();
+    proStopSysLogcat();
+}
 
 /*---------------------------------------this is test fun option-----------------------------------------*/
 /*************************************************************

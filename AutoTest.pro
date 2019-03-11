@@ -74,7 +74,8 @@ SOURCES += \
     SubWidget/diareport.cpp \
     SubWidget/toolconfig.cpp \
     Models/model_piccompare.cpp \
-    SubWidget/deftheunit.cpp
+    SubWidget/deftheunit.cpp \
+    Models/model_threadlog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -100,7 +101,8 @@ HEADERS += \
     SubWidget/diareport.h \
     SubWidget/toolconfig.h \
     Models/model_piccompare.h \
-    SubWidget/deftheunit.h
+    SubWidget/deftheunit.h \
+    Models/model_threadlog.h
 
 FORMS += \
         mainwindow.ui \

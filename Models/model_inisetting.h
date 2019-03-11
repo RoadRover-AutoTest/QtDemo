@@ -13,6 +13,11 @@ public:
     QVariant ReadIni_email();
     void WriteIni_email(QVariant value);
 
+    QVariant ReadIni_item(QString infoType);
+    void WriteIni_item(QString infoType ,QVariant value);
+
+#if 0
+
     QString ReadIni_item();
     void WriteIni_item(QVariant value);
 
@@ -28,7 +33,7 @@ public:
     QString ReadIni_defineInfo(QString str);
     void WriteIni_defineInfo(QString str,QVariant value);
 
-
+#endif
 
 
 private:

@@ -314,7 +314,7 @@ void ResHardware::itemNameSlot(const QString &arg1)
     readItemKeyInfo(arg1);
     WorkItem=arg1;
     Model_iniSetting itemName;
-    itemName.WriteIni_item(WorkItem);
+    itemName.WriteIni_item("item_Name",WorkItem);
 }
 
 /*************************************************************

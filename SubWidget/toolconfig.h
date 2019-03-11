@@ -22,6 +22,8 @@ private slots:
 
     void on_buttonBox_clicked(QAbstractButton *button);
 
+    void on_BtnLogcatPath_clicked();
+
 private:
     Ui::toolConfig *ui;
 

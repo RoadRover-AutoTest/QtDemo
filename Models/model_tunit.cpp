@@ -85,6 +85,7 @@ void Model_tUnit::timerEvent(QTimerEvent *event)
 
             for(int i=0;i<arrayResult.length();i++)
             {
+                //cout << arrayResult.at(i);
                 if(!arrayResult.at(i))
                 {
                     exeResult = false;
@@ -122,6 +123,7 @@ void Model_tUnit::ontheActionResultSlot(bool result)
 {
     arrayResult.append(result);
     testState = overAction;
+    //cout << result;
 }
 
 /*************************************************************
