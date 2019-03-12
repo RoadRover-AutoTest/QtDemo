@@ -12,7 +12,7 @@
 
 #include "Models/model_include.h"
 #include "Models/model_xmlfile.h"
-#include "SubWidget/cfgsparam.h"
+//#include "SubWidget/cfgsparam.h"
 #include "SubWidget/deftheunit.h"
 #include "SubWidget/cfglookunit.h"
 

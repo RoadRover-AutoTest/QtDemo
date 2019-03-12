@@ -37,6 +37,7 @@ private slots:
 
     void editTimeDealSlot(QString arg1);
     void editCheckDealSlot(bool checked);
+    void editErrorDealSlot();
 
     void on_tableAction_customContextMenuRequested(const QPoint &pos);
 
@@ -98,6 +99,8 @@ private:
     void refreshKeyList(QString actStr);
     void refreshTimeDeal(tAction act);
     void refreshCheckDeal(QList<checkParam> chkDeal);
+    void refreshErrorDeal(uint8_t errorFlag);
+
     void changedInfoFlagDeal();
     int getTableActionSelRanges();
 

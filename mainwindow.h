@@ -174,6 +174,8 @@ private:
        colStr
     };
 
+    int chkParamCount;
+
 
 protected:
     void closeEvent(QCloseEvent *event);

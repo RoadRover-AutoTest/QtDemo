@@ -58,7 +58,6 @@ SOURCES += \
     Models/model_tflow.cpp \
     Models/model_process.cpp \
     Models/model_inisetting.cpp \
-    SubWidget/cfgsparam.cpp \
     Models/model_include.cpp \
     Rewrite/retablewidget.cpp \
     Models/model_xmlfile.cpp \
@@ -86,7 +85,6 @@ HEADERS += \
     Models/model_process.h \
     Models/model_include.h \
     Models/model_inisetting.h \
-    SubWidget/cfgsparam.h \
     Rewrite/retablewidget.h \
     Models/model_xmlfile.h \
     SubWidget/cfglookunit.h \
@@ -106,7 +104,6 @@ HEADERS += \
 
 FORMS += \
         mainwindow.ui \
-    SubWidget/cfgsparam.ui \
     SubWidget/cfglookunit.ui \
     SubWidget/reshardware.ui \
     SubWidget/reshardedit.ui \

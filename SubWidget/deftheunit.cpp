@@ -72,10 +72,6 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
         }
     }
 
-
-
-
-
     //创建窗口组件信号槽函数
     connect(ui->editWaitMin,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
     connect(ui->editWaitMax,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
@@ -89,6 +85,9 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     connect(ui->checkSetLogStr,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
     connect(ui->checkSetInterface,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
     connect(ui->checkSetPic,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
+
+    connect(ui->radioBtnNODeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
+    connect(ui->radioBtnOverTimeDeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
 }
 
 defTheUnit::~defTheUnit()
@@ -110,6 +109,7 @@ void defTheUnit::inittActionParam(tAction *tact)
     tact->timeDeal.end = 0;
 
     tact->infoFlag=0;
+    tact->errorDeal=0;
     tact->checkDeal.clear();
     tact->changedDeal.clear();
 }
@@ -682,6 +682,9 @@ void defTheUnit::refreshPropertiesParam(tAction act)
     refreshTimeDeal(act);
     //刷新检测属性
     refreshCheckDeal(act.checkDeal);
+
+    refreshErrorDeal(act.errorDeal);
+
 }
 
 /*************************************************************
@@ -968,54 +971,48 @@ void defTheUnit::editTimeDealSlot(QString arg1)
         curAct.timeDeal.end = arg1.toUInt();
     else
     {
-        if(sender == ui->editWaitStep)
+        changedParam cngParam;
+
+        cngParam.changed = WaitTime;
+
+        cngParam.min = ui->editWaitMin->text().toUInt();
+        cngParam.max = ui->editWaitMax->text().toUInt();
+        cngParam.step = ui->editWaitStep->text().toUInt();
+
+        if((cngParam.step!=0)&&(cngParam.min != cngParam.max))
         {
-            changedParam cngParam;
+            int i;
 
-            cngParam.changed = WaitTime;
-
-            cngParam.min = ui->editWaitMin->text().toUInt();
-            cngParam.max = ui->editWaitMax->text().toUInt();
-            cngParam.step = arg1.toUInt();
-
-            if((cngParam.step!=0)&&(cngParam.min != cngParam.max))
-            {
-                int i;
-
-                if(cngParam.max > cngParam.min)
-                    cngParam.dir = true;
-                else
-                    cngParam.dir = false;
-
-                for(i=0;i<curAct.changedDeal.length();i++)
-                {
-                    if(curAct.changedDeal.at(i).changed == WaitTime)
-                    {
-                        curAct.changedDeal.replace(i,cngParam);//替换现有参数
-                        break;
-                    }
-                }
-                //添加变动处理
-                if(i==curAct.changedDeal.length())
-                    curAct.changedDeal.append(cngParam);
-            }
+            if(cngParam.max > cngParam.min)
+                cngParam.dir = true;
             else
+                cngParam.dir = false;
+
+            for(i=0;i<curAct.changedDeal.length();i++)
             {
-                //删除变动处理
-                for(int i=0;i<curAct.changedDeal.length();i++)
+                if(curAct.changedDeal.at(i).changed == WaitTime)
                 {
-                    if(curAct.changedDeal.at(i).changed == WaitTime)
-                    {
-                        curAct.changedDeal.removeAt(i);
-                        break;
-                    }
+                    curAct.changedDeal.replace(i,cngParam);//替换现有参数
+                    break;
+                }
+            }
+            //添加变动处理
+            if(i==curAct.changedDeal.length())
+                curAct.changedDeal.append(cngParam);
+        }
+        else
+        {
+            //删除变动处理
+            for(int i=0;i<curAct.changedDeal.length();i++)
+            {
+                if(curAct.changedDeal.at(i).changed == WaitTime)
+                {
+                    curAct.changedDeal.removeAt(i);
+                    break;
                 }
             }
         }
-        else if(sender == ui->editWaitMin)
-        {
-            curAct.timeDeal.wait = arg1.toUInt();
-        }
+        curAct.timeDeal.wait = cngParam.min;
     }
 
     unitDeal.actTest.replace(selRow,curAct);
@@ -1230,6 +1227,34 @@ void defTheUnit::editCheckDealSlot(bool checked)
                 break;
             }
         }
+    }
+    unitDeal.actTest.replace(selRow,curAct);
+}
+
+void defTheUnit::refreshErrorDeal(uint8_t errorFlag)
+{
+    if(errorFlag == NODealERROR)
+        ui->radioBtnNODeal->setChecked(true);
+    else if(errorFlag == OVERTIMEERR)
+        ui->radioBtnOverTimeDeal->setChecked(true);
+}
+
+void defTheUnit::editErrorDealSlot()
+{
+    int selRow = getTableActionSelRanges();
+    if(selRow>=unitDeal.actTest.length())
+        return ;
+    QObject *sender = QObject::sender();
+    //修改列表信息
+    tAction curAct = unitDeal.actTest.at(selRow);
+
+    if(sender == ui->radioBtnNODeal)
+    {
+        curAct.errorDeal = NODealERROR;
+    }
+    else if(sender == ui->radioBtnOverTimeDeal)
+    {
+        curAct.errorDeal = OVERTIMEERR;
     }
     unitDeal.actTest.replace(selRow,curAct);
 }
@@ -1471,8 +1496,6 @@ void defTheUnit::on_actnew_triggered()
     ui->editUnitName->setText(unitDeal.name);
     ui->spinUnitCycle->setValue(unitDeal.cycleCount);
     ui->editUnitDes->setText(unitDeal.unitDes);
-
-
 }
 
 /*************************************************************

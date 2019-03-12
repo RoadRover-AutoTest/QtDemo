@@ -51,6 +51,7 @@ private:
         chkAction,
         wait,
         waitover,
+        errorState,
         actover
     }time_deal_e;
 
@@ -94,6 +95,7 @@ private:
     QString currentCMDString;
     QStringList proList;
     QStringList deviceList;
+    bool IsOKCMDRunned;         //  命令运行完成标志，用来标记取字符串OK
 
     typedef enum
     {

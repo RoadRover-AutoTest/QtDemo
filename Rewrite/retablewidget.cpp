@@ -506,6 +506,7 @@ void reTableWidget::moveRow(int nFrom, int nTo )
 *************************************************************/
 void reTableWidget::ScriptCase1Slot()
 {
+#if 0
     int len = theSeqList.length();
 
     //配置脚本运行环境
@@ -525,6 +526,7 @@ void reTableWidget::ScriptCase1Slot()
         }
     }
     delete sparam;
+#endif
 }
 
 /*************************************************************

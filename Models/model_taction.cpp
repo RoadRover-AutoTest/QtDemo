@@ -58,7 +58,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             tempSoundInfo.clear();
 
             //显示执行且保存到结果文件：
-            ShowList << "evaluateTheAction:"+actionDeal->actName;
+            ShowList <<"【"+ QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss")+"  INILoop:"+toStr(iniLoop)+"】 evaluateTheAction:"+actionDeal->actName;
             appendTheResultToFile("evaluateTheAction:"+actionDeal->actName);
 
             //判断动作执行前是否采集信息：
@@ -77,7 +77,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             if((!actIsRunning)&&(!overtimeAct))
             {
                 ShowList << "~执行动作~"+actionDeal->actStr;
-                if(actionDeal->actFlag==ACT_KEY)
+                if(actionDeal->actFlag == ACT_KEY)
                     startAction(actionDeal->actStr);//执行按键动作
                 else
                 {
@@ -101,8 +101,14 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 }
                 else
                 {
-                    if(overtimeAct++ > 60000)
-                        timeState = actover;//动作执行超时
+                    if(overtimeAct++ >= actionDeal->timeDeal.end)
+                    {
+                        ShowList << "Error:动作执行超时;";
+                        if(actionDeal->errorDeal == OVERTIMEERR)
+                            timeState = errorState;
+                        else
+                            timeState = actover;//动作执行超时
+                    }
                     else
                     {
                         //脚本运行连续执行
@@ -127,7 +133,21 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         case collectInfo:
         {
             if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
+            {
                 collectInfoDeal(actInfoFlag);
+
+                //添加超时处理机制：
+                if(reChkCount >= (actionDeal->timeDeal.end / 1000))
+                {
+                    ShowList <<"Error:采集信息超时；";
+                    if(actionDeal->errorDeal == OVERTIMEERR)
+                        timeState = errorState;
+                    else
+                        timeState=nextState;
+                }
+                reChkCount++;
+            }
+
             TimeDelay1S++;
             break;
         }
@@ -149,7 +169,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                     timeState = waitover;
                 else
                 {
-                    if(actionDeal->checkDeal.isEmpty())
+                    if(actionDeal->timeDeal.check>actionDeal->timeDeal.wait)
                         testResult =true;
                     timeState = actover;
                 }
@@ -168,6 +188,10 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             }
             else
                 timeState = chkAction;
+            break;
+        }
+        case errorState:
+        {
             break;
         }
         case actover:
@@ -248,7 +272,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
                 {
                     ShowList << "采集信息：电流";
                     if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,Current)==false)
-                        goto toContinue;
+                        return ;
 
                     colInfoFlag |= COLCURRENT;      //电流采集完成
                 }
@@ -265,8 +289,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
             ShowList << "采集信息：界面";
             onProcessEXECmd(CMD_FACE);
         }
-
-        goto toContinue;
+        return ;
     }
     //采集图片：
     if((!(colInfoFlag & COLPICTURE))&&(infoFlag & COLPICTURE))
@@ -276,7 +299,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
             ShowList << "采集信息：图片";
             onProcessEXECmd(CMD_ADBPic);
         }
-        goto toContinue;
+        return ;
     }
     //采集声音：
     if((!(colInfoFlag & COLSOUND))&&(infoFlag & COLSOUND))
@@ -290,23 +313,11 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
         }
     }
 
-    //信息采集完成，执行下一步：
-    //将标志位置的位清0
+    //信息采集完成，将标志位置的位清0,执行下一步：
     infoFlag &= ~(1<<5);
     infoFlag &= ~(1<<7);
     if(colInfoFlag == infoFlag)
         timeState=nextState;
-
-    toContinue:
-    {
-        //添加超时处理机制：
-        if(reChkCount >= (actionDeal->timeDeal.end / 1000))
-        {
-            ShowList <<"Warn:采集信息超时；";
-            timeState=nextState;
-        }
-        reChkCount++;
-    }
 }
 
 /*************************************************************
@@ -898,6 +909,7 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
                     infoStorage.name = actionDeal->actStr+"-FACE";
                     infoStorage.information = faceStr.mid(startIndex).remove("}\r\r\n");
                     infoAppendDeal(COLFACE,infoStorage);
+                    IsOKCMDRunned=true;
                 }
             }
         }
@@ -942,7 +954,7 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                             else if(proCMD == CMD_ADBPic)
                                 proList.append(SCREENCAP_S(getDevNumber()));
                         }
-
+                        IsOKCMDRunned=false;
                         break;
                     }
                 }
@@ -960,7 +972,8 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
             }
             else if(proCMD == CMD_FACE)
             {
-                colInfoFlag |= COLFACE;      //界面采集完成
+                if(IsOKCMDRunned)
+                    colInfoFlag |= COLFACE;      //界面采集完成
             }
             else if(proCMD == CMD_ADBPic)
             {

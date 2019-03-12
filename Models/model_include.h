@@ -282,6 +282,13 @@ typedef enum
     ACT_SCRIPT
 }ActType_e;
 
+typedef enum
+{
+    NODealERROR,            //不进行错误处理
+    OVERTIMEERR,        //超时处理
+
+}error_type_e;
+
 
 /*************************************************************
 /定义测试单元：（尽可能包含测试过程中所有的处理参数）
@@ -305,6 +312,7 @@ typedef struct
 
     //information 采集:
     uint16_t infoFlag; //详见:collect_type_e
+    uint8_t errorDeal;  //错误处理机制：默认暂停 详见：error_type_e
 
     //time Deal:
     timeParam timeDeal;

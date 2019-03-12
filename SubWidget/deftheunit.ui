@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
-    <height>723</height>
+    <width>758</width>
+    <height>688</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -132,7 +132,7 @@
             <enum>QTabWidget::West</enum>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>3</number>
            </property>
            <widget class="QWidget" name="tabAct">
             <attribute name="title">
@@ -700,6 +700,30 @@
              </item>
             </layout>
            </widget>
+           <widget class="QWidget" name="tab_Error">
+            <attribute name="title">
+             <string>ErrorDeal</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout_22">
+             <item row="0" column="0">
+              <widget class="QRadioButton" name="radioBtnNODeal">
+               <property name="text">
+                <string>不处理</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QRadioButton" name="radioBtnOverTimeDeal">
+               <property name="text">
+                <string>超时暂停</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </item>
         </layout>
@@ -730,7 +754,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>867</width>
+     <width>758</width>
      <height>23</height>
     </rect>
    </property>

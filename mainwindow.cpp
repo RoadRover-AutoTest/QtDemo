@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     clearWindowCountor=0;
 
+    chkParamCount=0;
+
     initMainWindow();
 
     initUartParam();
@@ -210,11 +212,16 @@ void MainWindow::timerEvent(QTimerEvent *event)
         ui->treeWidget->refreshUartCOM(UARTDeal->PortList());
 
         //1S获取下物理参数:any:Error
-        if((getTestRunState())||(testState!=overtest))
+        if(chkParamCount++>=2)
         {
-            chkParamFromHardware(CHKCurrent);
-            chkParamFromHardware(CHKSound);
+            if((getTestRunState())||(testState!=overtest))
+            {
+                chkParamFromHardware(CHKCurrent);
+                chkParamFromHardware(CHKSound);
+            }
+            chkParamCount=0;
         }
+
 
         //实时扫描设备
         if((!getTestRunState())&&(testState==overtest))
@@ -726,6 +733,7 @@ void MainWindow::execKeyClicked(QString key)
         else
             buf[1]=false;
         appendTxList(CMDClickedKey,buf,2,CMD_NEEDACK);
+        //cout << key;
     }
 }
 
@@ -838,7 +846,7 @@ void MainWindow::timerUartIDDeal()
             ackWait=1;
         }
 
-        //cout << "txList:" <<txList.length();
+        cout << "txList:" <<txList.length();
         UARTDeal->UartTxCmdDeal(uartDat.cmd,uartDat.dat,uartDat.len,uartDat.ack);
         txList.removeFirst();
 
