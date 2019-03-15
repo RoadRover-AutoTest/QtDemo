@@ -182,14 +182,15 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     keyMenu->addAction(CCDOFFAction);
     keyMenu->addAction(OtherAction);
 
-
-
-    popMenu->addMenu(keyMenu);
-    popMenu->addAction(ScriptAction);
-    popMenu->addSeparator();
-    popMenu->addAction(upAct);
-    popMenu->addAction(downAct);
-    popMenu->addAction(deleteAct);
+    if(userLogin.Permissions == Administrator)
+    {
+        popMenu->addMenu(keyMenu);
+        popMenu->addAction(ScriptAction);
+        popMenu->addSeparator();
+        popMenu->addAction(upAct);
+        popMenu->addAction(downAct);
+        popMenu->addAction(deleteAct);
+    }
 
     connect( ACCONAction,        SIGNAL(triggered() ), this, SLOT( ACCONActionSlot()) );
     connect( ACCOFFAction,        SIGNAL(triggered() ), this, SLOT( ACCOFFActionSlot()) );
