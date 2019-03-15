@@ -270,7 +270,7 @@ void ResHardware::on_pushButton_inDat_clicked()
     {
         ui->comboBox_itemName->setCurrentText(upItem);
         if(ui->comboBox_itemName->currentText() != upItem)
-            QMessageBox::warning(NULL, QString("Warn"), QString("未找到"+upItem+"项目的按键信息，请更新KeyInfo.xml文件或重新配置按键信息！"));
+            QMessageBox::warning(NULL, tr("提示"), tr("未找到")+upItem+tr("项目的按键信息，请更新KeyInfo.xml文件或重新配置按键信息！"));
     }
     delete UpLoads;
 }

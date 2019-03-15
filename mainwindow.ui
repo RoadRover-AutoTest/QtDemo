@@ -85,9 +85,6 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar_Fun">
-   <property name="windowTitle">
-    <string>toolBar_2</string>
-   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -351,7 +348,7 @@ p, li { white-space: pre-wrap; }
      <item row="1" column="4">
       <widget class="QPushButton" name="pushButton">
        <property name="text">
-        <string>CLR</string>
+        <string>清空</string>
        </property>
       </widget>
      </item>
@@ -368,21 +365,21 @@ p, li { white-space: pre-wrap; }
      <item row="4" column="4">
       <widget class="QCheckBox" name="checkBox">
        <property name="text">
-        <string>OnOff</string>
+        <string>开/关</string>
        </property>
       </widget>
      </item>
      <item row="5" column="4">
       <widget class="QPushButton" name="pushButton_2">
        <property name="text">
-        <string>ClickedKey</string>
+        <string>点击</string>
        </property>
       </widget>
      </item>
      <item row="6" column="4">
       <widget class="QPushButton" name="btnReadCurrent">
        <property name="text">
-        <string>ReadCurrent</string>
+        <string>读电流</string>
        </property>
       </widget>
      </item>
@@ -421,17 +418,17 @@ p, li { white-space: pre-wrap; }
        </attribute>
        <column>
         <property name="text">
-         <string>Case</string>
+         <string>测试单元名</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string>Cycle</string>
+         <string>循环次数</string>
         </property>
        </column>
        <column>
         <property name="text">
-         <string>Description</string>
+         <string>描述</string>
         </property>
        </column>
       </widget>
@@ -525,7 +522,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/Title/exit.png</normaloff>:/Title/exit.png</iconset>
    </property>
    <property name="text">
-    <string>Exit</string>
+    <string>退出</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>
@@ -551,7 +548,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Monitor</string>
+    <string>监控窗口</string>
    </property>
   </action>
   <action name="save">
@@ -560,7 +557,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/Title/save.png</normaloff>:/Title/save.png</iconset>
    </property>
    <property name="text">
-    <string>Save</string>
+    <string>保存</string>
    </property>
    <property name="toolTip">
     <string>保存序列文件</string>
@@ -590,7 +587,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/Title/resetW.png</normaloff>:/Title/resetW.png</iconset>
    </property>
    <property name="text">
-    <string>Reset UI</string>
+    <string>重置UI</string>
    </property>
   </action>
   <action name="about">
@@ -600,7 +597,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="saveAs">
    <property name="text">
-    <string>Save As ...</string>
+    <string>另存为</string>
    </property>
    <property name="toolTip">
     <string>另存为...</string>
@@ -615,7 +612,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>:/Title/actRunning.png</normaloff>:/Title/actRunning.png</iconset>
    </property>
    <property name="text">
-    <string>Running</string>
+    <string>运行</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+R</string>
@@ -629,41 +626,17 @@ p, li { white-space: pre-wrap; }
     <string>Alt+R</string>
    </property>
   </action>
-  <action name="actConfig">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Config</string>
-   </property>
-  </action>
-  <action name="actDefSequence">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Defined Sequence</string>
-   </property>
-  </action>
-  <action name="actRunning_Sequence">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Running Sequence</string>
-   </property>
-  </action>
   <action name="actShow_UI">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show UI</string>
+    <string>显示窗格窗口</string>
    </property>
   </action>
   <action name="actHelp">
    <property name="text">
-    <string>Help</string>
+    <string>帮助</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+H</string>
@@ -675,6 +648,30 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="toolTip">
     <string>ATtool参数配置</string>
+   </property>
+  </action>
+  <action name="actRunning_Sequence">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>运行序列窗口</string>
+   </property>
+  </action>
+  <action name="actDefSequence">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>定义序列窗口</string>
+   </property>
+  </action>
+  <action name="actConfig">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>测试配置窗口</string>
    </property>
   </action>
  </widget>
@@ -750,22 +747,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actConfig</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>dockWidgetLeft</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>129</x>
-     <y>313</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actMonitor</sender>
    <signal>triggered(bool)</signal>
    <receiver>dockWidgetBottom</receiver>
@@ -778,38 +759,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>575</x>
      <y>716</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actRunning_Sequence</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>dockWidgetRuning</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1013</x>
-     <y>410</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actDefSequence</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>dockWidgetSequence</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1013</x>
-     <y>174</y>
     </hint>
    </hints>
   </connection>
@@ -926,18 +875,34 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>dockWidgetLeft</sender>
+   <sender>dockWidgetShow</sender>
    <signal>visibilityChanged(bool)</signal>
-   <receiver>actConfig</receiver>
+   <receiver>actShow_UI</receiver>
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>129</x>
-     <y>313</y>
+     <x>1013</x>
+     <y>549</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
      <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actRunning_Sequence</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>dockWidgetRuning</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1013</x>
+     <y>410</y>
     </hint>
    </hints>
   </connection>
@@ -958,6 +923,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>actDefSequence</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>dockWidgetSequence</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1013</x>
+     <y>174</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>dockWidgetSequence</sender>
    <signal>visibilityChanged(bool)</signal>
    <receiver>actDefSequence</receiver>
@@ -974,14 +955,30 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>dockWidgetShow</sender>
+   <sender>actConfig</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>dockWidgetLeft</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>129</x>
+     <y>313</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dockWidgetLeft</sender>
    <signal>visibilityChanged(bool)</signal>
-   <receiver>actShow_UI</receiver>
+   <receiver>actConfig</receiver>
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1013</x>
-     <y>549</y>
+     <x>129</x>
+     <y>313</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

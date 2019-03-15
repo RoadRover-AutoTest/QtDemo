@@ -119,7 +119,7 @@ void DiaReport::on_CreateBtn_clicked()
     QString chkPath = path.right(14);
     if(isDigitStr(chkPath) == -1)
     {
-        ui->textShow->append("当前选中路径非日期文件，请重新选择...");
+        ui->textShow->append(tr("当前选中路径非日期文件，请重新选择..."));
         return;
     }
     else

@@ -51,7 +51,7 @@ void Model_tFlow::timerEvent(QTimerEvent *event)
                 //每隔10S发送1次恢复工作状态指令
                 if(reTime%10 == 0)
                 {
-                    ShowList << ("evaluateTheFlow:恢复机器工作...");
+                    ShowList << tr("evaluateTheFlow:恢复机器工作...");
                     keyClicked(AccKey+":on");
                     keyClicked(BatKey+":on");
                 }

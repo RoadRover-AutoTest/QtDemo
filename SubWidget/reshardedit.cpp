@@ -94,9 +94,9 @@ void ResHardEdit::comBoxChangedSlot(int index)
 
     switch (index)
     {
-    case 0:ui->label->setText("硬件控制车机！");break;
-    case 1:ui->label->setText("单协议：单帧协议控制车机");break;
-    case 2:ui->label->setText("双协议：双帧控制车机，常用来处理翻转操作");break;
+    case 0:ui->label->setText(tr("硬件控制车机！"));break;
+    case 1:ui->label->setText(tr("单协议：单帧协议控制车机"));break;
+    case 2:ui->label->setText(tr("双协议：双帧控制车机，常用来处理翻转操作"));break;
     default:break;
     }
 
@@ -175,7 +175,7 @@ void ResHardEdit::accept()
 {
     if(editKeyInfo->name.isEmpty())
     {
-        QMessageBox::warning(NULL, QString("提示"), QString("按键名为空，请输入！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("按键名为空，请输入！"));
     }
     else
         QDialog::accept();

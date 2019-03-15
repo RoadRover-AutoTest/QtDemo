@@ -49,6 +49,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
         #D:\OpenCV\lib\libopencv_objdetect249.dll.a\
         #D:\OpenCV\lib\libopencv_video249.dll.a
 
+TRANSLATIONS += uav_tr_laEN.ts uav_tr_laCN.ts
+
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
@@ -74,7 +77,8 @@ SOURCES += \
     SubWidget/toolconfig.cpp \
     Models/model_piccompare.cpp \
     SubWidget/deftheunit.cpp \
-    Models/model_threadlog.cpp
+    Models/model_threadlog.cpp \
+    dialoglogin.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -100,7 +104,8 @@ HEADERS += \
     SubWidget/toolconfig.h \
     Models/model_piccompare.h \
     SubWidget/deftheunit.h \
-    Models/model_threadlog.h
+    Models/model_threadlog.h \
+    dialoglogin.h
 
 FORMS += \
         mainwindow.ui \
@@ -111,7 +116,8 @@ FORMS += \
     SubWidget/chartwidget.ui \
     SubWidget/diareport.ui \
     SubWidget/toolconfig.ui \
-    SubWidget/deftheunit.ui
+    SubWidget/deftheunit.ui \
+    dialoglogin.ui
 
 RESOURCES += \
     Images/images.qrc

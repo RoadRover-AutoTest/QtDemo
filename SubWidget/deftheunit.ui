@@ -24,7 +24,7 @@
       <item>
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
-         <string>Unit:</string>
+         <string>测试单元：</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
@@ -48,12 +48,12 @@
              </attribute>
              <column>
               <property name="text">
-               <string>ActName</string>
+               <string>动作名</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>ActStr</string>
+               <string>动作处理</string>
               </property>
              </column>
             </widget>
@@ -65,7 +65,7 @@
                <item>
                 <widget class="QLabel" name="label">
                  <property name="text">
-                  <string>Name:</string>
+                  <string>测试单元名：</string>
                  </property>
                 </widget>
                </item>
@@ -83,7 +83,7 @@
                <item>
                 <widget class="QLabel" name="label_2">
                  <property name="text">
-                  <string>Cycle:</string>
+                  <string>循环次数:</string>
                  </property>
                 </widget>
                </item>
@@ -102,7 +102,7 @@
              <item>
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>Description:</string>
+                <string>描述：</string>
                </property>
               </widget>
              </item>
@@ -123,7 +123,7 @@
       <item>
        <widget class="QGroupBox" name="groupBox_2">
         <property name="title">
-         <string>Properties:</string>
+         <string>属性：</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_10">
          <item row="1" column="0" colspan="2">
@@ -136,7 +136,7 @@
            </property>
            <widget class="QWidget" name="tabAct">
             <attribute name="title">
-             <string>Action</string>
+             <string>动作</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_18">
              <item row="0" column="3">
@@ -155,7 +155,7 @@
              <item row="2" column="0" colspan="4">
               <widget class="QStackedWidget" name="stackedWidget">
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="pageScript">
                 <layout class="QGridLayout" name="gridLayout_19">
@@ -225,14 +225,14 @@
                     </size>
                    </property>
                    <property name="text">
-                    <string>KeyList:</string>
+                    <string>按键列表：</string>
                    </property>
                   </widget>
                  </item>
                  <item row="2" column="0" rowspan="2" colspan="3">
                   <widget class="QGroupBox" name="groupKeyONOFF">
                    <property name="title">
-                    <string>On/Off</string>
+                    <string>开/关</string>
                    </property>
                    <property name="flat">
                     <bool>true</bool>
@@ -263,7 +263,7 @@
              <item row="0" column="0">
               <widget class="QLabel" name="label_14">
                <property name="text">
-                <string>ActName:</string>
+                <string>动作名：</string>
                </property>
               </widget>
              </item>
@@ -274,13 +274,13 @@
            </widget>
            <widget class="QWidget" name="tabTime">
             <attribute name="title">
-             <string>Time</string>
+             <string>时间</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="0" column="0">
               <widget class="QLabel" name="label_4">
                <property name="text">
-                <string>WaitTime(mS):</string>
+                <string>等待时间(mS):</string>
                </property>
               </widget>
              </item>
@@ -293,7 +293,7 @@
              <item row="0" column="3">
               <widget class="QLabel" name="label_5">
                <property name="text">
-                <string>Step(mS):</string>
+                <string>步进(mS):</string>
                </property>
               </widget>
              </item>
@@ -303,7 +303,7 @@
              <item row="1" column="0">
               <widget class="QLabel" name="label_6">
                <property name="text">
-                <string>ChkTime(mS):</string>
+                <string>检测时间(mS):</string>
                </property>
               </widget>
              </item>
@@ -313,7 +313,7 @@
              <item row="2" column="0">
               <widget class="QLabel" name="label_7">
                <property name="text">
-                <string>OverTime(mS):</string>
+                <string>超时时间(mS):</string>
                </property>
               </widget>
              </item>
@@ -324,7 +324,7 @@
            </widget>
            <widget class="QWidget" name="tabCheck">
             <attribute name="title">
-             <string>Check</string>
+             <string>检测</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_3">
              <item row="0" column="0">
@@ -333,7 +333,7 @@
                 <string notr="true"/>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>5</number>
                </property>
                <widget class="QWidget" name="tabCurrent">
                 <attribute name="title">
@@ -702,7 +702,7 @@
            </widget>
            <widget class="QWidget" name="tab_Error">
             <attribute name="title">
-             <string>ErrorDeal</string>
+             <string>错误处理</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_22">
              <item row="0" column="0">
@@ -884,7 +884,7 @@
   </action>
   <action name="actHelp">
    <property name="text">
-    <string>Help</string>
+    <string>帮助</string>
    </property>
   </action>
  </widget>

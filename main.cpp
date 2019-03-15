@@ -1,6 +1,8 @@
 #include "mainwindow.h"
+#include "dialoglogin.h"
 #include <QApplication>
 #include <QtMsgHandler>
+#include <QTranslator>
 
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -40,8 +42,22 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     qInstallMessageHandler(customMessageHandler); //注册MsgHandler回调函数
-    MainWindow w;
-    w.show();
 
-    return a.exec();
+    QTranslator translator;
+    if(translator.load("uav_tr_laEN"))
+    {
+        qApp->installTranslator(&translator);
+    }
+
+
+    DialogLogin login_w(&translator);
+
+    if(login_w.exec()==QDialog::Accepted)
+    {
+        MainWindow w;
+        w.show();
+        return a.exec();
+    }
+    else
+        return 0;
 }

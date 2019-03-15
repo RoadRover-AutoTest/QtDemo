@@ -1,5 +1,7 @@
 #include "Models/model_include.h"
 
+
+user_type_s userLogin;
 //ATtoolConfig配置参数
 QString WorkItem;           //当前测试项目
 int WorkCurrent;            //工作电流

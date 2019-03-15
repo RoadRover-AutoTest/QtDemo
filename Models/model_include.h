@@ -10,6 +10,8 @@
 #include <QPainter>
 #include <QProxyStyle>
 
+
+
 #define cout        qDebug() << "[" << __FILE__ << ":"<< __FUNCTION__ << ":" << __LINE__ << "]"
 #define toStr(num)  QString::number(num)
 #define ON          true
@@ -20,7 +22,7 @@
 #define ResultPath  QCoreApplication::applicationDirPath()+"/result"
 #define REPORTPath  QCoreApplication::applicationDirPath()+"/ATReport/run.py"
 #define REPORTCFGPath QCoreApplication::applicationDirPath()+"/ATReport/conf/config.ini"
-#define TEMPPath  ResultPath+"/temp/"
+//#define TEMPPath  ResultPath+"/temp/"
 
 //定义颜色：用于进度条显示
 #define GRAY    QColor(199,199,199)   //灰
@@ -29,16 +31,6 @@
 #define RED     QColor(255,5,5)        //红
 #define WHITE   QColor(255,255,255)  //白
 #define BLACK   QColor(0,0,0)
-
-//测试流宏定义
-#define MAXFLOW                 0xFF            //最大测试流 //且0xFF为自定义时当前流程使用,实际可用0xFE
-#define setSingleCount          2               //"测试次数"50次
-#define setAllCount             2               //设置整体循环次数
-#define SCRIPTDealTime          0               //定义脚本处理时间为0
-
-#define DesACC_Script "Acc环境下的脚本测试：ACC关--ACC开--运行脚本"
-
-
 
 #define DEVHID              "VID_18D1&PID_D002" //安卓设备硬件ID匹配
 
@@ -403,7 +395,31 @@ typedef struct
 
 }keyControl;
 
+typedef enum
+{
+    OnlyUser,
+    Administrator,
+}Permissions_type_e;
 
+typedef enum
+{
+    l_Chinese,
+    l_English
+}language_type_e;
+
+/*************************************************************
+/用户管理：
+*************************************************************/
+typedef struct
+{
+    uint8_t Permissions;//权限
+    QString userName;
+    QString userPassword;
+    uint8_t language;
+
+}user_type_s;
+
+extern user_type_s userLogin;
 
 /*************************************************************
 /类：重新画列表窗口显示

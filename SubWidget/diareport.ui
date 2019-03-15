@@ -79,7 +79,7 @@
          <item>
           <widget class="QPushButton" name="ClrBtn">
            <property name="text">
-            <string>CLR</string>
+            <string>清空</string>
            </property>
           </widget>
          </item>
@@ -103,7 +103,7 @@ p, li { white-space: pre-wrap; }
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="2" column="0" colspan="2">
     <widget class="QLabel" name="label_2">
      <property name="styleSheet">
       <string notr="true">color: rgb(255, 0, 0);</string>

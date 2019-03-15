@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Test:</string>
+      <string>测试:</string>
      </property>
      <property name="flat">
       <bool>true</bool>
@@ -28,7 +28,7 @@
         <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>测试项目：</string>
+           <string>项目：</string>
           </property>
          </widget>
         </item>
@@ -121,7 +121,7 @@
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Report：</string>
+      <string>报告：</string>
      </property>
      <property name="flat">
       <bool>true</bool>
@@ -181,7 +181,7 @@
    <item row="2" column="0">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
-      <string>Logcat：</string>
+      <string>LOG：</string>
      </property>
      <property name="flat">
       <bool>true</bool>
@@ -197,7 +197,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Logcat:</string>
+         <string>脚本文件：</string>
         </property>
        </widget>
       </item>

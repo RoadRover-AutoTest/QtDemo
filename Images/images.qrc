@@ -27,6 +27,9 @@
         <file>defUnit.png</file>
         <file>clearUnit.png</file>
         <file>delUnit.png</file>
+        <file>login_w.png</file>
+        <file>waiting.png</file>
+        <file>warn.png</file>
     </qresource>
     <qresource prefix="/flow">
         <file>offScriptFlow.png</file>

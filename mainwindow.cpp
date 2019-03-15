@@ -128,7 +128,7 @@ void MainWindow::setIsRunInterface(bool IsRun)
     {
         ui->dockWidgetBottom->setVisible(true);
         ui->dockWidgetRuning->raise();   //显示运行窗口
-        ui->acttest->setText("Ending");
+        ui->acttest->setText(tr("结束"));
         ui->acttest->setIcon(QIcon(":/Title/actEnding.png"));
         ui->acttest->setChecked(IsRun);
         ui->treeWidget->setEnabled(false);
@@ -143,7 +143,7 @@ void MainWindow::setIsRunInterface(bool IsRun)
     else
     {
         ui->dockWidgetBottom->setVisible(true);//初始化界面：
-        ui->acttest->setText("Running");
+        ui->acttest->setText(tr("运行"));
         ui->acttest->setIcon(QIcon(":/Title/actRunning.png"));
         ui->acttest->setChecked(IsRun);
         ui->treeWidget->setEnabled(true);
@@ -159,7 +159,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if(getTestRunState())
     {
-        if(QMessageBox::information(NULL, "Exit", "正在测试，是否退出软件?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::Yes)//Upgrading
+        if(QMessageBox::information(NULL, tr("退出"), tr("正在测试，是否退出软件?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::Yes)//Upgrading
         {
             endTheFlow();
             event->accept();
@@ -232,9 +232,10 @@ void MainWindow::timerEvent(QTimerEvent *event)
         }
 
         //计时10分钟清理一次检测窗口:600
-        if(++clearWindowCountor>600)
+        if(ui->textBrowser_EXEShow->toPlainText().count()>=10000)
+        //if(++clearWindowCountor>600)
         {
-            clearWindowCountor=0;
+            //clearWindowCountor=0;
             appendTheExecLogInfo(ui->textBrowser_EXEShow->toPlainText());
             ui->textBrowser_EXEShow->clear();
         }
@@ -299,7 +300,7 @@ void MainWindow::on_actHelp_triggered()
     QString pdfPath=QDir::currentPath()+"/ATtool使用说明.pdf";
     if(QDesktopServices::openUrl(QUrl::fromLocalFile(pdfPath))==false)
     {
-        QMessageBox::warning(NULL, QString("提示"), QString("该运行目录下无《ATtool使用说明.pdf》文档！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("该运行目录下无《ATtool使用说明.pdf》文档！"));
     }
 
 }
@@ -311,10 +312,11 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, "About", "自动化测试系统 V1.03\n"
+    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.03\n"
                                             "日期：2019.03.06\n"
                                             "版权：roadrover\n"
-                                            "反馈邮箱：lishuhui@roadrover.cn");
+                                            "反馈邮箱：lishuhui@roadrover.cn"));
+
 }
 
 /*************************************************************
@@ -332,7 +334,7 @@ void MainWindow::on_acttest_triggered(bool checked)
             if(testList->isEmpty()==false)
                 startTheFlow(testList);
             else
-                ui->textBrowser_EXEShow->append("启动测试失败：测试序列不存在数据，请先添加测试序列！");
+                ui->textBrowser_EXEShow->append(tr("启动测试失败：测试序列不存在数据，请先添加测试序列！"));
         }
         else
             endTheFlow();
@@ -466,14 +468,14 @@ void MainWindow::startTheFlow(QList <tUnit> *testFlow)
         //设备序列号
         if(devNumber.isEmpty())
         {
-            if(QMessageBox::information(NULL, "Warn", "未启用设备序列号，是否继续?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::No)//Upgrading
+            if(QMessageBox::information(NULL, tr("警告"), tr("未启用设备序列号，是否继续?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::No)//Upgrading
                 return ;
         }
 
         //提示保存文件：
         if(ui->tableSequence->getSequenceFileName().isEmpty())
         {
-            if(QMessageBox::information(NULL, "Warn", "未保存文件，是否继续?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::No)//Upgrading
+            if(QMessageBox::information(NULL, tr("警告"), tr("未保存文件，是否继续?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::No)//Upgrading
                 return ;
         }
 
@@ -492,7 +494,7 @@ void MainWindow::startTheFlow(QList <tUnit> *testFlow)
     }
     else
     {
-        ui->textBrowser_EXEShow->append("启动测试失败：请检查测试是否正在运行或正在生成报告！");
+        ui->textBrowser_EXEShow->append(tr("启动测试失败：请检查测试是否正在运行或正在生成报告！"));
     }
 }
 
@@ -511,7 +513,7 @@ void MainWindow::timerTestIDDeal()
         isRunning = true;
         setIsRunInterface(true);
         testTime = QDateTime::currentDateTime();
-        ui->textBrowser_EXEShow->append("启动测试:");
+        ui->textBrowser_EXEShow->append(tr("启动测试:"));
         testState=waitnull;
         break;
     }
@@ -530,7 +532,7 @@ void MainWindow::timerTestIDDeal()
         {
             isHadProp=false;
             //机器版本信息:
-            ui->textBrowser_EXEShow->append("获取机器版本信息，请稍后... ...");
+            ui->textBrowser_EXEShow->append(tr("获取机器版本信息，请稍后... ..."));
             appendThePropertiesToFile("clear");
 
             if(getDevNumber().isEmpty())
@@ -540,7 +542,7 @@ void MainWindow::timerTestIDDeal()
         }
         else if(proDelayTime1S>6000)
         {
-            ui->textBrowser_EXEShow->append("设备未连接，无法获取属性信息... ...");
+            ui->textBrowser_EXEShow->append(tr("设备未连接，无法获取属性信息... ..."));
             testState = overtest;
         }
 
@@ -551,7 +553,7 @@ void MainWindow::timerTestIDDeal()
     {
         if(!isPRORunning)
         {
-            ui->textBrowser_EXEShow->append("正在生成报告，请稍后... ...");
+            ui->textBrowser_EXEShow->append(tr("正在生成报告，请稍后... ..."));
             proList.append(PYTHONREPORT(ResultPath+"/" + ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/"));
         }
         break;
@@ -608,7 +610,7 @@ void MainWindow::testProcessOverDeal()
     }
     else if(testState == report)
     {
-        ui->textBrowser_EXEShow->append(tr("<html><p><a>报告生成结束，请查找本地对应目录或邮件或</a><a href=\"%1\">点击查阅</a></p></html> \n\n")
+        ui->textBrowser_EXEShow->append(tr("报告生成结束，请查找本地对应目录或邮件或")+tr("<html><p><a href=\"%1\">点击查阅</a></p></html> \n\n")
                                         .arg("http://192.168.13.96/result/" + ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));
 
         testState = overtest;
@@ -652,7 +654,7 @@ void MainWindow::endTheFlow()
 void MainWindow::onEndTestSlot()
 {
     proDelayTime1S=0;
-    ui->textBrowser_EXEShow->append("结束测试！");
+    ui->textBrowser_EXEShow->append(tr("结束测试！"));
     testState = getprop;
     if(IsLogcatEnable)
         stopLogThread();
@@ -683,7 +685,7 @@ void MainWindow::unitStartExeSlot(tUnit eUnit)
                 + "/Loop"+toStr(tFlowDeal->getTheFlowLoop()) ;
     if(appendTheResultToFile("StartTheUnit:"+currentTime.toString("yyyy.MM.dd-hh.mm.ss")+"    name:"+eUnit.name)==false)
     {
-        QMessageBox::warning(NULL, QString("Warn"), QString("保存报告路径创建有误，请检查"+savePath+"/report.txt "));
+        cout<<("保存报告路径创建有误，请检查"+savePath+"/report.txt ");
         endTheFlow();
     }
 }
@@ -708,7 +710,7 @@ void MainWindow::unitEndExeSlot(bool exeResult)
         ui->tableWidget->setItem(row-1,colResult,new QTableWidgetItem(QIcon(":/test/fail.png"),NULL));
     }
 
-    ui->tableWidget->setItem(row-1,colStr,new QTableWidgetItem("测试结束"));
+    ui->tableWidget->setItem(row-1,colStr,new QTableWidgetItem(tr("测试结束")));
 
     appendTheResultToFile("EndTheUnit:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"    result:"+QString::number(exeResult)+"\r\n\r\n");
 }
@@ -826,7 +828,8 @@ bool MainWindow::UartConnectStatus()
 {
     bool status=UARTDeal->isOpenCurrentUart();
     if(!status)
-        QMessageBox::warning(NULL, QString("Warn"), QString("未打开串口，请处理！"));
+        QMessageBox::warning(NULL, tr("警告"), tr("未打开串口，请处理！"));
+
     return status;
 }
 
@@ -858,7 +861,8 @@ void MainWindow::timerUartIDDeal()
         {
             ackWait=0;
             txList.clear();
-            QMessageBox::warning(NULL, QString("Warn"), QString("串口响应失败，请检查！"));
+
+            QMessageBox::warning(NULL, tr("警告"), tr("串口响应失败，请检查！"));
             if(getTestRunState())
             {
                 endTheFlow();
@@ -1206,12 +1210,12 @@ void MainWindow::on_pushButtonhide_clicked(bool checked)
 {
     if(checked)
     {
-        ui->pushButtonhide->setText("显示帧");
+        ui->pushButtonhide->setText(tr("显示帧"));
         ui->textBrowser_mShow->setVisible(false);
     }
     else
     {
-        ui->pushButtonhide->setText("隐藏帧");
+        ui->pushButtonhide->setText(tr("隐藏帧"));
         ui->textBrowser_mShow->setVisible(true);
     }
 }

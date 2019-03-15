@@ -113,16 +113,15 @@ void reTreeWidget::itemChangedCheckedState(QTreeWidgetItem *curItem ,int column)
     }
 
     QTreeWidgetItem *topItem = curItem->parent();
-    QString topString = topItem->text(0);
-
-    if(topString == "设备")
+    int index = this->indexOfTopLevelItem(topItem);
+    if(index == topDEV)
     {
         if(curItem->checkState(column) == Qt::Checked)
             devUseState(true);
         else
             devUseState(false);
     }
-    else if(topString == "串口")
+    else if(index == topUart)
     {
         if(curItem->checkState(column) == Qt::Checked)
         {
@@ -141,7 +140,7 @@ void reTreeWidget::itemChangedCheckedState(QTreeWidgetItem *curItem ,int column)
             this->itemWidget(topItem->child(1),colItem)->setEnabled(true);
         }
     }
-    else if(topString == "CAN")
+    else if(index == topCAN)
     {
         if(curItem->checkState(column) == Qt::Checked)
         {

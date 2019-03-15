@@ -88,6 +88,15 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
 
     connect(ui->radioBtnNODeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
     connect(ui->radioBtnOverTimeDeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
+
+    if(userLogin.Permissions == OnlyUser)
+    {
+        ui->actSave->setEnabled(false);
+        ui->actclear->setEnabled(false);
+        ui->actdel->setEnabled(false);
+        ui->actnew->setEnabled(false);
+        ui->comboUnitList->setEnabled(false);
+    }
 }
 
 defTheUnit::~defTheUnit()
@@ -889,9 +898,9 @@ void defTheUnit::on_toolButtonSelFile_clicked()
 void defTheUnit::on_checkfileMore_clicked(bool checked)
 {
     if(checked)
-        ui->labelfileShow->setText("文件夹：");
+        ui->labelfileShow->setText(tr("文件夹："));
     else
-        ui->labelfileShow->setText("文件：");
+        ui->labelfileShow->setText(tr("文件："));
 }
 
 /*************************************************************
@@ -1345,7 +1354,7 @@ void defTheUnit::on_actLook_triggered()
 {
     if((unitDeal.actTest.isEmpty())||(unitDeal.name.isEmpty()))
     {
-        QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名/检测测试动作是否为空！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("请输入测试单元名/检测测试动作是否为空！"));
         return ;
     }
     changedInfoFlagDeal();
@@ -1363,7 +1372,7 @@ void defTheUnit::on_actSave_triggered()
 {
     if((unitDeal.actTest.isEmpty())||(unitDeal.name.isEmpty()))
     {
-        QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名/检测测试动作是否为空！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("请输入测试单元名/检测测试动作是否为空！"));
         return ;
     }
 
@@ -1380,7 +1389,7 @@ void defTheUnit::on_actSave_triggered()
     //查询是否已经存在该测试单元
     if(xmlSave.hasUnitInfomation(unitDEFINEFile,unitDeal.name))
     {
-        if(QMessageBox::information(NULL, "提示", "文件中该测试单元已存在，是否替换？？", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::No)
+        if(QMessageBox::information(NULL, tr("提示"), tr("文件中该测试单元已存在，是否替换？？"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::No)
             return;
         else
         {
@@ -1420,7 +1429,7 @@ void defTheUnit::on_actApply_triggered()
 {
     if((unitDeal.actTest.isEmpty())||(unitDeal.name.isEmpty()))
     {
-        QMessageBox::warning(NULL, QString("提示"), QString("请输入测试单元名/检测测试动作是否为空！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("请输入测试单元名/检测测试动作是否为空！"));
         return ;
     }
 
@@ -1475,7 +1484,7 @@ void defTheUnit::on_actnew_triggered()
 
     if(row)
     {
-        int selKey = QMessageBox::warning(NULL, "提示","是否已经保存当前测试单元?",QMessageBox::Save | QMessageBox::Yes | QMessageBox::Cancel,QMessageBox::Yes);
+        int selKey = QMessageBox::warning(NULL, tr("提示"),tr("是否已经保存当前测试单元?"),QMessageBox::Save | QMessageBox::Yes | QMessageBox::Cancel,QMessageBox::Yes);
         if (selKey == QMessageBox::Cancel )
             return ;
         else if (selKey == QMessageBox::Save )
@@ -1510,7 +1519,7 @@ void defTheUnit::on_actdel_triggered()
     Model_XMLFile xmlFile;
     if(xmlFile.hasUnitInfomation(unitDEFINEFile,delStr))
     {
-        if (QMessageBox::warning(NULL, "Warning","Are you sure you want to delete the Unit ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+        if (QMessageBox::warning(NULL, tr("提示"),tr("确定删除该测试动作?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
             return;
 
         xmlFile.removeUnitXML(unitDEFINEFile,delStr);
@@ -1530,7 +1539,7 @@ void defTheUnit::on_actdel_triggered()
 void defTheUnit::on_actclear_triggered()
 {
     Model_XMLFile xmlFile;
-    if (QMessageBox::warning(NULL, "Warning","Are you sure you want to clear all Unit ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+    if (QMessageBox::warning(NULL, tr("提示"),tr("确定清空该测试单元?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
         return;
 
     for(int i=0;i<unitList.length();i++)
@@ -1548,7 +1557,7 @@ void defTheUnit::on_actHelp_triggered()
     QString pdfPath=QDir::currentPath()+"/Unit编辑窗口使用说明.pdf";
     if(QDesktopServices::openUrl(QUrl::fromLocalFile(pdfPath))==false)
     {
-        QMessageBox::warning(NULL, QString("提示"), QString("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
     }
 }
 

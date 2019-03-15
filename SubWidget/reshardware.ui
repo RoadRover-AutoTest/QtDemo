@@ -70,17 +70,17 @@
      </attribute>
      <column>
       <property name="text">
-       <string>Key</string>
+       <string>按键</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Descript</string>
+       <string>描述</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Edit</string>
+       <string>编辑</string>
       </property>
      </column>
     </widget>
@@ -88,7 +88,7 @@
    <item row="0" column="2">
     <widget class="QPushButton" name="pushButton_reset">
      <property name="text">
-      <string>Reset</string>
+      <string>重置</string>
      </property>
     </widget>
    </item>

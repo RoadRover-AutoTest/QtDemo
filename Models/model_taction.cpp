@@ -76,7 +76,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         {
             if((!actIsRunning)&&(!overtimeAct))
             {
-                ShowList << "~执行动作~"+actionDeal->actStr;
+                ShowList << tr("~执行动作~")+actionDeal->actStr;
                 if(actionDeal->actFlag == ACT_KEY)
                     startAction(actionDeal->actStr);//执行按键动作
                 else
@@ -103,7 +103,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 {
                     if(overtimeAct++ >= actionDeal->timeDeal.end)
                     {
-                        ShowList << "Error:动作执行超时;";
+                        ShowList << tr("Error:动作执行超时;");
                         if(actionDeal->errorDeal == OVERTIMEERR)
                             timeState = errorState;
                         else
@@ -139,7 +139,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 //添加超时处理机制：
                 if(reChkCount >= (actionDeal->timeDeal.end / 1000))
                 {
-                    ShowList <<"Error:采集信息超时；";
+                    ShowList <<tr("Error:采集信息超时；");
                     if(actionDeal->errorDeal == OVERTIMEERR)
                         timeState = errorState;
                     else
@@ -270,7 +270,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
                 checkParam chkDeal = actionDeal->checkDeal.at(i);
                 if(chkDeal.check == CHKCurrent)
                 {
-                    ShowList << "采集信息：电流";
+                    ShowList << tr("采集信息：电流");
                     if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,Current)==false)
                         return ;
 
@@ -286,7 +286,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     {
         if((!isPRORunning)&&(proList.isEmpty()))
         {
-            ShowList << "采集信息：界面";
+            ShowList << tr("采集信息：界面");
             onProcessEXECmd(CMD_FACE);
         }
         return ;
@@ -296,7 +296,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     {
         if((!isPRORunning)&&(proList.isEmpty()))
         {
-            ShowList << "采集信息：图片";
+            ShowList << tr("采集信息：图片");
             onProcessEXECmd(CMD_ADBPic);
         }
         return ;
@@ -304,7 +304,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     //采集声音：
     if((!(colInfoFlag & COLSOUND))&&(infoFlag & COLSOUND))
     {
-        ShowList << "采集信息：声音";
+        ShowList << tr("采集信息：声音");
         tempSoundInfo.append(SoundV);
         if(++soundTimer >= ColSOUNDTimer)
         {
@@ -462,7 +462,7 @@ void Model_tAction::theActionCheckReault(QList <checkParam> testChk)
 bool Model_tAction::chkCurrent(checkParam range)
 {
     int value = Current;
-    ShowList << "checkTheAction:检测电流..."+toStr(value);
+    ShowList << tr("checkTheAction:检测电流...")+toStr(value);
     bool result = rangeJudgeTheParam(range.range,range.min,range.max,value);
 
     if(range.range != GELE)
@@ -482,7 +482,7 @@ bool Model_tAction::chkCurrent(checkParam range)
 bool Model_tAction::chkVolt(checkParam range)
 {
     int value = Volt;
-    ShowList << "checkTheAction:检测电压..."+toStr(value);
+    ShowList << tr("checkTheAction:检测电压...")+toStr(value);
     bool result = rangeJudgeTheParam(range.range,range.min,range.max,value);
 
     if(range.range != GELE)
@@ -501,7 +501,7 @@ bool Model_tAction::chkVolt(checkParam range)
 *************************************************************/
 bool Model_tAction::chkSound(checkParam sound)
 {
-    ShowList<< "checkTheAction:检测声音...";
+    ShowList<< tr("checkTheAction:检测声音...");
     bool result=false;
     switch(sound.sound)
     {
@@ -601,7 +601,7 @@ bool Model_tAction::chkSound(checkParam sound)
 *************************************************************/
 bool Model_tAction::chkScript(checkParam script)
 {
-    ShowList<<("checkTheAction:检测脚本...");
+    ShowList<<tr("checkTheAction:检测脚本...");
     bool result = false;
     QString filePath = savePath+"\\"+toStr(iniLoop)+"\\case.log";            //any--检测脚本路径
     QFile readfile(filePath);
@@ -638,7 +638,7 @@ bool Model_tAction::chkInterface(checkParam memory)
     QString curFaceInfo,lastFaceInfo;
     bool result = false;
 
-    ShowList<< "checkTheAction:检测界面...";
+    ShowList<< tr("checkTheAction:检测界面...");
 
     /*获取当前界面信息*/
     for(int i=0;i<tempFaceInfo.length();i++)
@@ -682,7 +682,7 @@ bool Model_tAction::chkInterface(checkParam memory)
             }
             else
             {
-                ShowList <<"Warn:未采集到动作执行前界面，检测失败！";
+                ShowList <<tr("Warn:未采集到动作执行前界面，检测失败！");
             }
         }
         else if(memory.infoCompare == NoCompare)
@@ -701,7 +701,7 @@ bool Model_tAction::chkInterface(checkParam memory)
     }
     else
     {
-        ShowList <<"Warn:未查询到当前界面，检测失败！";
+        ShowList <<tr("Warn:未查询到当前界面，检测失败！");
     }
 
     appendTheResultToFile("Judge:Interface:"+lastFaceInfo);
@@ -722,7 +722,7 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
     QString curPicInfo,lastPicInfo;
     bool result = false;
 
-    ShowList<< "checkTheAction:检测Picture...";
+    ShowList<< tr("checkTheAction:检测Picture...");
 
     /*获取当前界面信息*/
     for(int i=0;i<tempPicInfo.length();i++)
@@ -768,7 +768,7 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
             }
             else
             {
-                ShowList <<"Warn:未采集到动作执行前界面，检测失败！";
+                ShowList <<tr("Warn:未采集到动作执行前界面，检测失败！");
             }
 
         }
@@ -793,7 +793,7 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
     }
     else
     {
-        ShowList <<"Warn:未查询到当前界面，检测失败！";
+        ShowList <<tr("Warn:未查询到当前界面，检测失败！");
     }
 
     appendTheResultToFile("Judge:Picture:"+lastPicInfo);

@@ -21,12 +21,12 @@
      </property>
      <column>
       <property name="text">
-       <string>Unit</string>
+       <string>单元</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Attribute</string>
+       <string>属性</string>
       </property>
      </column>
     </widget>

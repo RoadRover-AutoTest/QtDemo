@@ -164,7 +164,7 @@ void ResUpAndDownLoads::downUartDeal()
             if((++txCount) > (CmdReSendTimer+2))
             {
                 cout << ("串口传输无响应，请检查！");
-                QMessageBox::warning(NULL, QString("Warn"), QString("串口传输无响应，请检查！"));
+                QMessageBox::warning(NULL, tr("提示"), tr("串口传输无响应，请检查！"));
                 txCount=0;
                 keyIndex=0;
                 this->close();
@@ -198,7 +198,7 @@ void ResUpAndDownLoads::upUartDeal()
         //长时间未接收到数据
         if(rxCount>30)
         {
-            QMessageBox::warning(NULL, QString("Warn"), QString("该小板无项目按键信息！"));
+            QMessageBox::warning(NULL, tr("提示"), tr("该小板无项目按键信息！"));
             rxCount=0;
 
             this->close();
@@ -228,13 +228,13 @@ void ResUpAndDownLoads::on_pushButton_OUT_clicked()
 
     if(itemName.isEmpty())
     {
-        QMessageBox::warning(NULL, QString("Warn"), QString("项目名不可为空，请填写！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("项目名不可为空，请填写！"));
         return ;
     }
 
     if((keyUart->isOpenCurrentUart()==false)&&(downIsUartHardware()))
     {
-        QMessageBox::warning(NULL, QString("Warn"), QString("未打开串口，无法进行下载操作！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
         return ;
     }
 
@@ -254,7 +254,7 @@ void ResUpAndDownLoads::on_pushButton_OUT_clicked()
 
         if(xmlSave.hasItemKeyInfomation(itemName))
         {
-            if(QMessageBox::information(NULL, "提示", "文件中该项目已存在，是否替换按键定义？？", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::No)
+            if(QMessageBox::information(NULL, tr("提示"), tr("文件中该项目已存在，是否替换按键定义？？"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::No)
             {
                 goto sendTOTestHard;
             }
@@ -294,7 +294,7 @@ void ResUpAndDownLoads::on_pushButton_IN_clicked()
 {
     if(keyUart->isOpenCurrentUart()==false)
     {
-        QMessageBox::warning(NULL, QString("Warn"), QString("未打开串口，无法进行上传操作！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行上传操作！"));
         return ;
     }
 
@@ -361,7 +361,7 @@ void ResUpAndDownLoads::on_pushButton_UART_clicked(bool checked)
     {
         keyUart->Close();//关串口
 
-        ui->pushButton_UART->setText("打开串口");
+        ui->pushButton_UART->setText(tr("打开串口"));
     }
     else
     {
@@ -376,6 +376,6 @@ void ResUpAndDownLoads::on_pushButton_UART_clicked(bool checked)
         }
 
 
-        ui->pushButton_UART->setText("关闭串口");
+        ui->pushButton_UART->setText(tr("关闭串口"));
     }
 }

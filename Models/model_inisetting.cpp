@@ -85,6 +85,27 @@ void Model_iniSetting::WriteIni_item(QString infoType ,QVariant value)
 }
 
 
+/*************************************************************
+/函数功能：读取项目信息
+/函数参数：
+/函数返回：信息
+*************************************************************/
+QVariant Model_iniSetting::ReadIni_user(QString infoType)
+{
+    QVariant value;
+    ReadIni(SYSInfo,"USER_Information",infoType,&value);
+    return value;
+}
+
+/*************************************************************
+/函数功能：写项目信息
+/函数参数：信息类型   value：写入的值
+/函数返回：无
+*************************************************************/
+void Model_iniSetting::WriteIni_user(QString infoType ,QVariant value)
+{
+    WriteIni(SYSInfo,"USER_Information",infoType,value);
+}
 
 #if 0
 

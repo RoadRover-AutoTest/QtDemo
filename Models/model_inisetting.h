@@ -16,6 +16,9 @@ public:
     QVariant ReadIni_item(QString infoType);
     void WriteIni_item(QString infoType ,QVariant value);
 
+    QVariant ReadIni_user(QString infoType);
+    void WriteIni_user(QString infoType ,QVariant value);
+
 #if 0
 
     QString ReadIni_item();

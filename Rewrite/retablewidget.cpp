@@ -94,50 +94,43 @@ void reTableWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::RightButton)
     {
         QMenu *popMenu = new QMenu( this );
-        QAction *deleteCase = new QAction(tr("Delete"), this);
-        QAction *clearCases = new QAction(tr("Clear"), this);
+        QAction *deleteCase = new QAction(tr("删除"), this);
+        QAction *clearCases = new QAction(tr("清空"), this);
         QAction *RunCuetomCase = new QAction(tr("Run CustomCase"), this);
         QAction *RunALLCases = new QAction(tr("Run AllCase"), this);
-        QAction *SaveSeq = new QAction(tr("Save"), this);
-        QAction *OpenSeq = new QAction(tr("Open"), this);
-        QAction *NewSeq = new QAction(tr("New"), this);
         QAction *upCase = new QAction(tr("上移"), this);
         QAction *downCases = new QAction(tr("下移"), this);
-        QAction *LookCase = new QAction(tr("Look"), this);
-        QAction *EditCase = new QAction(tr("Edit"), this);
-        QAction *addMenu = new QAction("Add TestUnit");
+        QAction *LookCase = new QAction(tr("查看"), this);
+        QAction *EditCase = new QAction(tr("编辑"), this);
+        QAction *addMenu = new QAction("添加");
 
-        //QMenu *addMenu = new QMenu("Add TestUnit");
-        //QAction *ScriptCase1 = new QAction(tr("一键生成脚本测试"), this);
-        //QAction *userUnit = new QAction(tr("自定义测试单元"), this);
-        //addMenu->addAction(userUnit);
-        //addMenu->addAction(ScriptCase1);
-        //connect( ScriptCase1,       SIGNAL(triggered() ), this, SLOT( ScriptCase1Slot()) );
-        //connect( userUnit,          SIGNAL(triggered() ), this, SLOT( AddTestCasetoListSlot()) );
+        if(userLogin.Permissions == Administrator)
+        {
+            popMenu->addAction(addMenu);
+            popMenu->addAction( LookCase );
+            popMenu->addAction( EditCase );
+           // popMenu->addAction( RunCuetomCase );
+           // popMenu->addAction( RunALLCases );
+            //popMenu->addSeparator();
+            popMenu->addSeparator();
+            popMenu->addAction( upCase );
+            popMenu->addAction( downCases );
+            popMenu->addAction( deleteCase );
+            popMenu->addAction( clearCases );
+        }
+        else
+        {
+            popMenu->addAction( LookCase );
+            popMenu->addAction( EditCase );
+        }
 
-        popMenu->addAction(addMenu);
-        popMenu->addAction( LookCase );
-        popMenu->addAction( EditCase );
-       // popMenu->addAction( RunCuetomCase );
-       // popMenu->addAction( RunALLCases );
-        //popMenu->addSeparator();
-        //popMenu->addAction( NewSeq );
-        //popMenu->addAction( OpenSeq );
-        //popMenu->addAction( SaveSeq );
-        popMenu->addSeparator();
-        popMenu->addAction( upCase );
-        popMenu->addAction( downCases );
-        popMenu->addAction( deleteCase );
-        popMenu->addAction( clearCases );
+
 
         connect( addMenu,          SIGNAL(triggered() ), this, SLOT( AddTestCasetoListSlot()) );
         connect( deleteCase,        SIGNAL(triggered() ), this, SLOT( deleteSeqfromTableSlot()) );
         connect( clearCases,        SIGNAL(triggered() ), this, SLOT( clearSeqfromTableSlot()) );
         connect( RunCuetomCase,     SIGNAL(triggered() ), this, SLOT( RunSeqCustomSlot()) );
         connect( RunALLCases,       SIGNAL(triggered() ), this, SLOT( RunSeqAllSlot()) );
-        connect( NewSeq,            SIGNAL(triggered() ), this, SLOT( onNewSequenceSlot()) );
-        connect( OpenSeq,           SIGNAL(triggered() ), this, SLOT( onOpenSequenceSlot()) );
-        connect( SaveSeq,           SIGNAL(triggered() ), this, SLOT( onSaveSequenceSlot()) );
         connect( upCase,            SIGNAL(triggered() ), this, SLOT( UpTheUnitSlot()) );
         connect( downCases,         SIGNAL(triggered() ), this, SLOT( DownTheUnitSlot()) );
         connect( LookCase,          SIGNAL(triggered() ), this, SLOT( LookTheUnitSlot()) );
@@ -181,7 +174,7 @@ QList <int> reTableWidget::selTableRanges()
 *************************************************************/
 void reTableWidget::deleteSeqfromTableSlot()
 {
-    if (QMessageBox::warning(NULL, "Warning","Are you sure to delete the selected Unit?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+    if (QMessageBox::warning(NULL, tr("提示"),tr("确定删除该测试单元?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
         return;
 
     QList <int> itemIndex = selTableRanges();
@@ -220,7 +213,7 @@ void reTableWidget::deleteSeqfromTableSlot()
 *************************************************************/
 void reTableWidget::clearSeqfromTableSlot()
 {
-    if (QMessageBox::warning(NULL, "Warning","Are you sure you want to clear Sequences ?",QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+    if (QMessageBox::warning(NULL, tr("提示"),tr("确定清空当前测试流?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
         return;
 
     //主窗口涉及清楚任务，因此放置上层处理
@@ -287,7 +280,7 @@ void reTableWidget::onNewSequenceSlot()
 *************************************************************/
 void reTableWidget::onOpenSequenceSlot()
 {
-    QString path=QFileDialog::getOpenFileName(this , tr("Open Sequence File") , "" , tr("Text Files(*.xml)"));
+    QString path=QFileDialog::getOpenFileName(this , tr("打开") , "" , tr("Text Files(*.xml)"));
 
     if(path.isEmpty()==false)
     {
@@ -333,7 +326,7 @@ void reTableWidget::onSaveSequenceSlot()
 {
     QString path;
     if(seqSavePath.isEmpty())
-        path = QFileDialog::getSaveFileName(this , tr("Save File") , "." , tr("Text Files(*.xml)"));
+        path = QFileDialog::getSaveFileName(this , tr("保存") , "." , tr("Text Files(*.xml)"));
     else
         path = seqSavePath;
 
@@ -348,7 +341,7 @@ void reTableWidget::onSaveSequenceSlot()
 *************************************************************/
 void reTableWidget::onSaveAsSequenceSlot()
 {
-    QString path = QFileDialog::getSaveFileName(this , tr("Save File") , "." , tr("Text Files(*.xml)"));
+    QString path = QFileDialog::getSaveFileName(this , tr("另存为") , "." , tr("Text Files(*.xml)"));
 
     if(!path.isEmpty())
         SaveTheSeq_Deal(path);
@@ -578,7 +571,7 @@ continueAppendList:
             QDir dir(dirPath);
             if((!dir.exists())||(dirPath.isEmpty()))
             {
-                QMessageBox::warning(NULL, QString("Warn"), QString("未选择脚本文件或不存在该路径！"));
+                QMessageBox::warning(NULL, tr("提示"), tr("未选择脚本文件或不存在该路径！"));
                 return;
             }
             else
@@ -642,7 +635,7 @@ continueAppendList:
         goto continueAppendList;
     else if(reString.isEmpty()==false)
     {
-        QMessageBox::warning(NULL, QString("Warn"), QString("存在重复测试单元添加，如下所示："+reString));
+        QMessageBox::warning(NULL, tr("提示"), tr("存在重复测试单元添加，如下所示：")+reString);
     }
 }
 
@@ -663,5 +656,5 @@ void reTableWidget::replaceDefineUnitSlot(tUnit unit)
         }
     }
     if(index==theSeqList.length())
-        QMessageBox::warning(NULL, QString("Warn"), QString("编辑后未找到对应的测试单元，编辑失效！"));
+        QMessageBox::warning(NULL, tr("提示"), tr("编辑后未找到对应的测试单元，编辑失效！"));
 }
