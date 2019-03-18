@@ -49,7 +49,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
         #D:\OpenCV\lib\libopencv_objdetect249.dll.a\
         #D:\OpenCV\lib\libopencv_video249.dll.a
 
+#语言便签
 TRANSLATIONS += uav_tr_laEN.ts uav_tr_laCN.ts
+
+
+#解决系统不匹配，提示win32问题等//解决办法就是在你的.pro文件中添加已下代码
+#win32 {
+#QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+#QMAKE_LFLAGS_CONSOLE = /SUBSYSTEM:CONSOLE,5.01
+
+#DEFINES += _ATL_XP_TARGETING
+#QMAKE_CFLAGS += /D_USING_V140_SDK71_
+#QMAKE_CXXFLAGS += /D_USING_V140_SDK71_
+#LIBS += -L$$quote(C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib)
+#INCLUDEPATH += $$quote(C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include)
+#}#//完美解决
 
 
 SOURCES += \

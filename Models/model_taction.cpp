@@ -114,9 +114,9 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                         //脚本运行连续执行
                         if((actionDeal->actFlag==ACT_SCRIPT)&&(!isPRORunning)&&(proList.isEmpty()))
                         {
-                            if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
+                            //if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
                                 onProcessEXECmd(CMD_script);
-                            TimeDelay1S++;
+                            //TimeDelay1S++;
                         }
                     }
                 }
@@ -132,12 +132,12 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         }
         case collectInfo:
         {
-            if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
+            //if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
             {
                 collectInfoDeal(actInfoFlag);
 
                 //添加超时处理机制：
-                if(reChkCount >= (actionDeal->timeDeal.end / 1000))
+                if(reChkCount >= (actionDeal->timeDeal.end ))/// 1000
                 {
                     ShowList <<tr("Error:采集信息超时；");
                     if(actionDeal->errorDeal == OVERTIMEERR)
@@ -148,7 +148,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 reChkCount++;
             }
 
-            TimeDelay1S++;
+            //TimeDelay1S++;
             break;
         }
         case wait://计数并判断时间
@@ -828,7 +828,7 @@ void Model_tAction::initProcessDeal()
     connect(PRODeal,SIGNAL(ProcessOutDeal(int,QString)),this,SLOT(onProcessOutputSlot(int,QString)));
 
     PRODeal->ProcessPathJump(QCoreApplication::applicationDirPath());
-    timerProID = startTimer(1);
+    timerProID = startTimer(1000);
     isPRORunning=false;
     proCMD = CMD_NULL;
 }
