@@ -46,7 +46,7 @@
 #define GETPROP_S(devNum)                   ("adb -s "+devNum+" shell getprop")
 //获取界面信息
 #define ACTIVITYFACE                        ("adb shell dumpsys activity|findstr  mF")
-#define ACTIVITYFACE_S(devNum)              ("adb -s "+devNum+" shell dumpsys activity|findstr  mF")
+#define ACTIVITYFACE_S(devNum)              ("adb -s "+devNum+" shell dumpsys activity|findstr mFocusedActivity")
 //捕捉图片//adb shell screencap -p /sdcard/a.png
 #define SCREENCAP                  ("adb shell screencap -p /sdcard/screen.png")
 #define SCREENCAP_S(devNum)         ("adb -s "+devNum+" shell screencap -p /sdcard/screen.png")
