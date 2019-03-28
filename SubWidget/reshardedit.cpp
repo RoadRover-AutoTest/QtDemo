@@ -28,6 +28,7 @@ ResHardEdit::ResHardEdit(keyControl *keyInfo,QWidget *parent) :
     connect(ui->radioButtonBAT,SIGNAL(clicked(bool)),this,SLOT(on_KeyTypeChanged()));
     connect(ui->radioButtonCCD,SIGNAL(clicked(bool)),this,SLOT(on_KeyTypeChanged()));
     connect(ui->radioButtonLAMP,SIGNAL(clicked(bool)),this,SLOT(on_KeyTypeChanged()));
+    connect(ui->radioButtonBrake,SIGNAL(clicked(bool)),this,SLOT(on_KeyTypeChanged()));
     connect(ui->radioButtonRES,SIGNAL(clicked(bool)),this,SLOT(on_KeyTypeChanged()));
 }
 
@@ -59,6 +60,9 @@ void ResHardEdit::keyEditInit()
     case HardLamp:
         ui->radioButtonLAMP->setChecked(true);
         goto toHardPage;
+    case HardBrake:
+        ui->radioButtonBrake->setChecked(true);
+        goto toHardPage;
     case HardRes:
         ui->radioButtonRES->setChecked(true);
         goto toHardPage;
@@ -67,13 +71,23 @@ void ResHardEdit::keyEditInit()
 toHardPage:
         ui->comboBox->setCurrentIndex(0);
         break;
+
     case Can1_1:
         ui->comboBox->setCurrentIndex(1);
+        goto toCANSignal;
+    case Can2_1:
+        ui->comboBox->setCurrentIndex(3);
+
+toCANSignal:
         ui->lineEditCAN1ID->setText(editKeyInfo->CANID);
         ui->lineEditCAN1Dat->setText(editKeyInfo->CANDat1);
         break;
     case Can1_2:
         ui->comboBox->setCurrentIndex(2);
+        goto toCANDouble;
+    case Can2_2:
+        ui->comboBox->setCurrentIndex(4);
+toCANDouble:
         ui->lineEditCAN2ID->setText(editKeyInfo->CANID);
         ui->lineEditCAN2DatOn->setText(editKeyInfo->CANDat1);
         ui->lineEditCAN2DatOff->setText(editKeyInfo->CANDat2);
@@ -90,13 +104,24 @@ toHardPage:
 *************************************************************/
 void ResHardEdit::comBoxChangedSlot(int index)
 {
-    ui->stackedWidget->setCurrentIndex(index);
+
 
     switch (index)
     {
-    case 0:ui->label->setText(tr("硬件控制车机！"));break;
-    case 1:ui->label->setText(tr("单协议：单帧协议控制车机"));break;
-    case 2:ui->label->setText(tr("双协议：双帧控制车机，常用来处理翻转操作"));break;
+    case 0:
+        ui->label->setText(tr("硬件控制车机！"));
+        ui->stackedWidget->setCurrentIndex(0);
+        break;
+    case 1:
+        case 3:
+        ui->label->setText(tr("单协议：单帧协议控制车机"));
+        ui->stackedWidget->setCurrentIndex(1);
+        break;
+    case 2:
+        case 4:
+        ui->label->setText(tr("双协议：双帧控制车机，常用来处理翻转操作"));
+        ui->stackedWidget->setCurrentIndex(2);
+        break;
     default:break;
     }
 
@@ -167,6 +192,8 @@ void ResHardEdit::on_KeyTypeChanged()
         editKeyInfo->type = HardCCD;
     if(ui->radioButtonLAMP->isChecked())
         editKeyInfo->type = HardLamp;
+    if(ui->radioButtonBrake->isChecked())
+        editKeyInfo->type = HardBrake;
     if(ui->radioButtonRES->isChecked())
         editKeyInfo->type = HardRes;
 }

@@ -46,12 +46,22 @@
      </item>
      <item>
       <property name="text">
-       <string>CAN单协议</string>
+       <string>CAN1-单协议</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>CAN双协议</string>
+       <string>CAN1-双协议</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CAN2-单协议</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CAN2-双协议</string>
       </property>
      </item>
     </widget>
@@ -69,7 +79,7 @@
       <string notr="true">font: 75 12pt &quot;Aparajita&quot;;</string>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page_hard">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -101,14 +111,14 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QRadioButton" name="radioButtonRES">
          <property name="text">
           <string>RES</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -120,6 +130,13 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="4" column="0">
+        <widget class="QRadioButton" name="radioButtonBrake">
+         <property name="text">
+          <string>Brake</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

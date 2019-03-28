@@ -213,7 +213,6 @@ void Model_UART::timerEvent(QTimerEvent *event)
         if((RxDealDats.isEmpty()==false)&&((uint8_t)RxDealDats[0]==0xFF))
         {
             QByteArray frameArray;
-            QString debugStr;
 
             //qDebug()<<__FUNCTION__<<RxDealDats<<RxDealDats.length();
             if(((uint8_t)RxDealDats[1]==0x55)&&(RxDealDats.length()>=4))
@@ -235,15 +234,14 @@ void Model_UART::timerEvent(QTimerEvent *event)
             else
             {
                 RxDealDats.clear();
-                debugStr="ERROR：帧格式错误！长度错误或丢帧等";
-                //PortSend(debugStr.toLocal8Bit());
+                cout << "ERROR：帧格式错误！长度错误或丢帧等";
             }
             //cout << "Rx:" << frameArray;
         }
         else //if((RxDealDats.isEmpty()==false)&&((uint8_t)RxDealDats[0]!=0xFF))
         {
             RxDealDats.clear();
-            //PortSend("ERROR：帧格式错误！");
+            //cout << ("ERROR：帧格式错误！");
         }
 
     }
@@ -252,12 +250,15 @@ void Model_UART::timerEvent(QTimerEvent *event)
         //间隔CmdACKDelay时间，若无响应，重复发送
         if(reSendCount)
         {
-            reSendCount++;
-            PortSend(sendDatas);
-
             //超过设定次数将不再发送
             if(reSendCount>CmdReSendTimer)
+            {
                 reSendCount=0;
+                return ;
+            }
+            else if(reSendCount>1)
+                PortSend(sendDatas);
+            reSendCount++;
         }
     }
     else if(event->timerId()==timerCheckState)

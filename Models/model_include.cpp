@@ -90,9 +90,12 @@ QString getKeyType(kType type)
     case HardBAT:str="硬件BAT";break;
     case HardCCD:str="硬件CCD";break;
     case HardLamp:str="硬件LAMP";break;
+    case HardBrake:str="硬件Brake";break;
     case HardRes:str="硬件保留";break;
-    case Can1_1:str="单协议";break;
-    case Can1_2:str="双协议";break;
+    case Can1_1:str="CAN1-单协议";break;
+    case Can1_2:str="CAN1-双协议";break;
+    case Can2_1:str="CAN2-单协议";break;
+    case Can2_2:str="CAN2-双协议";break;
     }
     return str;
 }

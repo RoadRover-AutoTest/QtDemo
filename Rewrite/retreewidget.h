@@ -18,16 +18,16 @@ typedef enum
     colItem=1,                      //项目内容处在第一列
 
     topUart=0,                        //顶层目录
-    topCAN,
+    //topCAN,
     topDEV,
 
     uartCOM=0,                      //串口目录
     uartBAUD,
     uartUSE,
 
-    canType=0,                      //CAN设备
-    canBaud,
-    canUSE,
+    //canType=0,                      //CAN设备
+    //canBaud,
+    //canUSE,
 
     //devWIFI=0,                    //设备连接
     //devUSB,
@@ -35,8 +35,8 @@ typedef enum
     devNum1=0,
     devUSE,
 
-    devIP=0,
-    devCONNECT,
+    //devIP=0,
+    //devCONNECT,
 
 }treeItem;
 
@@ -88,8 +88,8 @@ signals:
     void uartOpen(QString com,QString baud);
     void uartClose();
 
-    void canOpen(QString type,QString baud);
-    void canClose();
+    //void canOpen(QString type,QString baud);
+    //void canClose();
 
     void devUseState(bool isUse);
 

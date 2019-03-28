@@ -81,7 +81,6 @@ SOURCES += \
     SubWidget/cfglookunit.cpp \
     SubWidget/reshardware.cpp \
     SubWidget/reshardedit.cpp \
-    SubWidget/resupanddownloads.cpp \
     Rewrite/retreewidget.cpp \
     SubWidget/chartwidget.cpp \
     Models/model_winapi.cpp \
@@ -108,7 +107,6 @@ HEADERS += \
     SubWidget/cfglookunit.h \
     SubWidget/reshardware.h \
     SubWidget/reshardedit.h \
-    SubWidget/resupanddownloads.h \
     Rewrite/retreewidget.h \
     SubWidget/chartwidget.h \
     Models/model_winapi.h \
@@ -126,7 +124,6 @@ FORMS += \
     SubWidget/cfglookunit.ui \
     SubWidget/reshardware.ui \
     SubWidget/reshardedit.ui \
-    SubWidget/resupanddownloads.ui \
     SubWidget/chartwidget.ui \
     SubWidget/diareport.ui \
     SubWidget/toolconfig.ui \

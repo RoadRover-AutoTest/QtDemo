@@ -65,7 +65,7 @@ void MainWindow::initMainWindow()
     //初始化接口树参数
     ui->treeWidget->interfaceTreeWidgetInit();
     ui->treeWidget->refreshUartCOM(UARTDeal->PortList());
-    //ui->treeWidget->expandAll();
+    ui->treeWidget->expandAll();
 
 
     ui->textBrowser_EXEShow->setOpenExternalLinks(true);//设置添加超链接
@@ -212,7 +212,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
         ui->treeWidget->refreshUartCOM(UARTDeal->PortList());
 
         //1S获取下物理参数:any:Error
-        if(chkParamCount++>=2)
+        /*if(chkParamCount++>=2)
         {
             if((getTestRunState())||(testState!=overtest))
             {
@@ -220,7 +220,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
                 chkParamFromHardware(CHKSound);
             }
             chkParamCount=0;
-        }
+        }*/
 
 
         //实时扫描设备
@@ -372,67 +372,6 @@ void MainWindow::on_treeWidget_uartClose()
 }
 
 /*************************************************************
-/函数功能：CAN打开槽函数
-/函数参数：无
-/函数返回：无
-*************************************************************/
-void MainWindow::on_treeWidget_canOpen(const QString &type, const QString &baud)
-{
-    if(!UartConnectStatus())
-    {
-        ui->treeWidget->setCheckedState(topCAN,false);
-        return ;
-    }
-
-    uint16_t Dat_temp=0;
-    char SPdata[4];
-
-    SPdata[0]=true;
-
-    if(type=="HCAN")     SPdata[1]=1;
-    else if(type=="Scan")SPdata[1]=2;
-    else if(type=="Ccan")SPdata[1]=0;
-
-    if(baud=="10K")       Dat_temp=10;
-    else if(baud=="20K")  Dat_temp=20;
-    else if(baud=="33.3K")Dat_temp=33;
-    else if(baud=="40K")  Dat_temp=40;
-    else if(baud=="50K")  Dat_temp=50;
-    else if(baud=="80K")  Dat_temp=80;
-    else if(baud=="83.3K")Dat_temp=83;
-    else if(baud=="100K") Dat_temp=100;
-    else if(baud=="125K") Dat_temp=125;
-    else if(baud=="200K") Dat_temp=200;
-    else if(baud=="250K") Dat_temp=250;
-    else if(baud=="400K") Dat_temp=400;
-    else if(baud=="500K") Dat_temp=500;
-    else if(baud=="800K") Dat_temp=800;
-    else if(baud=="1M")   Dat_temp=1000;
-
-    SPdata[2]=Dat_temp>>8;
-    SPdata[3]=Dat_temp&0x00ff;
-
-    appendTxList(CMDCAN1Channel,SPdata,4,CMD_NEEDACK);
-}
-
-/*************************************************************
-/函数功能：CAN关闭槽函数
-/函数参数：无
-/函数返回：无
-*************************************************************/
-void MainWindow::on_treeWidget_canClose()
-{
-    if(!UartConnectStatus())
-    {
-        ui->treeWidget->setCheckedState(topCAN,false);
-        return ;
-    }
-
-    char SPdata=false;
-    appendTxList(CMDCAN1Channel,&SPdata,1,CMD_NEEDACK);
-}
-
-/*************************************************************
 /函数功能：设备启用状态
 /函数参数：状态
 /函数返回：无
@@ -491,6 +430,9 @@ void MainWindow::startTheFlow(QList <tUnit> *testFlow)
 
         testState=start;
         timerTestID = startTimer(10);
+
+        char buf=200;
+        appendTxList(Upload_CircularCurrent,&buf,1,CMD_NEEDNACK);
     }
     else
     {
@@ -643,6 +585,9 @@ void MainWindow::endTheFlow()
 
         tFlowDeal->endTheTest();
         isRunning=false;
+
+        char buf=0;
+        appendTxList(Upload_OverCurrent,&buf,1,CMD_NEEDNACK);
     }
 }
 
@@ -749,9 +694,11 @@ void MainWindow::chkParamFromHardware(uint8_t chk)
     char buf=0;
 
     if(chk==CHKCurrent)
-        appendTxList(CMDWorkCurrent,&buf,1,CMD_NEEDNACK);
+        appendTxList(Upload_SingleCurrent,&buf,1,CMD_NEEDNACK);
     else if(chk==CHKSound)
-        appendTxList(CMDSoundCheck,&buf,1,CMD_NEEDNACK);
+        appendTxList(Upload_SingleAudio,&buf,1,CMD_NEEDNACK);
+    else if(chk==CHKVlot)
+        appendTxList(Upload_SingleVB,&buf,1,CMD_NEEDNACK);
 }
 
 
@@ -925,7 +872,7 @@ void MainWindow::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
 {
     unsigned int tempDat=0;
 
-    if(cmd == CMDWorkCurrent)
+    if(cmd == Upload_SingleCurrent)
     {
         for(int i=0;i<dLen;i++)
         {
@@ -935,13 +882,17 @@ void MainWindow::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
 
         chartDeal->refreshChart(CHKCurrent,tempDat/1000.0);
     }
-    else if(cmd == CMDSoundCheck)
+    else if(cmd == Upload_SingleAudio)
     {
         if(dLen==1)
         {
             SoundV = dat[0];
             chartDeal->refreshChart(CHKSound,SoundV);
         }
+    }
+    else if(cmd == Upload_SingleVB)
+    {
+
     }
 }
 

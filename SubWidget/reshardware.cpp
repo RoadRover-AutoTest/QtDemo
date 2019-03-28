@@ -7,15 +7,11 @@ ResHardware::ResHardware(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QStringList itemList;
-    readItemListInfo(itemList);
-    ui->comboBox_itemName->addItems(itemList);
+    refreshitemName(WorkItem);
 
-    //any:若是均改变将都处理，会重复处理
     connect(ui->comboBox_itemName,SIGNAL(activated(QString)),this,SLOT(itemNameSlot(QString)));
     connect(ui->comboBox_itemName,SIGNAL(currentTextChanged(QString)),this,SLOT(itemNameSlot(QString)));
 
-    ui->comboBox_itemName->setCurrentText(WorkItem);
 
     keyList.clear();
 
@@ -25,11 +21,36 @@ ResHardware::ResHardware(QWidget *parent) :
     {
         readItemKeyInfo(ui->comboBox_itemName->currentText());
     }
+
+
+
+    keyUart=new Model_UART;
+
+    ui->comboBox_COM->addItems(keyUart->PortList());//可用端口列表
+    ui->comboBoxCAN1Baud->addItems(QStringList()<< "500K" << "10K" << "20K" << "33.3K" << "40K" << "50K" << "80K" << "83.3K" << "100K" << "125K" << "200K" << "250K" << "400K" << "800K" << "1M");
+    ui->comboBoxCAN2Baud->addItems(QStringList()<< "500K" << "10K" << "20K" << "33.3K" << "40K" << "50K" << "80K" << "83.3K" << "100K" << "125K" << "200K" << "250K" << "400K" << "800K" << "1M");
+
+    timeIDSendUart=startTimer(CmdACKDelay);//CmdACKDelay处理一次串口发送或接收
+
+    isStartUartTx=false;
 }
 
 ResHardware::~ResHardware()
 {
+    killTimer(timeIDSendUart);
+
+    delete keyUart;
     delete ui;
+}
+
+void ResHardware::refreshitemName(QString currentText)
+{
+    QStringList itemList;
+    readItemListInfo(itemList);
+    ui->comboBox_itemName->clear();
+    ui->comboBox_itemName->addItems(itemList);
+    ui->comboBox_itemName->setCurrentText(currentText);
+
 }
 
 /*************************************************************
@@ -169,10 +190,10 @@ void ResHardware::EditKeyClicked()
         theKey.des = "name : "+theKey.name;
         theKey.des +="\ntype : "+getKeyType(theKey.type);
 
-        if(theKey.type == Can1_1)
+        if((theKey.type == Can1_1)||(theKey.type == Can2_1))
             theKey.des +="\nCANID : "+theKey.CANID+"\nCANDat : "+theKey.CANDat1;
 
-        else if(theKey.type == Can1_2)
+        else if((theKey.type == Can1_2)||(theKey.type == Can2_2))
             theKey.des +="\nCANID : "+theKey.CANID+"\nCANDatOn : "+theKey.CANDat1+"\nCANDatOff : "+theKey.CANDat2;
 
         //替换显示及列表信息
@@ -253,6 +274,35 @@ void ResHardware::readItemKeyInfo(QString item)
         cout << "文件中无此按键信息。";
 }
 
+void ResHardware::usartTXStatusDeal(bool status,uint8_t transType)
+{
+    if(status)
+    {
+        if(keyUart->isOpenCurrentUart()==false)
+        {
+            QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+            return ;
+        }
+        //开启传输
+        rxCount=0;
+        ui->progressBar->setValue(0);
+    }
+    else
+    {
+        //结束传输
+        ui->progressBar->setValue(100);
+    }
+
+    downloadIndex=0;
+    isAck=false;
+    isDownLoadLast = false;
+
+    isStartUartTx = status;
+    gcv_transType = transType;
+    ui->groupBox->setEnabled(!status);
+    ui->tableWidget->setEnabled(!status);
+}
+
 /*************************************************************
 /函数功能：上传数据信息，从小板获取项目号，再从文件中读取该项目的按键内容
 /函数参数：无
@@ -260,48 +310,20 @@ void ResHardware::readItemKeyInfo(QString item)
 *************************************************************/
 void ResHardware::on_pushButton_inDat_clicked()
 {
-    ResUpAndDownLoads *UpLoads=new ResUpAndDownLoads(false,&keyList);
-
-    UpLoads->exec();
-
-    QString upItem = UpLoads->getCurrentItem();
-
-    if((ui->comboBox_itemName->currentText() != upItem) && (!upItem.isEmpty()))
-    {
-        ui->comboBox_itemName->setCurrentText(upItem);
-        if(ui->comboBox_itemName->currentText() != upItem)
-            QMessageBox::warning(NULL, tr("提示"), tr("未找到")+upItem+tr("项目的按键信息，请更新KeyInfo.xml文件或重新配置按键信息！"));
-    }
-    delete UpLoads;
+    usartTXStatusDeal(true,usart_UpKeyInfo);
 }
 
 /*************************************************************
-/函数功能：下载并保存按键信息
+/函数功能：下载按键信息
 /函数参数：无
 /函数返回：无
 *************************************************************/
 void ResHardware::on_pushButton_outDat_clicked()
 {
-    ResUpAndDownLoads *DownLoads=new ResUpAndDownLoads(true,&keyList);
-
-    DownLoads->setdownItemName(ui->comboBox_itemName->currentText());
-    DownLoads->exec();
-
-    QString downItem = DownLoads->getCurrentItem();
-
-    if( (ui->comboBox_itemName->findText(downItem) == -1) && (!downItem.isEmpty()) )
+    if(QMessageBox::information(NULL, tr("下载"), tr("项目名：")+ui->comboBox_itemName->currentText(), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::Yes)//Upgrading
     {
-        QStringList itemList;
-        readItemListInfo(itemList);
-        if(itemList.count()!=ui->comboBox_itemName->count())
-            ui->comboBox_itemName->addItem(downItem);
-        else
-            cout << "该项目未保存到文件中";
-
+        usartTXStatusDeal(true,usart_DownKeyInfo);
     }
-    ui->comboBox_itemName->setCurrentText(downItem);//若设置的字符串不存在将不跳转
-
-    delete DownLoads;
 }
 
 /*************************************************************
@@ -337,3 +359,399 @@ void ResHardware::on_pushButton_reset_clicked()
     tableWidgetInit();
 }
 
+
+
+/*************************************************************
+/函数功能：定时处理函数
+/函数参数：event：定时器事件
+/函数返回：无
+*************************************************************/
+void ResHardware::timerEvent(QTimerEvent *event)
+{
+    if((event->timerId()==timeIDSendUart)&&(isStartUartTx))
+    {
+        switch(gcv_transType)
+        {
+        case usart_DownKeyInfo:
+        {
+            if((!isAck)&&(downloadIndex))
+            {
+                //响应延时3倍时间等待，若仍无响应终止传输:在200ms内，串口函数中将再次发送
+                if((++txCount) > (CmdReSendTimer+2))
+                {
+                    QMessageBox::warning(NULL, tr("提示"), tr("串口传输无响应，请检查串口！"));
+                    txCount=0;
+                    downloadIndex=0;
+                    usartTXStatusDeal(false,usart_NONE);
+                    ui->label_Show->setText(tr("下载失败！"));
+                }
+            }
+            else
+                downUartDeal();
+            break;
+        }
+        case usart_UpKeyInfo:
+        {
+            upUartDeal();
+            break;
+        }
+        case usart_CANChannel:
+        {
+            if(!isAck)
+            {
+                //响应延时3倍时间等待，若仍无响应终止传输:在200ms内，串口函数中将再次发送
+                if((++txCount) > (CmdReSendTimer+2))
+                {
+                    QMessageBox::warning(NULL, tr("提示"), tr("串口传输无响应，请检查串口！"));
+                    txCount=0;
+                    usartTXStatusDeal(false,usart_NONE);
+                    ui->label_Show->setText(tr("通道处理失败！"));
+                }
+            }
+            else
+            {
+                ui->label_Show->setText(tr("通道处理完成！"));
+                usartTXStatusDeal(false,usart_NONE);
+            }
+            break;
+        }
+        default:
+            isStartUartTx=false;
+            break;
+        }
+    }
+}
+
+/*************************************************************
+/函数功能：串口接收处理函数
+/函数参数：
+/函数返回：无
+*************************************************************/
+void ResHardware::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
+{
+    if(cmd == CMDItemRead)
+    {
+        QString item(dat);
+        cout << item << dLen;
+
+        //ui->label_inItem->setText(item);
+
+        rxCount=0;
+
+        //this->close();any:处理项目接收解析
+    }
+}
+
+/*************************************************************
+/函数功能：接收串口响应处理槽函数
+/函数参数：ack：响应结果
+/函数返回：无
+*************************************************************/
+void ResHardware::UartRxAckResault(bool ack)
+{
+    if(!ack)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("串口响应失败，请检查串口！"));
+        txCount=0;
+        downloadIndex=0;
+        usartTXStatusDeal(false,usart_NONE);
+        ui->label_Show->setText(tr("传输失败！"));
+    }
+    else
+        isAck=true;
+}
+
+
+/*************************************************************
+/函数功能：串口下载处理
+/函数参数：无
+/函数返回：无
+//传递项目号 + 按键信息 + 保存按键操作
+*************************************************************/
+void ResHardware::downUartDeal()
+{
+    //cout << downloadIndex;
+    char buf[BUFSIZ]={0};//不可用指针，当数据较多时无法正确赋值，因未分配内存，照成数据混乱
+    int len = 0;
+
+    QByteArray arrayBuf ;
+
+    if(!downloadIndex)
+    {
+        //下载项目号
+        arrayBuf = ui->comboBox_itemName->currentText().toLatin1();
+
+        len = arrayBuf.length();
+        strcpy(buf,arrayBuf);
+
+        ui->label_Show->setText(tr("下载:项目： ")+arrayBuf);
+        ui->progressBar->setValue(ui->progressBar->value()+proValueAdd);
+        keyUart->UartTxCmdDeal(CMDItemWrite,buf,len,CMD_NEEDACK);
+    }
+    else if(keyList.length()>(downloadIndex-1))
+    {
+        //下载按键信息
+        Model_String strDeal;
+        keyControl keyInfo = keyList.at(downloadIndex-1);
+
+        arrayBuf = keyInfo.name.toLatin1();
+
+        buf[0]=downloadIndex-1;
+        strcpy(&buf[1],arrayBuf);
+        len = arrayBuf.length()+1;
+
+        buf[len++] = '*';
+        buf[len++]=keyInfo.isUse;
+        buf[len++]=keyInfo.type;
+
+        if((keyInfo.type == Can1_1) || (keyInfo.type == Can1_2))
+        {
+            QString idStr;
+            arrayBuf.clear();
+
+            //数据转换时奇数个将在后面补0，因此提前处理
+            if(keyInfo.CANID.length()%2)
+                idStr='0'+keyInfo.CANID;
+            else
+                idStr=keyInfo.CANID;
+            strDeal.StringToHex(idStr,arrayBuf);
+            for(int i=0;i<arrayBuf.length();i++)
+            {
+                buf[len++] = arrayBuf[i];
+            }
+
+            arrayBuf.clear();
+
+            strDeal.StringToHex(keyInfo.CANDat1,arrayBuf);
+            for(int i=0;i<arrayBuf.length();i++)
+            {
+                buf[len++] = arrayBuf[i];
+            }
+
+            if(keyInfo.type == Can1_2)
+            {
+                arrayBuf.clear();
+
+                strDeal.StringToHex(keyInfo.CANDat2,arrayBuf);
+                for(int i=0;i<arrayBuf.length();i++)
+                {
+                    buf[len++] = arrayBuf[i];
+                }
+            }
+        }
+        ui->label_Show->setText(tr("下载:按键：")+QString::number(downloadIndex)+"  "+keyInfo.name);
+        ui->progressBar->setValue(ui->progressBar->value()+proValueAdd);
+        keyUart->UartTxCmdDeal(CMDDownloadKey,buf,len,CMD_NEEDACK);
+    }
+    else
+    {
+        if(!isDownLoadLast)
+        {
+            //下发保存指令
+            cout <<"save keyinfo";
+            keyUart->UartTxCmdDeal(CMDSaveKeyInfo,buf,len,CMD_NEEDACK);
+            isDownLoadLast=true;
+        }
+        else
+        {
+            //下载完成
+            //cout << downloadIndex;
+            ui->label_Show->setText(tr("下载结束，请等待小板保存完成..."));
+            usartTXStatusDeal(false,usart_NONE);
+            return;
+        }
+
+    }
+    isAck=false;
+    txCount=0;
+    downloadIndex++;
+}
+
+/*************************************************************
+/函数功能：串口上传处理
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void ResHardware::upUartDeal()
+{
+    cout ;
+    if(!rxCount)
+    {
+        char read=0;
+        keyUart->UartTxCmdDeal(CMDItemRead,&read,1,CMD_NEEDNACK);
+    }
+    else
+    {
+        //长时间未接收到数据
+        if(rxCount>30)
+        {
+            QMessageBox::warning(NULL, tr("提示"), tr("该小板无项目按键信息！"));
+            rxCount=0;
+
+            ui->pushButton_inDat->setEnabled(true);
+        }
+    }
+    rxCount++;
+}
+
+
+void ResHardware::on_pushButtonSave_clicked()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("下载"),tr("项目名:"), QLineEdit::Normal,ui->comboBox_itemName->currentText(), &ok);
+
+    if (ok && !text.isEmpty())
+    {
+        Model_XMLFile xmlSave;
+        QStringList keylist;
+        QString itemName = text;
+
+        bool isAppend=true;
+
+        xmlSave.createKeyInfoXML();
+
+        if(xmlSave.hasItemKeyInfomation(itemName))
+        {
+            if(QMessageBox::information(NULL, tr("提示"), tr("文件中该项目已存在，是否替换按键定义？？"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::No)
+            {
+                return;
+            }
+            isAppend=false;
+        }
+        ui->label_Show->setText(tr("保存:保存按键信息到《KeyInfo.xml》 文件中. "));
+
+        for(int i=0;i<keyList.length();i++)
+        {
+            keyControl keyInfo = keyList.at(i);
+            keylist.clear();
+
+            keylist << "KEY"+QString::number(i+1) << keyInfo.name << QString::number(keyInfo.isUse) << keyInfo.des << QString::number(keyInfo.type) << keyInfo.CANID << keyInfo.CANDat1 << keyInfo.CANDat2;
+
+            xmlSave.appendKeyInfoXML(itemName,isAppend,keylist);
+        }
+        refreshitemName(itemName);
+    }
+}
+
+/*************************************************************
+/函数功能：打开或关闭串口
+/函数参数：checked  true :开  false:关
+/函数返回：无
+*************************************************************/
+void ResHardware::on_checkBoxENUart_clicked(bool checked)
+{
+    if(!checked)
+    {
+        keyUart->Close();//关串口
+        ui->comboBox_COM->setEnabled(true);
+        ui->comboBox_BAUD->setEnabled(true);
+    }
+    else
+    {
+        if(!keyUart->Open(ui->comboBox_COM->currentText(),ui->comboBox_BAUD->currentText()))
+        {
+            return ;
+        }
+        else
+        {
+            connect(keyUart,SIGNAL(RxFrameDat(char,uint8_t,char*)),this,SLOT(UartRxDealSlot(char,uint8_t,char*)));
+            connect(keyUart,SIGNAL(UartRxAckResault(bool)),this,SLOT(UartRxAckResault(bool)));
+            ui->comboBox_COM->setEnabled(false);
+            ui->comboBox_BAUD->setEnabled(false);
+        }
+    }
+}
+
+uint16_t ResHardware::covCANBaudDeal(QString baud)
+{
+    uint16_t Dat_temp=0;
+    if(baud=="10K")       Dat_temp=10;
+    else if(baud=="20K")  Dat_temp=20;
+    else if(baud=="33.3K")Dat_temp=33;
+    else if(baud=="40K")  Dat_temp=40;
+    else if(baud=="50K")  Dat_temp=50;
+    else if(baud=="80K")  Dat_temp=80;
+    else if(baud=="83.3K")Dat_temp=83;
+    else if(baud=="100K") Dat_temp=100;
+    else if(baud=="125K") Dat_temp=125;
+    else if(baud=="200K") Dat_temp=200;
+    else if(baud=="250K") Dat_temp=250;
+    else if(baud=="400K") Dat_temp=400;
+    else if(baud=="500K") Dat_temp=500;
+    else if(baud=="800K") Dat_temp=800;
+    else if(baud=="1M")   Dat_temp=1000;
+    return Dat_temp;
+}
+
+void ResHardware::on_checkBoxENCAN1_clicked(bool checked)
+{
+    if(keyUart->isOpenCurrentUart()==false)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+        ui->checkBoxENCAN1->setChecked(!checked);
+        return ;
+    }
+
+    if(checked)
+    {
+        ui->comboBoxCAN1Baud->setEnabled(false);
+        ui->comboBoxCAN1Type->setEnabled(false);
+    }
+    else
+    {
+        ui->comboBoxCAN1Baud->setEnabled(true);
+        ui->comboBoxCAN1Type->setEnabled(true);
+    }
+
+    usartTXStatusDeal(true,usart_CANChannel);
+
+    uint16_t CANbaud = covCANBaudDeal(ui->comboBoxCAN1Baud->currentText());
+    char buf[BUFSIZ]={0};
+
+    buf[0] = checked;
+
+    if(ui->comboBoxCAN1Type->currentIndex()==0)//类型
+        buf[1]=CAN1CHANNEL;
+    else
+        buf[1]=CANSingle;
+
+    buf[2]=CANbaud>>8;
+    buf[3]=CANbaud&0x00ff;
+
+    keyUart->UartTxCmdDeal(CMDCANChannel,buf,4,CMD_NEEDACK);
+    isAck=false;
+    txCount=0;
+    ui->label_Show->setText(tr("下载:CAN1通道配置"));
+}
+
+void ResHardware::on_checkBoxENCAN2_clicked(bool checked)
+{
+    if(keyUart->isOpenCurrentUart()==false)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+        ui->checkBoxENCAN2->setChecked(!checked);
+        return ;
+    }
+    if(checked)
+    {
+        ui->comboBoxCAN2Baud->setEnabled(false);
+        ui->comboBoxCAN2Type->setEnabled(false);
+    }
+    else
+    {
+        ui->comboBoxCAN2Baud->setEnabled(true);
+        ui->comboBoxCAN2Type->setEnabled(true);
+    }
+    usartTXStatusDeal(true,usart_CANChannel);
+    uint16_t CANbaud = covCANBaudDeal(ui->comboBoxCAN2Baud->currentText());
+    char buf[BUFSIZ]={0};
+
+    buf[0] = checked;
+    buf[1] = CAN2CHANNEL;
+    buf[2]=CANbaud>>8;
+    buf[3]=CANbaud&0x00ff;
+    keyUart->UartTxCmdDeal(CMDCANChannel,buf,4,CMD_NEEDACK);
+    isAck=false;
+    txCount=0;
+    ui->label_Show->setText(tr("下载:CAN2通道配置"));
+}

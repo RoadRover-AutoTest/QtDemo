@@ -56,7 +56,7 @@ CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
         AddTreeNode(item,showFlag,QStringList()<<"endtime"<<toStr(theAct.timeDeal.end));
         //AddTreeNode(item,showFlag,QStringList()<<"colinfo"<<toStr(theAct.infoFlag));//信息采集参数不显示
         cout << "colinfo:"<<theAct.infoFlag;//打印，通过LOG查看
-        cout << "colinfo:"<<theAct.errorDeal;
+        cout << "errorDeal:"<<theAct.errorDeal;
 
         if(theAct.checkDeal.isEmpty()==false)
             AddTreeNode(item,0,QStringList()<<"Check");

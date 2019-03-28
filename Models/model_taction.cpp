@@ -101,7 +101,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 }
                 else
                 {
-                    if(overtimeAct++ >= actionDeal->timeDeal.end)
+                    if(overtimeAct++ >= 60000)//actionDeal->timeDeal.end
                     {
                         ShowList << tr("Error:动作执行超时;");
                         if(actionDeal->errorDeal == OVERTIMEERR)
@@ -125,7 +125,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         }
         case chkAction:
         {
-            clearAction();//在结果处理时有对记忆进行赋值，若开始判断结果时将清除数据，避免对后续操作影响
+            //clearAction();//在结果处理时有对记忆进行赋值，若开始判断结果时将清除数据，避免对后续操作影响
             theActionCheckReault(actionDeal->checkDeal);//检测
             timeState = actover;
             break;
@@ -158,6 +158,16 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             /*未结束等待前检测到应该检测数据，判断数据的结果*/
             if(timeCount == actionDeal->timeDeal.check)
             {
+                //any:增加检测处理时信息采集，待验证
+                actInfoFlag = actionDeal->infoFlag & 0x0F;
+                //判断动作执行后是否采集信息：
+                if(judgeIsCollectInfo(ACT_Back))
+                {
+                    timeState = collectInfo;
+                    nextState = wait;
+                    TimeDelay1S=0;
+                }
+
                 theActionCheckReault(actionDeal->checkDeal);
             }
 
@@ -169,7 +179,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                     timeState = waitover;
                 else
                 {
-                    if(actionDeal->timeDeal.check>actionDeal->timeDeal.wait)
+                    if(actionDeal->timeDeal.check>actionDeal->timeDeal.wait)//检测时间未在等待时间范围内，不进行检测，直接判断为测试通过
                         testResult =true;
                     timeState = actover;
                 }
@@ -869,8 +879,18 @@ void Model_tAction::timerProIDDeal()
 *************************************************************/
 void Model_tAction::onProcessEXECmd(cmd_type_e cmdType)
 {
-    //先扫描设备，后运行命令
-    proList.append(ADBDevs);
+    if(getDevNumber().isEmpty()==false)
+        proList.append(ADBDevs);//先扫描设备，后运行命令
+    else
+    {
+        if(proCMD == CMD_script)
+            proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
+        else if(proCMD == CMD_FACE)
+            proList.append(ACTIVITYFACE);
+        else if(proCMD == CMD_ADBPic)
+            proList.append(SCREENCAP);
+    }
+    IsOKCMDRunned=false;
     proCMD = cmdType;
 }
 
@@ -936,25 +956,13 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                     QString tempString = deviceList.at(i);
                     if((tempString.contains(getDevNumber()))&&(tempString.contains("\tdevice")))
                     {
-                        if(getDevNumber().isEmpty())
-                        {
-                            if(proCMD == CMD_script)
-                                proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
-                            else if(proCMD == CMD_FACE)
-                                proList.append(ACTIVITYFACE);
-                            else if(proCMD == CMD_ADBPic)
-                                proList.append(SCREENCAP);
-                        }
-                        else
-                        {
-                            if(proCMD == CMD_script)
-                                proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
-                            else if(proCMD == CMD_FACE)
-                                proList.append(ACTIVITYFACE_S(getDevNumber()));
-                            else if(proCMD == CMD_ADBPic)
-                                proList.append(SCREENCAP_S(getDevNumber()));
-                        }
-                        IsOKCMDRunned=false;
+                        if(proCMD == CMD_script)
+                            proList.append(actionDeal->actStr + " " +savePath.replace("/","\\")+"\\"+toStr(iniLoop)+" "+getDevNumber());//进程命令运行
+                        else if(proCMD == CMD_FACE)
+                            proList.append(ACTIVITYFACE_S(getDevNumber()));
+                        else if(proCMD == CMD_ADBPic)
+                            proList.append(SCREENCAP_S(getDevNumber()));
+
                         break;
                     }
                 }

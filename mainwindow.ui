@@ -231,38 +231,6 @@ color: rgb(85, 0, 255);</string>
          </item>
          <item>
           <property name="text">
-           <string>CAN</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <item>
-           <property name="text">
-            <string>类型</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>波特率</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>启用</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="checkState">
-            <enum>Unchecked</enum>
-           </property>
-          </item>
-         </item>
-         <item>
-          <property name="text">
            <string>设备</string>
           </property>
           <property name="text">
@@ -540,7 +508,7 @@ p, li { white-space: pre-wrap; }
     <string>硬件资源配置</string>
    </property>
    <property name="shortcut">
-    <string>Alt+H</string>
+    <string>Ctrl+K</string>
    </property>
   </action>
   <action name="actMonitor">
@@ -623,7 +591,7 @@ p, li { white-space: pre-wrap; }
     <string>生成报告</string>
    </property>
    <property name="shortcut">
-    <string>Alt+R</string>
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actShow_UI">

@@ -9,10 +9,10 @@
 #include <QTreeWidgetItem>
 #include <QPainter>
 #include <QProxyStyle>
+#include <QDateTime>
 
 
-
-#define cout        qDebug() << "[" << __FILE__ << ":"<< __FUNCTION__ << ":" << __LINE__ << "]"
+#define cout        qDebug() << "[" <<QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss ddd")<< __FILE__ << ":"<< __FUNCTION__ << ":" << __LINE__ << "]"
 #define toStr(num)  QString::number(num)
 #define ON          true
 #define OFF         false
@@ -70,15 +70,16 @@
 /串口：命令宏定义
 *************************************************************/
 #define CmdACKDelay 500     //命令响应延时
-#define CmdReSendTimer 2   //定义命令重复发送次数
+#define CmdReSendTimer 3   //定义命令重复发送次数
 //CMD
-#define CMDCAN1Channel      0x18    //打开/关闭CAN1
-#define CMDCAN2Channel      0x19    //打开/关闭CAN2
+#define CMDCANChannel      0x18    //打开/关闭CAN1
 #define CMDItemRead         0x20
 #define CMDItemWrite        0x21
 
 //CMDKey1~36  0x22~0x46  any:因此该中间命令不可用
-#define CMDKey1             0x22 //定义串口传输命令:按键资源信息  Dat:isUse + type + CANId + CANDat1 + CANDat2
+#define CMDDownloadKey      0x22 //定义串口传输命令:按键资源信息  Dat:isUse + type + CANId + CANDat1 + CANDat2
+#define CMDSaveKeyInfo      0x23
+
 #define MaxKey              36
 #define fixedKeyNum         3       //固定按键信息3个: ACC BAT CCD 信息固定后不可编辑
 
@@ -86,9 +87,31 @@
 #define CMDClickedKey       0x50    //点击按键操作：Dat：KeyNum（1~36）+ON/OFF
 
 //CMD param:hardware
-#define CMDWorkCurrent      0x60
-#define CMDSoundCheck       0x61
-#define CMDVoltParam        0x62
+//#define CMDWorkCurrent      0x60
+//#define CMDSoundCheck       0x61
+//#define CMDVoltParam        0x62
+
+//CMD param:hardware
+#define Upload_SingleCurrent     0x30
+#define Upload_CircularCurrent	0x31
+#define Upload_OverCurrent		0x32
+
+#define Upload_SingleAudio       	0x33
+#define Upload_CircularAudio     0x34
+#define Upload_OverAudio		0x35
+
+#define Upload_SingleVB        		0x36
+#define Upload_CircularVB       	0x37
+#define Upload_OverVB			0x38
+
+
+//定义CAN通道类型:
+typedef enum
+{
+    CAN1CHANNEL,
+    CAN2CHANNEL,
+    CANSingle
+}CANType_e;
 
 
 
@@ -362,12 +385,13 @@ typedef enum
     HardBAT,
     HardCCD,
     HardLamp,
+    HardBrake,
     HardRes,
     Can1_1,
-    Can1_2
+    Can1_2,
+    Can2_1,
+    Can2_2
 }kType;
-
-
 
 /*************************************************************
 /定义按键控制结构体：

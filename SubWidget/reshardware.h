@@ -2,10 +2,17 @@
 #define RESHARDWARE_H
 
 #include <QDialog>
+#include <QInputDialog>
 #include "Models/model_include.h"
 #include "Models/model_inisetting.h"
 #include "reshardedit.h"
-#include "resupanddownloads.h"
+//#include "resupanddownloads.h"
+#include "Models/model_xmlfile.h"
+#include "Models/model_uart.h"
+#include "Models/model_string.h"
+
+#define proValueAdd 100/(MaxKey+1)
+
 
 namespace Ui {
 class ResHardware;
@@ -30,12 +37,52 @@ private:
     void readItemKeyInfo(QString item);
     void readItemListInfo(QStringList &itemList);
 
+    uint16_t covCANBaudDeal(QString baud);
+    void usartTXStatusDeal(bool status,uint8_t transType);
+void refreshitemName(QString currentText);
+
     typedef enum
     {
         colKey,
         colDes,
         colEdit
     }col;
+
+    typedef enum
+    {
+        usart_NONE,
+        usart_DownKeyInfo,
+        usart_UpKeyInfo,
+        usart_CANChannel,
+    }transType_e;
+
+    Model_UART *keyUart;
+
+    bool isStartUartTx;
+
+    bool isDownLoadLast;
+    uint8_t gcv_transType;
+
+    bool isAck;
+
+    int timeIDSendUart;
+
+    uint8_t rxCount;
+
+    uint8_t downloadIndex;
+
+    uint8_t txCount;
+
+    void downUartDeal();
+
+    void upUartDeal();
+
+    //bool downIsFileSave();
+    //bool downIsUartHardware();
+
+protected:
+    void timerEvent(QTimerEvent *event);
+
 
 private slots:
     void EditKeyClicked();
@@ -44,6 +91,14 @@ private slots:
     void on_pushButton_outDat_clicked();
     void on_pushButton_reset_clicked();
     void itemNameSlot(const QString &arg1);
+    void on_pushButtonSave_clicked();
+    void on_checkBoxENUart_clicked(bool checked);
+
+    void UartRxDealSlot(char cmd,uint8_t dLen,char *dat);
+    void UartRxAckResault(bool ack);
+
+    void on_checkBoxENCAN1_clicked(bool checked);
+    void on_checkBoxENCAN2_clicked(bool checked);
 };
 
 #endif // RESHARDWARE_H

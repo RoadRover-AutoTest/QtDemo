@@ -54,8 +54,7 @@ private slots:
 
     void on_treeWidget_uartOpen(const QString &com, const QString &baud);
     void on_treeWidget_uartClose();
-    void on_treeWidget_canOpen(const QString &type, const QString &baud);
-    void on_treeWidget_canClose();
+    void on_treeWidget_devUseState(bool isUse);
 
     void on_pushButton_2_clicked();
 
@@ -73,8 +72,6 @@ private slots:
     void on_actHelp_triggered();
 
     void on_actATtool_triggered();
-
-    void on_treeWidget_devUseState(bool isUse);
 
 private:
     Ui::MainWindow *ui;

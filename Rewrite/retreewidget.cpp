@@ -5,6 +5,7 @@
 reTreeWidget::reTreeWidget(QWidget *parent)
     : QTreeWidget(parent)
 {
+
 }
 
 
@@ -21,7 +22,6 @@ reTreeWidget::~reTreeWidget()
 void reTreeWidget::interfaceTreeWidgetInit()
 {
     QTreeWidgetItem *itemUart = this->topLevelItem(topUart);
-    QTreeWidgetItem *itemCAN = this->topLevelItem(topCAN);
     QTreeWidgetItem *itemDrive = this->topLevelItem(topDEV);
 
     //UART
@@ -33,19 +33,6 @@ void reTreeWidget::interfaceTreeWidgetInit()
     baudList << "115200" << "57600" << "38400" << "19200" << "14400" << "9600" << "4800";
     UartBaud->addItems(baudList);
     this->setItemWidget(itemUart->child(uartBAUD),colItem,UartBaud);
-
-    //CAN
-    QComboBox *CANType = new QComboBox;
-    baudList.clear();
-    baudList <<  "HCAN";
-    CANType->addItems(baudList);
-    this->setItemWidget(itemCAN->child(canType),colItem,CANType);
-
-    QComboBox *CANBaud = new QComboBox;
-    baudList.clear();
-    baudList << "500K" << "10K" << "20K" << "33.3K" << "40K" << "50K" << "80K" << "83.3K" << "100K" << "125K" << "200K" << "250K" << "400K" << "800K" << "1M";
-    CANBaud->addItems(baudList);
-    this->setItemWidget(itemCAN->child(canBaud),colItem,CANBaud);
 
     //DEV
     QComboBox *devNum1Com = new QComboBox;
@@ -65,6 +52,20 @@ void reTreeWidget::interfaceTreeWidgetInit()
     initWinAPIDeal();
     refreshUSBPort();
     clickedUSBPort(0);//初始化设备序列号：为第一个设备的序列号
+
+    //CAN
+    QComboBox *CANType = new QComboBox;
+    baudList.clear();
+    baudList <<  "HCAN";
+    CANType->addItems(baudList);
+    this->setItemWidget(itemCAN->child(canType),colItem,CANType);
+
+    QComboBox *CANBaud = new QComboBox;
+    baudList.clear();
+    baudList << "500K" << "10K" << "20K" << "33.3K" << "40K" << "50K" << "80K" << "83.3K" << "100K" << "125K" << "200K" << "250K" << "400K" << "800K" << "1M";
+    CANBaud->addItems(baudList);
+    this->setItemWidget(itemCAN->child(canBaud),colItem,CANBaud);
+
 #endif
 
     connect(this,SIGNAL(itemChanged(QTreeWidgetItem*,int)),this,SLOT(itemChangedCheckedState(QTreeWidgetItem*,int)));
@@ -140,26 +141,6 @@ void reTreeWidget::itemChangedCheckedState(QTreeWidgetItem *curItem ,int column)
             this->itemWidget(topItem->child(1),colItem)->setEnabled(true);
         }
     }
-    else if(index == topCAN)
-    {
-        if(curItem->checkState(column) == Qt::Checked)
-        {
-            QString type=getQComboBoxCurrentTest(topItem->child(canType));
-            QString baud=getQComboBoxCurrentTest(topItem->child(canBaud));
-            canOpen(type,baud);
-
-            this->itemWidget(topItem->child(0),colItem)->setEnabled(false);
-            this->itemWidget(topItem->child(1),colItem)->setEnabled(false);
-        }
-        else
-        {
-            canClose();
-
-            this->itemWidget(topItem->child(0),colItem)->setEnabled(true);
-            this->itemWidget(topItem->child(1),colItem)->setEnabled(true);
-        }
-    }
-
 }
 
 /*************************************************************
@@ -248,6 +229,25 @@ void reTreeWidget::drawRow(QPainter *painter, const QStyleOptionViewItem &option
 #endif
 
 #if 0
+else if(index == topCAN)
+{
+    if(curItem->checkState(column) == Qt::Checked)
+    {
+        QString type=getQComboBoxCurrentTest(topItem->child(canType));
+        QString baud=getQComboBoxCurrentTest(topItem->child(canBaud));
+        canOpen(type,baud);
+
+        this->itemWidget(topItem->child(0),colItem)->setEnabled(false);
+        this->itemWidget(topItem->child(1),colItem)->setEnabled(false);
+    }
+    else
+    {
+        canClose();
+
+        this->itemWidget(topItem->child(0),colItem)->setEnabled(true);
+        this->itemWidget(topItem->child(1),colItem)->setEnabled(true);
+    }
+}
 /*this is WinApi option*/
 /*************************************************************
 /函数功能：初始化API处理
