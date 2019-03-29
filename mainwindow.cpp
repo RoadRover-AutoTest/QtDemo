@@ -553,7 +553,7 @@ void MainWindow::testProcessOverDeal()
     else if(testState == report)
     {
         ui->textBrowser_EXEShow->append(tr("报告生成结束，请查找本地对应目录或邮件或")+tr("<html><p><a href=\"%1\">点击查阅</a></p></html> \n\n")
-                                        .arg( ResultPath+"/"+ ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));//"http://192.168.13.96/result/"
+                                        .arg("http://192.168.13.96/result/"+ ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));//ResultPath+"/"
 
         testState = overtest;
     }
