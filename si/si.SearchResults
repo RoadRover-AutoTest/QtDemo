@@ -1,3 +1,0 @@
----- DEVHID Matches (2 in 2 files) ----
-Model_include.h (f:\lishuhui\procode\funtest\autotest\autotest\models):#define DEVHID              "VID_18D1&PID_D002" //安卓设备硬件ID匹配
-Model_winapi.cpp (f:\lishuhui\procode\funtest\autotest\autotest\models):        if(hIDStr.toUpper() == DEVHID)
