@@ -20,6 +20,7 @@ public:
     ~ChartWidget();
 
     void refreshChart(uint8_t type,float value);
+    void clearSerials();
 
 private:
     Ui::ChartWidget *ui;
@@ -28,6 +29,7 @@ private:
 
     QSplineSeries *series1;
     QSplineSeries *series2;
+    QSplineSeries *series3;
 
     void initChart();
 

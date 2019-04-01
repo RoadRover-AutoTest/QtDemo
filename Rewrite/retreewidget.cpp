@@ -204,6 +204,18 @@ void reTreeWidget::setCheckedState(int topItem,bool checked)
 
 
 }
+
+/*************************************************************
+/函数功能：获得设备序列号的组件comboBox
+/函数参数：当前项目
+/函数返回：解析的字符串
+*************************************************************/
+QComboBox *reTreeWidget::getDevNumberComboBox()
+{
+    QTreeWidgetItem *topDev = this->topLevelItem(topDEV);
+    return (QComboBox *)this->itemWidget(topDev->child(devNum1),colItem);
+}
+
 #if 1
 /*************************************************************
 /函数功能：重绘项目标签项：颜色加重

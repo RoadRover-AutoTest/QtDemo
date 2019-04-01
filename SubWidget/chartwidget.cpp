@@ -30,15 +30,15 @@ void ChartWidget::refreshChart(uint8_t type,float value)
     chart->axisX()->setMin(QDateTime::currentDateTime().addSecs(-60*1));
     chart->axisX()->setMax(QDateTime::currentDateTime().addSecs(0));
 
-    //当曲线上最早的点超出X轴的范围时，剔除最早的点，
-    if(series1->count()>119)
+    //当曲线上超出1000个数值时，开始删除
+    if(series1->count()>1000)
     {
-        series1->removePoints(0,series1->count()-119);
-    }
-
-    if(series2->count()>119)
-    {
-        series2->removePoints(0,series2->count()-119);
+        series1->removePoints(0,series1->count()-1000);
+        series2->removePoints(0,series2->count()-1000);
+        series3->removePoints(0,series3->count()-1000);
+        //series1->removePoints(0,1);
+        //series2->removePoints(0,1);
+        //series3->removePoints(0,1);
     }
 
     if(type == CHKCurrent)
@@ -46,7 +46,12 @@ void ChartWidget::refreshChart(uint8_t type,float value)
         series1->append(QDateTime::currentDateTime().toMSecsSinceEpoch(),value);//增加新的点到曲线末端
         ui->lineEdit_Cur->setText(QString::number(value));
     }
-    if(type == CHKSound)//CHKVlot
+    if(type == CHKVlot)
+    {
+        series2->append(QDateTime::currentDateTime().toMSecsSinceEpoch(),value);//增加新的点到曲线末端
+        ui->lineEdit_Vol->setText(QString::number(value));
+    }
+    if(type == CHKSound)
     {
         series2->append(QDateTime::currentDateTime().toMSecsSinceEpoch(),value);//增加新的点到曲线末端
         ui->radioSound->setChecked(value);
@@ -66,46 +71,43 @@ void ChartWidget::initChart()
     //初始化两个QSplineSeries的实例
     series1=new QSplineSeries();
     series2=new QSplineSeries();
+    series3=new QSplineSeries();
     series1->setName("Current(A)");
     series2->setName("Volt(V)");
+    series3->setName("声音值");
     chart->addSeries(series1);
     chart->addSeries(series2);
+    chart->addSeries(series3);
 
     //声明并初始化X轴、两个Y轴
     QDateTimeAxis *axisX=new QDateTimeAxis();
     QValueAxis *axisY_1=new QValueAxis();
     QValueAxis *axisY_2=new QValueAxis();
 
-    //设置坐标轴显示的范围
-    axisX->setMin(QDateTime::currentDateTime().addSecs(-60*1));
+    //设置X坐标轴
+    axisX->setMin(QDateTime::currentDateTime().addSecs(-60*1));//设置坐标轴显示的范围
     axisX->setMax(QDateTime::currentDateTime().addSecs(0));
-    axisY_1->setMin(0);
-    axisY_1->setMax(2);
-    axisY_2->setMin(0);
-    axisY_2->setMax(18);
-
-    //设置坐标轴上的格点
-    axisY_1->setTickCount(20);
-    axisY_2->setTickCount(18);
-
-    //设置坐标轴显示的名称
-    axisX->setTitleText("X轴");
-    axisY_1->setTitleText("axisY_Current");
-    axisY_2->setTitleText("axisY_Volt");
+    axisX->setTitleText("X轴");//设置坐标轴显示的名称
+    axisX->setFormat("mm:ss:zzz");
 
     //设置坐标轴的颜色，粗细，设置网格不显示
+    QPen penY1(Qt::darkBlue,1,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin);
     axisY_1->setLinePenColor(QColor(Qt::darkBlue));
     axisY_1->setGridLineColor(QColor(Qt::darkBlue));
+    axisY_1->setGridLineVisible(false);
+    axisY_1->setLinePen(penY1);
+    axisY_1->setTitleText("axisY_Current");
+    axisY_1->setTickCount(10);//设置坐标轴上的格点
+    axisY_1->setRange(0,5);//设置坐标轴显示的范围
+
+    QPen penY2(Qt::darkGreen,1,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin);
     axisY_2->setLinePenColor(QColor(Qt::darkGreen));
     axisY_2->setGridLineColor(QColor(Qt::darkGreen));
-    axisY_1->setGridLineVisible(false);
     axisY_2->setGridLineVisible(false);
-
-    QPen penY1(Qt::darkBlue,1,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin);
-    QPen penY2(Qt::darkGreen,1,Qt::SolidLine,Qt::RoundCap,Qt::RoundJoin);
-
-    axisY_1->setLinePen(penY1);
     axisY_2->setLinePen(penY2);
+    axisY_2->setTitleText("axisY_Volt");
+    axisY_2->setTickCount(12);
+    axisY_2->setRange(0,24);
 
     //把坐标轴添加到chart中，
     //addAxis函数的第二个参数是设置坐标轴的位置，
@@ -113,6 +115,17 @@ void ChartWidget::initChart()
     chart->addAxis(axisX,Qt::AlignBottom);
     chart->addAxis(axisY_1,Qt::AlignLeft);
     chart->addAxis(axisY_2,Qt::AlignRight);
+
+    //添加坐标轴3
+    QCategoryAxis *axisY3 = new QCategoryAxis;
+    axisY3->append("Low", 0);
+    axisY3->append("High", 1);
+    axisY3->setLinePenColor(series3->pen().color());
+    axisY3->setGridLinePen((series3->pen()));
+
+    chart->addAxis(axisY3, Qt::AlignRight);
+    series3->attachAxis(axisX);
+    series3->attachAxis(axisY3);
 
     //把曲线关联到坐标轴
     series1->attachAxis(axisX);
@@ -123,3 +136,12 @@ void ChartWidget::initChart()
     //把chart显示到窗口上
     ui->graphicsView->setChart(chart);
 }
+
+void ChartWidget::clearSerials()
+{
+    series1->clear();
+    series2->clear();
+    series3->clear();
+}
+
+

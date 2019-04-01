@@ -85,6 +85,7 @@ private:
     void setIsRunInterface(bool IsRun);
     void initkeyList();
 
+    bool NumberListIsSingle();
     /*
      * 测试流处理
     */
@@ -100,7 +101,9 @@ private:
     Model_tFlow *tFlowDeal;
     int timerTestID;
     bool isHadProp;
+    bool isHadReport;
     bool isRunning;
+    QList <tUnit> *exeFlow;
 
     void startTheFlow(QList <tUnit> *testFlow);
     void endTheFlow();
@@ -134,7 +137,6 @@ private:
     int timerProID;                 //进程处理定时器ID
     QString currentCMDString;       //当前命令字符串
     QStringList proList;            //进程处理解析字符串列表：用来显示
-    int proDelayTime1S;             //进程连续处理延时1S
 
     void initProcessDeal();
     void deleteProcessDeal();

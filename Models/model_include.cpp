@@ -205,26 +205,8 @@ bool appendTheResultToFile(QString SaveStr)
 /函数返回：无Text
 /Append：在现有文件上添加   Text：文档从头编辑
 *************************************************************/
-bool appendThePropertiesToFile(QString SaveStr)
+bool appendThePropertiesToFile(QString path,QString SaveStr)
 {
-
-    QStringList pathList = savePath.split("/");
-
-    QString path ;
-
-    //路径拆分方式增加处理："\\"
-    if(pathList.length() == 1)
-    {
-        pathList.clear();
-        pathList = savePath.split("\\");
-    }
-
-    //组合路径
-    for(int i=0;i<pathList.length()-3;i++)
-    {
-        path += pathList.at(i) + "/";
-    }
-
     QDir dir(path);
     if(!dir.exists())
     {
@@ -235,7 +217,7 @@ bool appendThePropertiesToFile(QString SaveStr)
         }
     }
 
-    QFile file(path+"properties.txt");
+    QFile file(path+"/properties.txt");
     bool isOK;
 
     //若是清数据，以Text保存，会将文档内数据先清除，再填写，否则，追加方式填写；
@@ -246,7 +228,7 @@ bool appendThePropertiesToFile(QString SaveStr)
 
     if (!isOK)
     {
-        cout << "Cannot open file " << path+"properties.txt";
+        cout << "Cannot open file " << path+"/properties.txt";
         return false;
     }
 

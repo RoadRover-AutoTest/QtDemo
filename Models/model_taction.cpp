@@ -93,7 +93,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 {
                     if(actionDeal->timeDeal.wait)
                     {
-                        ShowList << ("waitTime："+toStr(actionDeal->timeDeal.wait)+"mS");
+                        ShowList << (tr("等待，时间：")+toStr(actionDeal->timeDeal.wait)+"mS");
                         timeState = wait;
                     }
                     else
@@ -127,7 +127,13 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         {
             //clearAction();//在结果处理时有对记忆进行赋值，若开始判断结果时将清除数据，避免对后续操作影响
             theActionCheckReault(actionDeal->checkDeal);//检测
-            timeState = actover;
+            if((actionDeal->timeDeal.check)&&(actionDeal->timeDeal.check<actionDeal->timeDeal.wait))
+            {
+                ShowList<<tr("继续等待！");
+                timeState = wait;
+            }
+            else
+                timeState = actover;
             break;
         }
         case collectInfo:
@@ -164,17 +170,15 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 if(judgeIsCollectInfo(ACT_Back))
                 {
                     timeState = collectInfo;
-                    nextState = wait;
+                    nextState = chkAction;//采集结束后，跳转到检测处理
                     TimeDelay1S=0;
                 }
-
-                theActionCheckReault(actionDeal->checkDeal);
+                else
+                    timeState = chkAction;
             }
-
-            /* 结束等待时，若检测时间不存在将默认进入等待结束，
+            else if(timeCount == actionDeal->timeDeal.wait)
+            {/* 结束等待时，若检测时间不存在将默认进入等待结束，
              * 若存在上述语句已经执行，因此直接进入actover操作*/
-            if(timeCount == actionDeal->timeDeal.wait)
-            {
                 if(!actionDeal->timeDeal.check)//无检测时间
                     timeState = waitover;
                 else
@@ -611,7 +615,7 @@ bool Model_tAction::chkSound(checkParam sound)
 *************************************************************/
 bool Model_tAction::chkScript(checkParam script)
 {
-    ShowList<<tr("checkTheAction:检测脚本...");
+    ShowList<<tr("checkTheAction:检测脚本...")+script.logContains;
     bool result = false;
     QString filePath = savePath+"\\"+toStr(iniLoop)+"\\case.log";            //any--检测脚本路径
     QFile readfile(filePath);
@@ -648,8 +652,6 @@ bool Model_tAction::chkInterface(checkParam memory)
     QString curFaceInfo,lastFaceInfo;
     bool result = false;
 
-    ShowList<< tr("checkTheAction:检测界面...");
-
     /*获取当前界面信息*/
     for(int i=0;i<tempFaceInfo.length();i++)
     {
@@ -658,6 +660,7 @@ bool Model_tAction::chkInterface(checkParam memory)
             curFaceInfo = tempFaceInfo.at(i).information.toString();
         }
     }
+    ShowList<< tr("checkTheAction:检测界面...")+curFaceInfo;
 
     /*根据比较添加进行界面检验*/
     if(curFaceInfo.isEmpty() == false)

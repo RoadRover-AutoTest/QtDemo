@@ -548,7 +548,7 @@ void Model_XMLFile::removeUnitXML(QString filePath,QString unitName)
 *************************************************************/
 void Model_XMLFile::createKeyInfoXML()
 {
-    QFile file(KeyINFOFile); //关联文件名字
+    QFile file(configPath("KeyInfo.xml")); //关联文件名字
     if( true == file.exists() ) //如果存在不创建
     {
         cout << "文件已经存在";
@@ -597,7 +597,7 @@ void Model_XMLFile::createKeyInfoXML()
 *************************************************************/
 bool Model_XMLFile::hasItemKeyInfomation(QString item)
 {
-    QFile file(KeyINFOFile);
+    QFile file(configPath("KeyInfo.xml"));
     bool isOk = file.open(QIODevice::ReadOnly);
     if(true == isOk) //打开成功
     {
@@ -655,7 +655,7 @@ bool Model_XMLFile::hasItemKeyInfomation(QString item)
 *************************************************************/
 void Model_XMLFile::appendKeyInfoXML(QString item,bool isAppend,QStringList list)
 {
-    QFile file(KeyINFOFile);
+    QFile file(configPath("KeyInfo.xml"));
     if(!file.open(QIODevice::ReadOnly))
     {
         cout << "ReadOnly error";
@@ -845,7 +845,7 @@ void Model_XMLFile::changedKeyInfoXML(QDomDocument &doc, QDomElement &root, QStr
 *************************************************************/
 void Model_XMLFile::readKeyInfoXML(QString item, QList <keyControl> *keyList)
 {
-    QFile file(KeyINFOFile);
+    QFile file(configPath("KeyInfo.xml"));
 
     if(!file.open(QIODevice::ReadOnly))
         return ;
@@ -905,7 +905,7 @@ void Model_XMLFile::readKeyInfoXML(QString item, QList <keyControl> *keyList)
 *************************************************************/
 void Model_XMLFile::readKeyItemXML(QStringList *itemList)
 {
-    QFile file(KeyINFOFile);
+    QFile file(configPath("KeyInfo.xml"));
 
     if(!file.open(QIODevice::ReadOnly))
         return ;

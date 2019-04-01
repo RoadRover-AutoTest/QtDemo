@@ -7,8 +7,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    clearWindowCountor=0;
-
     chkParamCount=0;
 
     initMainWindow();
@@ -67,10 +65,11 @@ void MainWindow::initMainWindow()
     ui->treeWidget->refreshUartCOM(UARTDeal->PortList());
     ui->treeWidget->expandAll();
 
-    ui->textBrowser_EXEShow->setOpenExternalLinks(true);//设置添加超链接
+    //ui->textBrowser_EXEShow->setOpenExternalLinks(true);//设置添加超链接
 
     chartDeal =new ChartWidget;
-    ui->dockWidgetShow->setWidget(chartDeal);
+    //ui->dockWidgetShow->setWidget(chartDeal);
+    ui->gridChartwidget->addWidget(chartDeal);
 
     ui->toolBar_Fun->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
@@ -84,6 +83,12 @@ void MainWindow::initMainWindow()
     ReportCreat     = InfoINI.ReadIni_item("ReportCreat").toBool();
     IsLogcatEnable  = InfoINI.ReadIni_item("LogcatEnable").toBool();
     logcatPath      = InfoINI.ReadIni_item("LogcatPath").toString();
+
+    //处理错误参数
+    if(!WorkCurrent)
+        WorkCurrent=700;
+    if(!WorkFrequency)
+        WorkFrequency=1;
 
     devNumber.clear();
 
@@ -132,6 +137,7 @@ void MainWindow::setIsRunInterface(bool IsRun)
         ui->acttest->setChecked(IsRun);
         ui->treeWidget->setEnabled(false);
 
+
         //主窗口涉及清楚任务，因此放置上层处理
         int row=ui->tableWidget->rowCount();
         for(uint16_t i=row;i>0;i--)
@@ -141,7 +147,7 @@ void MainWindow::setIsRunInterface(bool IsRun)
     }
     else
     {
-        ui->dockWidgetBottom->setVisible(true);//初始化界面：
+        //初始化界面：
         ui->acttest->setText(tr("运行"));
         ui->acttest->setIcon(QIcon(":/Title/actRunning.png"));
         ui->acttest->setChecked(IsRun);
@@ -210,18 +216,6 @@ void MainWindow::timerEvent(QTimerEvent *event)
         //刷新uart COM
         ui->treeWidget->refreshUartCOM(UARTDeal->PortList());
 
-        //1S获取下物理参数:any:Error
-        /*if(chkParamCount++>=2)
-        {
-            if((getTestRunState())||(testState!=overtest))
-            {
-                chkParamFromHardware(CHKCurrent);
-                chkParamFromHardware(CHKSound);
-            }
-            chkParamCount=0;
-        }*/
-
-
         //实时扫描设备
         if((!getTestRunState())&&(testState==overtest))
         {
@@ -230,13 +224,12 @@ void MainWindow::timerEvent(QTimerEvent *event)
             //cout;
         }
 
-        //计时10分钟清理一次检测窗口:600
+        //显示字符超过1W时清显示数据
         if(ui->textBrowser_EXEShow->toPlainText().count()>=10000)
-        //if(++clearWindowCountor>600)
         {
-            //clearWindowCountor=0;
             appendTheExecLogInfo(ui->textBrowser_EXEShow->toPlainText());
             ui->textBrowser_EXEShow->clear();
+            ui->textBrowser_mShow->clear();
         }
     }
 }
@@ -374,19 +367,36 @@ void MainWindow::on_treeWidget_uartClose()
 /函数功能：设备启用状态
 /函数参数：状态
 /函数返回：无
-//any:待使用
 *************************************************************/
 void MainWindow::on_treeWidget_devUseState(bool isUse)
 {
     if(isUse)
     {
-        QTreeWidgetItem *topDev = ui->treeWidget->topLevelItem(topDEV);
-        QComboBox *comboBox=(QComboBox *)ui->treeWidget->itemWidget(topDev->child(devNum1),colItem);
-        devNumber = comboBox->currentText();
+        devNumber = ui->treeWidget->getDevNumberComboBox()->currentText();
+        //cout << NumberListIsSingle();
     }
     else
     {
         devNumber.clear();
+    }
+}
+
+/*************************************************************
+/函数功能：设备列表中是否只有一台设备
+/函数参数：无
+/函数返回：判断结果
+//any:用于若未选择设备列表时，值为1时处理，只有一台设备
+*************************************************************/
+bool MainWindow::NumberListIsSingle()
+{
+    QComboBox *combox = ui->treeWidget->getDevNumberComboBox();
+    if(combox->count() == 1)
+        return true;
+    else
+    {
+        if(combox->count())
+            QMessageBox::warning(NULL, tr("提示"), tr("非单台设备，将不进行ADB命令执行！"));
+        return false;
     }
 }
 
@@ -403,35 +413,29 @@ void MainWindow::startTheFlow(QList <tUnit> *testFlow)
 {
     if((!isRunning)&&(testState==overtest))
     {
-        //设备序列号
         if(devNumber.isEmpty())
-        {
+        {//设备序列号
             if(QMessageBox::information(NULL, tr("警告"), tr("未启用设备序列号，是否继续?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::No)//Upgrading
                 return ;
         }
 
-        //提示保存文件：
         if(ui->tableSequence->getSequenceFileName().isEmpty())
-        {
+        {//提示保存文件：
             if(QMessageBox::information(NULL, tr("警告"), tr("未保存文件，是否继续?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::No)//Upgrading
                 return ;
         }
 
         if(IsLogcatEnable)
-            startLogThread();
+            startLogThread();//启动采集log线程
 
-        //创建测试流程：
-        tFlowDeal = new Model_tFlow(testFlow);
-        connect(tFlowDeal,SIGNAL(unitStartExe(tUnit)),this,SLOT(unitStartExeSlot(tUnit)));
-        connect(tFlowDeal,SIGNAL(theUnitResult(bool)),this,SLOT(unitEndExeSlot(bool)));
-        connect(tFlowDeal,SIGNAL(flowEndTest()),this,SLOT(onEndTestSlot()));
-        connect(tFlowDeal,SIGNAL(keyClicked(QString)),this,SLOT(execKeyClicked(QString)));
+        exeFlow = testFlow;
 
-        testState=start;
+        testState=getprop;
         timerTestID = startTimer(10);
+        testTime = QDateTime::currentDateTime();
 
-        char buf=200;
-        appendTxList(Upload_CircularCurrent,&buf,1,CMD_NEEDNACK);
+        ui->textBrowser_EXEShow->clear();
+        ui->textBrowser_mShow->clear();
     }
     else
     {
@@ -450,10 +454,22 @@ void MainWindow::timerTestIDDeal()
     {
     case start:
     {
-        ui->textBrowser_EXEShow->clear();
+        //创建测试流程：
+        tFlowDeal = new Model_tFlow(exeFlow);
+        connect(tFlowDeal,SIGNAL(unitStartExe(tUnit)),this,SLOT(unitStartExeSlot(tUnit)));
+        connect(tFlowDeal,SIGNAL(theUnitResult(bool)),this,SLOT(unitEndExeSlot(bool)));
+        connect(tFlowDeal,SIGNAL(flowEndTest()),this,SLOT(onEndTestSlot()));
+        connect(tFlowDeal,SIGNAL(keyClicked(QString)),this,SLOT(execKeyClicked(QString)));
+
+        char buf=200;
+        appendTxList(Upload_CircularCurrent,&buf,1,CMD_NEEDNACK);
+        //appendTxList(Upload_CircularVB,&buf,1,CMD_NEEDNACK);
+        //appendTxList(Upload_CircularAudio,&buf,1,CMD_NEEDNACK);
+
+
         isRunning = true;
         setIsRunInterface(true);
-        testTime = QDateTime::currentDateTime();
+
         ui->textBrowser_EXEShow->append(tr("启动测试:"));
         testState=waitnull;
         break;
@@ -469,33 +485,32 @@ void MainWindow::timerTestIDDeal()
     }
     case getprop:
     {
-        if((!isPRORunning)&&((!proDelayTime1S)||(proDelayTime1S % 100 == 0)))
+        if(!isPRORunning)
         {
             isHadProp=false;
             //机器版本信息:
             ui->textBrowser_EXEShow->append(tr("获取机器版本信息，请稍后... ..."));
-            appendThePropertiesToFile("clear");
+            appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"clear");
 
             if(getDevNumber().isEmpty())
-                proList.append(GETPROP);
+            {
+                if(NumberListIsSingle())
+                    proList.append(GETPROP);
+                else
+                    testState = start;
+            }
             else
                 proList.append(GETPROP_S(getDevNumber()));
         }
-        else if(proDelayTime1S>6000)
-        {
-            ui->textBrowser_EXEShow->append(tr("设备未连接，无法获取属性信息... ..."));
-            testState = overtest;
-        }
-
-        proDelayTime1S++;
         break;
     }
     case report:
     {
         if(!isPRORunning)
         {
+            isHadReport = false;
             ui->textBrowser_EXEShow->append(tr("正在生成报告，请稍后... ..."));
-            proList.append(PYTHONREPORT(ResultPath+"/" + ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/"));
+            proList.append(PYTHONREPORT(ResultPath(ui->tableSequence->getSequenceFileName())+ "/" + testTime.toString("yyyyMMddhhmmss")+"/"));
         }
         break;
     }
@@ -506,6 +521,11 @@ void MainWindow::timerTestIDDeal()
         isRunning=false;
         setIsRunInterface(false);
         appendTheExecLogInfo(ui->textBrowser_EXEShow->toPlainText());
+        chartDeal->clearSerials();
+        char buf=0;
+        appendTxList(CMDOverCurrentUp,&buf,1,CMD_NEEDNACK);
+        //appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);
+        //appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);
 
         break;
     }
@@ -524,12 +544,15 @@ void MainWindow::testProcessOutputDeal(QString String)
         if(String.contains("Out>>"))
         {
             isHadProp=true;
-            appendThePropertiesToFile(String.remove("Out>>"));
+            appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),String.remove("Out>>"));
         }
     }
     else if(testState == report)
     {
         //判断执行OK send email success !
+        if(String.contains("send email success !"))
+            isHadReport=true;
+        cout << String;
     }
 }
 
@@ -544,20 +567,17 @@ void MainWindow::testProcessOverDeal()
     {
         if(isHadProp)
         {
-            //添加时间
-            appendThePropertiesToFile("start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
-            appendThePropertiesToFile("end_time:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
-            if(ReportCreat)
-                testState = report;//采集到属性信息方可进入生成报告的操作，否则不改变测试状态继续查询属性
-            else
-                testState = overtest;
+            appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");//添加时间
+            testState = start;
         }
     }
     else if(testState == report)
     {
-        ui->textBrowser_EXEShow->append(tr("报告生成结束，请查找本地对应目录或邮件或")+tr("<html><p><a href=\"%1\">点击查阅</a></p></html> \n\n")
+        if(isHadReport)
+            ui->textBrowser_EXEShow->append(tr("报告生成结束，请查找本地对应目录或邮件或")+tr("<html><p><a href=\"%1\">点击查阅</a></p></html>")
                                         .arg("http://192.168.13.96/result/"+ ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));//ResultPath+"/"
-
+        else
+            ui->textBrowser_EXEShow->append(tr("生成失败，请检查原因后，手动生成。执行后台分析文件：customMessageLog.txt"));
         testState = overtest;
     }
 
@@ -588,9 +608,7 @@ void MainWindow::endTheFlow()
 
         tFlowDeal->endTheTest();
         isRunning=false;
-
-        char buf=0;
-        appendTxList(CMDOverCurrentUp,&buf,1,CMD_NEEDNACK);
+        appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"end_time:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
     }
 }
 
@@ -601,9 +619,13 @@ void MainWindow::endTheFlow()
 *************************************************************/
 void MainWindow::onEndTestSlot()
 {
-    proDelayTime1S=0;
     ui->textBrowser_EXEShow->append(tr("结束测试！"));
-    testState = getprop;
+
+    if(ReportCreat)
+        testState = report;
+    else
+        testState = overtest;
+
     if(IsLogcatEnable)
         stopLogThread();
 }
@@ -630,7 +652,7 @@ void MainWindow::unitStartExeSlot(tUnit eUnit)
     QScrollBar *scrollBar = ui->tableWidget->verticalScrollBar();
     scrollBar->setValue(scrollBar->maximum());
 
-    savePath = ResultPath+"/" + ui->tableSequence->getSequenceFileName()
+    savePath = ResultPath(ui->tableSequence->getSequenceFileName())
                 + "/" + testTime.toString("yyyyMMddhhmmss")
                 + "/" + eUnit.name
                 + "/Loop"+toStr(tFlowDeal->getTheFlowLoop()) ;
@@ -888,6 +910,17 @@ void MainWindow::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
 
         chartDeal->refreshChart(CHKCurrent,tempDat/1000.0);
     }
+    else if(cmd == Upload_SingleVB )
+    {
+        for(int i=0;i<dLen;i++)
+        {
+            tempDat=((uint8_t)dat[i]<<(i*8))|tempDat;//低位在前，高位在后
+        }
+        Volt = tempDat;
+        //cout << Volt;
+
+        chartDeal->refreshChart(CHKVlot,tempDat/100.0);
+    }
     else if(cmd == Upload_SingleAudio)
     {
         if(dLen==1)
@@ -895,10 +928,6 @@ void MainWindow::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
             SoundV = dat[0];
             chartDeal->refreshChart(CHKSound,SoundV);
         }
-    }
-    else if(cmd == Upload_SingleVB)
-    {
-
     }
 }
 
@@ -989,34 +1018,41 @@ void MainWindow::onProcessOutputSlot(int pNum,QString String)
     //进程处理
     if((pNum==PROSYS)&&(String.isEmpty()==false))
     {
-        //测试进程输出处理
-        testProcessOutputDeal(String);
-
-        //处理设备扫描进程:显示设备列表
-        if((!getTestRunState())&&(currentCMDString == ADBDevs))
+        if(String.contains("Error>>"))
+            ui->textBrowser_EXEShow->append(String);
+        else
         {
-            QStringList devList = String.split("\r\n");
+            if((!getTestRunState())&&(currentCMDString == ADBDevs))
+            {//处理设备扫描进程:显示设备列表
+                QStringList devList = String.split("\r\n");
 
-            if(devList.isEmpty()==false)
-                devList.removeFirst();
+                if(devList.isEmpty()==false)
+                    devList.removeFirst();
 
-            if(devList.isEmpty()==false)
-            {
-                for(int i=0;i<devList.length();)
+                if(devList.isEmpty()==false)
                 {
-                    QString tempString=devList.at(i);
-                    if(tempString.contains("\tdevice"))
+                    for(int i=0;i<devList.length();)
                     {
-                        devList.replace(i,tempString.remove("\tdevice"));
-                        if(devList.at(i).isEmpty())
-                            devList.removeAt(i);
+                        QString tempString=devList.at(i);
+                        if(tempString.contains("\tdevice"))
+                        {
+                            devList.replace(i,tempString.remove("\tdevice"));
+                            if(devList.at(i).isEmpty())
+                                devList.removeAt(i);
+                            else
+                                i++;
+                        }
                         else
-                            i++;
+                            devList.removeAt(i);
                     }
-                    else
-                        devList.removeAt(i);
+                    ui->treeWidget->refreshDevNum1(devList);
                 }
-                ui->treeWidget->refreshDevNum1(devList);
+            }
+            else
+            {
+                //测试进程输出处理
+                testProcessOutputDeal(String);
+                //cout<< String;
             }
         }
     }

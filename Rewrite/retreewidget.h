@@ -56,6 +56,7 @@ public:
 
 
     void setCheckedState(int topItem,bool checked);
+    QComboBox *getDevNumberComboBox();
 
 
 private:

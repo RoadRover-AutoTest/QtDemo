@@ -16,13 +16,13 @@
 #define toStr(num)  QString::number(num)
 #define ON          true
 #define OFF         false
-#define KeyINFOFile QCoreApplication::applicationDirPath()+"/config/KeyInfo.xml"
-#define unitDEFINEFile QCoreApplication::applicationDirPath()+"/config/unitDefined.xml"
-#define SYSInfo     QCoreApplication::applicationDirPath()+"/config/config.ini"
-#define ResultPath  QCoreApplication::applicationDirPath()+"/result"
-#define REPORTPath  QCoreApplication::applicationDirPath()+"/ATReport/run.py"
-#define REPORTCFGPath QCoreApplication::applicationDirPath()+"/ATReport/conf/config.ini"
-//#define TEMPPath  ResultPath+"/temp/"
+
+//程序运行处理目录:
+#define appDirPath QCoreApplication::applicationDirPath()
+
+#define configPath(info)        appDirPath+"/config/"+info
+#define ResultPath(itemName)    appDirPath+"/result/"+itemName
+#define REPORTPath(info)        appDirPath+"/ATReport/"+info
 
 //定义颜色：用于进度条显示
 #define GRAY    QColor(199,199,199)   //灰
@@ -62,7 +62,7 @@
 //修改文件名
 #define RENAME(oldName,newName)             ("rename "+oldName+" "+newName)
 //运行生成报告脚本
-#define PYTHONREPORT(flpath)                ("python "+REPORTPath +" "+flpath)
+#define PYTHONREPORT(flpath)                ("python "+REPORTPath("run.py") +" "+flpath)
 
 
 
@@ -509,7 +509,7 @@ QString getKeyType(kType type);
 
 
 bool appendTheResultToFile(QString SaveStr);
-bool appendThePropertiesToFile(QString SaveStr);
+bool appendThePropertiesToFile(QString path,QString SaveStr);
 void appendTheExecLogInfo(QString SaveStr);
 
 

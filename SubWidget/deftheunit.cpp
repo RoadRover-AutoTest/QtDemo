@@ -15,7 +15,7 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     //获取文件中存储的测试单元
     Model_XMLFile xmlRead;
     int len = unitList.length();
-    xmlRead.readSequenceXML(unitDEFINEFile,unitList);
+    xmlRead.readSequenceXML(configPath("unitDefined.xml"),unitList);
 
     for(int i=len;i<unitList.length();i++)
     {
@@ -1379,22 +1379,22 @@ void defTheUnit::on_actSave_triggered()
 
     changedInfoFlagDeal();
 
-    QFile file(unitDEFINEFile); //关联文件名字
+    QFile file(configPath("unitDefined.xml")); //关联文件名字
     Model_XMLFile xmlSave;
     QStringList infoList;
 
     if( false == file.exists() ) //如果存在不创建
     {
-        xmlSave.createSequenceXML(unitDEFINEFile);
+        xmlSave.createSequenceXML(configPath("unitDefined.xml"));
     }
     //查询是否已经存在该测试单元
-    if(xmlSave.hasUnitInfomation(unitDEFINEFile,unitDeal.name))
+    if(xmlSave.hasUnitInfomation(configPath("unitDefined.xml"),unitDeal.name))
     {
         if(QMessageBox::information(NULL, tr("提示"), tr("文件中该测试单元已存在，是否替换？？"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::No)
             return;
         else
         {
-            xmlSave.removeUnitXML(unitDEFINEFile,unitDeal.name);
+            xmlSave.removeUnitXML(configPath("unitDefined.xml"),unitDeal.name);
 
             ui->comboUnitList->setCurrentText(unitDeal.name);
             for(int i=0;i<unitList.length();i++)
@@ -1416,7 +1416,7 @@ void defTheUnit::on_actSave_triggered()
 
     for(int j=0;j<unitDeal.actTest.length();j++)
     {
-        xmlSave.appendSequenceXML(unitDEFINEFile,infoList,unitDeal.actTest.at(j));
+        xmlSave.appendSequenceXML(configPath("unitDefined.xml"),infoList,unitDeal.actTest.at(j));
     }
 
 }
@@ -1518,12 +1518,12 @@ void defTheUnit::on_actdel_triggered()
     int index = ui->comboUnitList->currentIndex();
     QString delStr = ui->comboUnitList->currentText();
     Model_XMLFile xmlFile;
-    if(xmlFile.hasUnitInfomation(unitDEFINEFile,delStr))
+    if(xmlFile.hasUnitInfomation(configPath("unitDefined.xml"),delStr))
     {
         if (QMessageBox::warning(NULL, tr("提示"),tr("确定删除该测试动作?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
             return;
 
-        xmlFile.removeUnitXML(unitDEFINEFile,delStr);
+        xmlFile.removeUnitXML(configPath("unitDefined.xml"),delStr);
 
         ui->comboUnitList->removeItem(index);
 
@@ -1545,7 +1545,7 @@ void defTheUnit::on_actclear_triggered()
 
     for(int i=0;i<unitList.length();i++)
     {
-        xmlFile.removeUnitXML(unitDEFINEFile,unitList.at(i).name);
+        xmlFile.removeUnitXML(configPath("unitDefined.xml"),unitList.at(i).name);
     }
 
 

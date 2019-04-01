@@ -45,7 +45,7 @@ void Model_iniSetting::ReadIni(QString file,QString Section,QString Key,QVariant
 QVariant Model_iniSetting::ReadIni_email()
 {
     QVariant value;
-    ReadIni(REPORTCFGPath,"mailto_list","mailto_list",&value);
+    ReadIni(REPORTPath("conf/config.ini"),"mailto_list","mailto_list",&value);
     return value;
 }
 
@@ -56,7 +56,7 @@ QVariant Model_iniSetting::ReadIni_email()
 *************************************************************/
 void Model_iniSetting::WriteIni_email(QVariant value)
 {
-    WriteIni(REPORTCFGPath,"mailto_list","mailto_list",value);
+    WriteIni(REPORTPath("conf/config.ini"),"mailto_list","mailto_list",value);
 }
 
 
@@ -70,7 +70,7 @@ void Model_iniSetting::WriteIni_email(QVariant value)
 QVariant Model_iniSetting::ReadIni_item(QString infoType)
 {
     QVariant value;
-    ReadIni(SYSInfo,"ITEM_Information",infoType,&value);
+    ReadIni(configPath("config.ini"),"ITEM_Information",infoType,&value);
     return value;
 }
 
@@ -81,7 +81,7 @@ QVariant Model_iniSetting::ReadIni_item(QString infoType)
 *************************************************************/
 void Model_iniSetting::WriteIni_item(QString infoType ,QVariant value)
 {
-    WriteIni(SYSInfo,"ITEM_Information",infoType,value);
+    WriteIni(configPath("config.ini"),"ITEM_Information",infoType,value);
 }
 
 
@@ -93,7 +93,7 @@ void Model_iniSetting::WriteIni_item(QString infoType ,QVariant value)
 QVariant Model_iniSetting::ReadIni_user(QString infoType)
 {
     QVariant value;
-    ReadIni(SYSInfo,"USER_Information",infoType,&value);
+    ReadIni(configPath("config.ini"),"USER_Information",infoType,&value);
     return value;
 }
 
@@ -104,7 +104,7 @@ QVariant Model_iniSetting::ReadIni_user(QString infoType)
 *************************************************************/
 void Model_iniSetting::WriteIni_user(QString infoType ,QVariant value)
 {
-    WriteIni(SYSInfo,"USER_Information",infoType,value);
+    WriteIni(configPath("config.ini"),"USER_Information",infoType,value);
 }
 
 #if 0
@@ -117,7 +117,7 @@ void Model_iniSetting::WriteIni_user(QString infoType ,QVariant value)
 QString Model_iniSetting::ReadIni_item()
 {
     QVariant value;
-    ReadIni(SYSInfo,"ITEM_Information","item_Name",&value);
+    ReadIni(configPath("config.ini"),"ITEM_Information","item_Name",&value);
     return value.toString();
 }
 
@@ -128,7 +128,7 @@ QString Model_iniSetting::ReadIni_item()
 *************************************************************/
 void Model_iniSetting::WriteIni_item(QVariant value)
 {
-    WriteIni(SYSInfo,"ITEM_Information","item_Name",value);
+    WriteIni(configPath("config.ini"),"ITEM_Information","item_Name",value);
 }
 
 
@@ -140,7 +140,7 @@ void Model_iniSetting::WriteIni_item(QVariant value)
 int Model_iniSetting::ReadIni_WorkCurrent()
 {
     QVariant value;
-    ReadIni(SYSInfo,"ITEM_Information","WorkCurrent",&value);
+    ReadIni(configPath("config.ini"),"ITEM_Information","WorkCurrent",&value);
     return value.toInt();
 }
 
@@ -151,7 +151,7 @@ int Model_iniSetting::ReadIni_WorkCurrent()
 *************************************************************/
 void Model_iniSetting::WriteIni_WorkCurrent(QVariant value)
 {
-    WriteIni(SYSInfo,"ITEM_Information","WorkCurrent",value);
+    WriteIni(configPath("config.ini"),"ITEM_Information","WorkCurrent",value);
 }
 
 
@@ -164,7 +164,7 @@ void Model_iniSetting::WriteIni_WorkCurrent(QVariant value)
 int Model_iniSetting::ReadIni_WorkFrequency()
 {
     QVariant value;
-    ReadIni(SYSInfo,"ITEM_Information","WorkFrequency",&value);
+    ReadIni(configPath("config.ini"),"ITEM_Information","WorkFrequency",&value);
     return value.toInt();
 }
 
@@ -175,7 +175,7 @@ int Model_iniSetting::ReadIni_WorkFrequency()
 *************************************************************/
 void Model_iniSetting::WriteIni_WorkFrequency(QVariant value)
 {
-    WriteIni(SYSInfo,"ITEM_Information","WorkFrequency",value);
+    WriteIni(configPath("config.ini"),"ITEM_Information","WorkFrequency",value);
 }
 
 
@@ -187,7 +187,7 @@ void Model_iniSetting::WriteIni_WorkFrequency(QVariant value)
 bool Model_iniSetting::ReadIni_ReportCreat()
 {
     QVariant value;
-    ReadIni(SYSInfo,"ITEM_Information","ReportCreat",&value);
+    ReadIni(configPath("config.ini"),"ITEM_Information","ReportCreat",&value);
     return value.toBool();
 }
 
@@ -198,7 +198,7 @@ bool Model_iniSetting::ReadIni_ReportCreat()
 *************************************************************/
 void Model_iniSetting::WriteIni_ReportCreat(QVariant value)
 {
-    WriteIni(SYSInfo,"ITEM_Information","ReportCreat",value);
+    WriteIni(configPath("config.ini"),"ITEM_Information","ReportCreat",value);
 }
 
 /*************************************************************
@@ -209,7 +209,7 @@ void Model_iniSetting::WriteIni_ReportCreat(QVariant value)
 QString Model_iniSetting::ReadIni_defineInfo(QString str)
 {
     QVariant value;
-    ReadIni(SYSInfo,"TEST_DEFINE_INFO",str,&value);
+    ReadIni(configPath("config.ini"),"TEST_DEFINE_INFO",str,&value);
     return value.toString();
 }
 
@@ -220,6 +220,6 @@ QString Model_iniSetting::ReadIni_defineInfo(QString str)
 *************************************************************/
 void Model_iniSetting::WriteIni_defineInfo(QString str,QVariant value)
 {
-    WriteIni(SYSInfo,"TEST_DEFINE_INFO",str,value);
+    WriteIni(configPath("config.ini"),"TEST_DEFINE_INFO",str,value);
 }
 #endif
