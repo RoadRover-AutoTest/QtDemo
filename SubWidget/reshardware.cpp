@@ -504,7 +504,8 @@ void ResHardware::downUartDeal()
         buf[len++]=keyInfo.isUse;
         buf[len++]=keyInfo.type;
 
-        if((keyInfo.type == Can1_1) || (keyInfo.type == Can1_2))
+        //协议数据传输
+        if(keyInfo.type>HardRes)//((keyInfo.type == Can1_1) || (keyInfo.type == Can1_2))
         {
             QString idStr;
             arrayBuf.clear();
@@ -515,27 +516,36 @@ void ResHardware::downUartDeal()
             else
                 idStr=keyInfo.CANID;
             strDeal.StringToHex(idStr,arrayBuf);
-            for(int i=0;i<arrayBuf.length();i++)
+            for(int i=0;i<4;i++)
             {
-                buf[len++] = arrayBuf[i];
+                if(i<(4-arrayBuf.length()))
+                    buf[len++] = 0x00;
+                else
+                    buf[len++] = arrayBuf[i-(4-arrayBuf.length())];
             }
 
             arrayBuf.clear();
 
             strDeal.StringToHex(keyInfo.CANDat1,arrayBuf);
-            for(int i=0;i<arrayBuf.length();i++)
+            for(int i=0;i<8;i++)
             {
-                buf[len++] = arrayBuf[i];
+                if(i<arrayBuf.length())
+                    buf[len++] = arrayBuf[i];
+                else
+                    buf[len++] = 0x00;
             }
 
-            if(keyInfo.type == Can1_2)
+            if((keyInfo.type == Can1_2)||(keyInfo.type == Can2_2))
             {
                 arrayBuf.clear();
 
                 strDeal.StringToHex(keyInfo.CANDat2,arrayBuf);
-                for(int i=0;i<arrayBuf.length();i++)
+                for(int i=0;i<8;i++)
                 {
-                    buf[len++] = arrayBuf[i];
+                    if(i<arrayBuf.length())
+                        buf[len++] = arrayBuf[i];
+                    else
+                        buf[len++] = 0x00;
                 }
             }
         }

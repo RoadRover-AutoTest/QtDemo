@@ -79,31 +79,27 @@
 //CMDKey1~36  0x22~0x46  any:因此该中间命令不可用
 #define CMDDownloadKey      0x22 //定义串口传输命令:按键资源信息  Dat:isUse + type + CANId + CANDat1 + CANDat2
 #define CMDSaveKeyInfo      0x23
-
-#define MaxKey              36
-#define fixedKeyNum         3       //固定按键信息3个: ACC BAT CCD 信息固定后不可编辑
+#define CMDUploadKey      0x24
 
 //CMD Control:0x50起
 #define CMDClickedKey       0x50    //点击按键操作：Dat：KeyNum（1~36）+ON/OFF
 
 //CMD param:hardware
-//#define CMDWorkCurrent      0x60
-//#define CMDSoundCheck       0x61
-//#define CMDVoltParam        0x62
-
-//CMD param:hardware
 #define Upload_SingleCurrent     0x30
 #define Upload_CircularCurrent	0x31
-#define Upload_OverCurrent		0x32
+#define CMDOverCurrentUp		0x32
 
 #define Upload_SingleAudio       	0x33
 #define Upload_CircularAudio     0x34
-#define Upload_OverAudio		0x35
+#define CMDOverAudioUp		0x35
 
 #define Upload_SingleVB        		0x36
 #define Upload_CircularVB       	0x37
-#define Upload_OverVB			0x38
+#define CMDOverVBUp			0x38
 
+//////////////////////////////////////////////
+#define MaxKey              36
+#define fixedKeyNum         3       //固定按键信息3个: ACC BAT CCD 信息固定后不可编辑
 
 //定义CAN通道类型:
 typedef enum

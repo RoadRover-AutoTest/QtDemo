@@ -67,7 +67,6 @@ void MainWindow::initMainWindow()
     ui->treeWidget->refreshUartCOM(UARTDeal->PortList());
     ui->treeWidget->expandAll();
 
-
     ui->textBrowser_EXEShow->setOpenExternalLinks(true);//设置添加超链接
 
     chartDeal =new ChartWidget;
@@ -528,6 +527,10 @@ void MainWindow::testProcessOutputDeal(QString String)
             appendThePropertiesToFile(String.remove("Out>>"));
         }
     }
+    else if(testState == report)
+    {
+        //判断执行OK send email success !
+    }
 }
 
 /*************************************************************
@@ -587,7 +590,7 @@ void MainWindow::endTheFlow()
         isRunning=false;
 
         char buf=0;
-        appendTxList(Upload_OverCurrent,&buf,1,CMD_NEEDNACK);
+        appendTxList(CMDOverCurrentUp,&buf,1,CMD_NEEDNACK);
     }
 }
 
@@ -623,6 +626,9 @@ void MainWindow::unitStartExeSlot(tUnit eUnit)
 
     ui->tableWidget->setColumnWidth(colUnit,150);
     ui->tableWidget->setColumnWidth(colAct,150);
+
+    QScrollBar *scrollBar = ui->tableWidget->verticalScrollBar();
+    scrollBar->setValue(scrollBar->maximum());
 
     savePath = ResultPath+"/" + ui->tableSequence->getSequenceFileName()
                 + "/" + testTime.toString("yyyyMMddhhmmss")
@@ -761,9 +767,9 @@ void MainWindow::UartOpen(const QString &com, const QString &baud)
 *************************************************************/
 void MainWindow::UartClose()
 {
+    killTimer(timerUartID);
     UARTDeal->disconnect();
     UARTDeal->Close();
-    killTimer(timerUartID);
 }
 
 /*************************************************************

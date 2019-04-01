@@ -208,6 +208,9 @@ color: rgb(85, 0, 255);</string>
            <property name="text">
             <string/>
            </property>
+           <property name="toolTip">
+            <string>小端口</string>
+           </property>
           </item>
           <item>
            <property name="text">

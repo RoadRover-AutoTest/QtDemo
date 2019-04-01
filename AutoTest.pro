@@ -134,7 +134,6 @@ RESOURCES += \
     Images/images.qrc
 
 DISTFILES += \
-    history.txt \
     record.txt \
     Backups/tempfile.txt
 

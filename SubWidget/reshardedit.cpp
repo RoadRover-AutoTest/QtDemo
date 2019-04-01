@@ -155,9 +155,9 @@ void ResHardEdit::on_CAN1Changed()
     QObject *sender = QObject::sender();
 
     if(sender==ui->lineEditCAN1ID)
-        editKeyInfo->CANID  =  ui->lineEditCAN1ID->text();
+        editKeyInfo->CANID  =  ui->lineEditCAN1ID->text().remove("0x");
     else if(sender==ui->lineEditCAN1Dat)
-        editKeyInfo->CANDat1  =  ui->lineEditCAN1Dat->text();
+        editKeyInfo->CANDat1  =  ui->lineEditCAN1Dat->text().remove("0x");
 }
 
 /*************************************************************
@@ -170,11 +170,11 @@ void ResHardEdit::on_CAN2Changed()
     QObject *sender = QObject::sender();
 
     if(sender==ui->lineEditCAN2ID)
-        editKeyInfo->CANID  =  ui->lineEditCAN2ID->text();
+        editKeyInfo->CANID  =  ui->lineEditCAN2ID->text().remove("0x");
     else if(sender==ui->lineEditCAN2DatOn)
-        editKeyInfo->CANDat1  =  ui->lineEditCAN2DatOn->text();
+        editKeyInfo->CANDat1  =  ui->lineEditCAN2DatOn->text().remove("0x");
     else if(sender==ui->lineEditCAN2DatOff)
-        editKeyInfo->CANDat2  =  ui->lineEditCAN2DatOff->text();
+        editKeyInfo->CANDat2  =  ui->lineEditCAN2DatOff->text().remove("0x");
 }
 
 /*************************************************************
