@@ -73,6 +73,10 @@ private slots:
 
     void on_actATtool_triggered();
 
+    void on_BtnCircularCurrent_clicked();
+
+    void on_BtnOverCurrent_clicked();
+
 private:
     Ui::MainWindow *ui;
 

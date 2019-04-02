@@ -11,6 +11,7 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     //tab标签栏优化
     ui->tabProperties->tabBar()->setStyle(new CustomTabStyle);
+    ui->tabProperties->setCurrentWidget(ui->tabAct);
 
     //获取文件中存储的测试单元
     Model_XMLFile xmlRead;
@@ -160,6 +161,7 @@ void defTheUnit::on_editUnitDes_textChanged()
 *************************************************************/
 void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
 {
+    Q_UNUSED(pos);
     QMenu *popMenu = new QMenu( this );
     QAction *deleteAct = new QAction(tr("delete"), this);
     QAction *upAct = new QAction(tr("上移"), this);
@@ -668,6 +670,7 @@ int defTheUnit::getTableActionSelRanges()
 void defTheUnit::refreshPropertiesParam(tAction act)
 {
     ui->editActName->setText(act.actName);
+    refreshColInfo(act.infoFlag);
 
     //刷新动作属性
     if(act.actFlag == ACT_KEY)
@@ -681,9 +684,7 @@ void defTheUnit::refreshPropertiesParam(tAction act)
         ui->editFilePath->setText(act.actStr);
 
         if((act.actStr.isEmpty())||(act.actStr.endsWith(".bat"))||(act.actStr.endsWith(".BAT")))
-        {
             ui->checkfileMore->setChecked(false);
-        }
         else
             ui->checkfileMore->setChecked(true);
     }
@@ -696,7 +697,7 @@ void defTheUnit::refreshPropertiesParam(tAction act)
     refreshErrorDeal(act.errorDeal);
 
 }
-
+#if 0  //列表不可编辑
 /*************************************************************
 /函数功能：表格内编辑动作
 /函数参数：无
@@ -745,6 +746,7 @@ void defTheUnit::on_tableAction_itemChanged(QTableWidgetItem *item)
         }
     }
 }
+#endif
 
 /*************************************************************
 /函数功能：名字编辑完成
@@ -765,6 +767,10 @@ void defTheUnit::on_editActName_textChanged(const QString &arg1)
     ui->tableAction->setItem(selRow,Col_Name,new QTableWidgetItem(curAct.actName));
 }
 
+void defTheUnit::refreshColInfo(uint16_t flag)
+{
+
+}
 
 /*************************************************************
 /函数功能：刷新按键列表
@@ -1561,5 +1567,4 @@ void defTheUnit::on_actHelp_triggered()
         QMessageBox::warning(NULL, tr("提示"), tr("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
     }
 }
-
 

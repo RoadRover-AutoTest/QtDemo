@@ -158,7 +158,7 @@ typedef struct
 }changedParam;
 
 /*************************************************************
-/定义声音判断：
+/定义检测类型：
 /CHKNothing:无检测
 /CHKCurrent:检测电流:范围检测
 /CHKVlot:检测电压：范围检测
@@ -228,44 +228,36 @@ typedef enum
 
 /*************************************************************
 /检测测试动作：
-/chk_type_e：测试类型
-/range_type_e：测试范围
-/sound_type_e：声音检测
-/logContains:log检测
-/hReault：硬件检测结果判断
 /any:图像的变量：存储第一次获取的图像，之后的与其比较
 *************************************************************/
 typedef struct
 {
-    chk_type_e check;       //决定检测参数
+    chk_type_e check;       //决定检测参数//chk_type_e：测试类型
 
-    range_type_e range;
+    range_type_e range;//range_type_e：测试范围
     int min;
     int max;
 
-    sound_type_e sound;
+    sound_type_e sound;//sound_type_e：声音检测
 
-    QString logContains;
+    QString logContains;//logContains:log检测
 
     compare_type_e infoCompare; //判断比较方式
 
-    bool hReault;
+    bool hReault;//hReault：硬件检测结果判断
 }checkParam;
 
 /*************************************************************
 /时间处理：
-/测试等待处理时间
-/检测等待时间
-/最长等待时间
 /备注：若检测时间《等待时间   达到检测时间时检测，之后继续等待:因此check时间商用在等待结束前检测的处理
     若检测时间》等待时间  达到等待时间开始检测，直到检测完成，相当于按等待时间来检测 若无检测直接下一项测试
     若时间超过最长时间    结束检测及等待，判断为失败
 *************************************************************/
 typedef struct
 {
-    uint64_t wait;
-    uint64_t check;
-    uint64_t end;
+    uint64_t wait;//测试等待处理时间
+    uint64_t check;//检测等待时间
+    uint64_t end;//最长等待时间
 }timeParam;
 
 /*************************************************************
@@ -333,9 +325,6 @@ typedef struct
 
     //changed Deal:
     QList <changedParam>changedDeal;
-
-    //result Deal:重大事件结束测试/继续测试等any  规划
-
 }tAction;
 
 /*************************************************************
@@ -346,28 +335,11 @@ typedef struct
 *************************************************************/
 typedef struct
 {
-    //int tNum;
     QString name;
-
     QList <tAction> actTest;
-
     int cycleCount;
-
     QString unitDes;//测试描述
-
-
 }tUnit;
-
-
-
-typedef struct
-{
-    QString onParam;
-    QString onTime;
-
-    QString offParam;
-    QString offTime;
-}param;
 
 /*************************************************************
 /定义按键类型：
@@ -415,6 +387,9 @@ typedef struct
 
 }keyControl;
 
+/*************************************************************
+/用户管理：
+*************************************************************/
 typedef enum
 {
     OnlyUser,
@@ -427,9 +402,6 @@ typedef enum
     l_English
 }language_type_e;
 
-/*************************************************************
-/用户管理：
-*************************************************************/
 typedef struct
 {
     uint8_t Permissions;//权限

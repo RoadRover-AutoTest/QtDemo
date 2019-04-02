@@ -461,11 +461,7 @@ void MainWindow::timerTestIDDeal()
         connect(tFlowDeal,SIGNAL(flowEndTest()),this,SLOT(onEndTestSlot()));
         connect(tFlowDeal,SIGNAL(keyClicked(QString)),this,SLOT(execKeyClicked(QString)));
 
-        char buf=200;
-        appendTxList(Upload_CircularCurrent,&buf,1,CMD_NEEDNACK);
-        //appendTxList(Upload_CircularVB,&buf,1,CMD_NEEDNACK);
-        //appendTxList(Upload_CircularAudio,&buf,1,CMD_NEEDNACK);
-
+        on_BtnCircularCurrent_clicked();
 
         isRunning = true;
         setIsRunInterface(true);
@@ -522,10 +518,7 @@ void MainWindow::timerTestIDDeal()
         setIsRunInterface(false);
         appendTheExecLogInfo(ui->textBrowser_EXEShow->toPlainText());
         chartDeal->clearSerials();
-        char buf=0;
-        appendTxList(CMDOverCurrentUp,&buf,1,CMD_NEEDNACK);
-        //appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);
-        //appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);
+        on_BtnOverCurrent_clicked();
 
         break;
     }
@@ -607,6 +600,7 @@ void MainWindow::endTheFlow()
             proStopSysUiautomator();
 
         tFlowDeal->endTheTest();
+        txList.clear();//结束即清空传输数据帧
         isRunning=false;
         appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"end_time:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
     }
@@ -803,8 +797,10 @@ bool MainWindow::UartConnectStatus()
 {
     bool status=UARTDeal->isOpenCurrentUart();
     if(!status)
+    {
         QMessageBox::warning(NULL, tr("警告"), tr("未打开串口，请处理！"));
-
+        endTheFlow();//内里有判断，若在测试将结束处理
+    }
     return status;
 }
 
@@ -838,10 +834,7 @@ void MainWindow::timerUartIDDeal()
             txList.clear();
 
             QMessageBox::warning(NULL, tr("警告"), tr("串口响应失败，请检查！"));
-            if(getTestRunState())
-            {
-                endTheFlow();
-            }
+            endTheFlow();
         }
     }
 }
@@ -957,6 +950,7 @@ void MainWindow::UartRxAckResault(bool result)
 void MainWindow::UartDisconnect()
 {
     //ui->treeWidget->setCheckedState(topUart,false);
+    endTheFlow();
 }
 
 
@@ -1223,5 +1217,18 @@ void MainWindow::on_btnReadCurrent_clicked()
     chkParamFromHardware(0x00);
 }
 
+void MainWindow::on_BtnCircularCurrent_clicked()
+{
+    char buf=200;
+    appendTxList(Upload_CircularCurrent,&buf,1,CMD_NEEDNACK);
+    //appendTxList(Upload_CircularVB,&buf,1,CMD_NEEDNACK);
+    //appendTxList(Upload_CircularAudio,&buf,1,CMD_NEEDNACK);
+}
 
-
+void MainWindow::on_BtnOverCurrent_clicked()
+{
+    char buf=0;
+    appendTxList(CMDOverCurrentUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
+    //appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);
+    //appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);
+}

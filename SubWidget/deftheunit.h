@@ -55,7 +55,7 @@ private slots:
 
     void on_editFilePath_textChanged(const QString &arg1);
 
-    void on_tableAction_itemChanged(QTableWidgetItem *item);
+    //void on_tableAction_itemChanged(QTableWidgetItem *item);
 
     void on_actLook_triggered();
 
@@ -96,6 +96,7 @@ private:
     void inittActionParam(tAction *tact);
     void appendTableAction(tAction act);
     void refreshPropertiesParam(tAction act);
+    void refreshColInfo(uint16_t flag);
     void refreshKeyList(QString actStr);
     void refreshTimeDeal(tAction act);
     void refreshCheckDeal(QList<checkParam> chkDeal);

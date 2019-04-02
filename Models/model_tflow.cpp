@@ -55,8 +55,8 @@ void Model_tFlow::timerEvent(QTimerEvent *event)
                     keyClicked(AccKey+":on");
                     keyClicked(BatKey+":on");
                 }
-                //恢复工作失败，结束测试
-                else if(reTime>60)
+                //恢复工作失败，结束测试10S处理
+                else if(reTime>10)
                     flowState = endflow;
 
                 reTime++;
@@ -113,12 +113,12 @@ void Model_tFlow::timerEvent(QTimerEvent *event)
                     }
                 }
                 else
-                    flowState = over;
+                    flowState = endflow;
             }
             break;
         }
-        case over:
-        {
+        case over://any：不使用此状态，不在测试结束时进行检测并恢复机器
+        {//any:Error:若设置的工作电流较大，关闭时不符合范围将无法关闭
             if(chkWorkState())
                 flowState = endflow;
             else
@@ -194,7 +194,7 @@ void Model_tFlow::endTheTest()
     {
         delete unitDeal;
     }
-    flowState = over;//any:Error:若设置的工作电流较大，关闭时不符合范围将无法关闭
+    flowState = endflow;
 }
 
 /*************************************************************
