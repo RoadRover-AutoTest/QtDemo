@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>758</width>
-    <height>688</height>
+    <width>943</width>
+    <height>751</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,18 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_8">
-    <item row="1" column="0" colspan="3">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QListWidget" name="listUnit">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
      <layout class="QVBoxLayout" name="verticalLayout" stretch="2,1">
       <item>
        <widget class="QGroupBox" name="groupBox">
@@ -734,22 +745,6 @@
       </item>
      </layout>
     </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_11">
-      <property name="maximumSize">
-       <size>
-        <width>70</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>测试单元：</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1" colspan="2">
-     <widget class="QComboBox" name="comboUnitList"/>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -757,7 +752,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>758</width>
+     <width>943</width>
      <height>23</height>
     </rect>
    </property>
@@ -767,8 +762,6 @@
     </property>
     <addaction name="actnew"/>
     <addaction name="actSave"/>
-    <addaction name="actdel"/>
-    <addaction name="actclear"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -787,7 +780,6 @@
    <addaction name="menu_2"/>
    <addaction name="menu_3"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -800,9 +792,6 @@
    </attribute>
    <addaction name="actnew"/>
    <addaction name="actSave"/>
-   <addaction name="actdel"/>
-   <addaction name="actclear"/>
-   <addaction name="separator"/>
    <addaction name="actLook"/>
    <addaction name="actApply"/>
    <addaction name="actexit"/>

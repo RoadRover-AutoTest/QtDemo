@@ -20,7 +20,8 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
 
     for(int i=len;i<unitList.length();i++)
     {
-        ui->comboUnitList->addItem(unitList.at(i).name);
+        if(userLogin.Permissions != OnlyUser)
+            ui->listUnit->addItem(unitList.at(i).name);
     }
 
 
@@ -96,7 +97,7 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
         ui->actclear->setEnabled(false);
         ui->actdel->setEnabled(false);
         ui->actnew->setEnabled(false);
-        ui->comboUnitList->setEnabled(false);
+        ui->listUnit->setEnabled(false);
     }
 }
 
@@ -1401,8 +1402,6 @@ void defTheUnit::on_actSave_triggered()
         else
         {
             xmlSave.removeUnitXML(configPath("unitDefined.xml"),unitDeal.name);
-
-            ui->comboUnitList->setCurrentText(unitDeal.name);
             for(int i=0;i<unitList.length();i++)
             {
                 if(unitList.at(i).name==unitDeal.name)
@@ -1412,8 +1411,7 @@ void defTheUnit::on_actSave_triggered()
     }
     else
     {
-        ui->comboUnitList->addItem(unitDeal.name);
-        ui->comboUnitList->setCurrentText(unitDeal.name);
+        ui->listUnit->addItem(unitDeal.name);
         unitList.append(unitDeal);
     }
 
@@ -1449,11 +1447,12 @@ void defTheUnit::on_actApply_triggered()
 /函数参数：指针
 /函数返回：wu
 *************************************************************/
-void defTheUnit::on_comboUnitList_activated(int index)
+void defTheUnit::on_listUnit_clicked(const QModelIndex &index)
 {
-    if(index<unitList.length())
+    int listIndex = index.row();
+    if(listIndex<unitList.length())
     {
-        unitDeal = unitList.at(index);
+        unitDeal = unitList.at(listIndex);
 
         ui->editUnitName->setText(unitDeal.name);
         ui->spinUnitCycle->setValue(unitDeal.cycleCount);
@@ -1478,6 +1477,83 @@ void defTheUnit::on_comboUnitList_activated(int index)
             refreshPropertiesParam(unitDeal.actTest.at(i));
         }
     }
+}
+
+/*************************************************************
+/函数功能：列表右键
+/函数参数：指针
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_listUnit_customContextMenuRequested(const QPoint &pos)
+{
+    Q_UNUSED(pos);
+    QMenu *popMenu = new QMenu( this );
+    QAction *deleteAct = new QAction(tr("删除"), this);
+    QAction *clearAct = new QAction(tr("清空"), this);
+
+    if(userLogin.Permissions == Administrator)
+    {
+        popMenu->addAction(deleteAct);
+        popMenu->addAction(clearAct);
+    }
+
+    connect( deleteAct,        SIGNAL(triggered() ), this, SLOT( unitDeleteSlot()) );
+    connect( clearAct,        SIGNAL(triggered() ), this, SLOT( unitClearSlot()) );
+
+    popMenu->exec( QCursor::pos() );
+
+    delete popMenu;
+
+}
+
+/*************************************************************
+/函数功能：删除测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::unitDeleteSlot()
+{
+    QListWidgetItem *item = ui->listUnit->currentItem();
+    if( item == NULL )
+        return;
+
+    int index = ui->listUnit->currentRow();
+    QString delStr = item->text();
+    Model_XMLFile xmlFile;
+    if(xmlFile.hasUnitInfomation(configPath("unitDefined.xml"),delStr))
+    {
+        if (QMessageBox::warning(NULL, tr("提示"),tr("确定删除该测试测试单元?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+            return;
+
+        xmlFile.removeUnitXML(configPath("unitDefined.xml"),delStr);
+
+        QListWidgetItem* delitem = ui->listUnit->takeItem(index);
+        delete delitem;
+
+        if(index<unitList.length())
+            unitList.removeAt(index);
+    }
+}
+
+/*************************************************************
+/函数功能：清空测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::unitClearSlot()
+{
+    Model_XMLFile xmlFile;
+    if (QMessageBox::warning(NULL, tr("提示"),tr("确定清空该测试单元?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
+        return;
+
+    for(int i=0;i<unitList.length();i++)
+    {
+        xmlFile.removeUnitXML(configPath("unitDefined.xml"),unitList.at(i).name);
+    }
+
+
+    ui->listUnit->clear();
+    unitList.clear();
 }
 
 /*************************************************************
@@ -1514,51 +1590,6 @@ void defTheUnit::on_actnew_triggered()
     ui->editUnitDes->setText(unitDeal.unitDes);
 }
 
-/*************************************************************
-/函数功能：删除测试单元
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::on_actdel_triggered()
-{
-    int index = ui->comboUnitList->currentIndex();
-    QString delStr = ui->comboUnitList->currentText();
-    Model_XMLFile xmlFile;
-    if(xmlFile.hasUnitInfomation(configPath("unitDefined.xml"),delStr))
-    {
-        if (QMessageBox::warning(NULL, tr("提示"),tr("确定删除该测试动作?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
-            return;
-
-        xmlFile.removeUnitXML(configPath("unitDefined.xml"),delStr);
-
-        ui->comboUnitList->removeItem(index);
-
-        if(index<unitList.length())
-            unitList.removeAt(index);
-    }
-}
-
-/*************************************************************
-/函数功能：清空测试单元
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::on_actclear_triggered()
-{
-    Model_XMLFile xmlFile;
-    if (QMessageBox::warning(NULL, tr("提示"),tr("确定清空该测试单元?"),QMessageBox::Yes | QMessageBox::No,QMessageBox::No) != QMessageBox::Yes )
-        return;
-
-    for(int i=0;i<unitList.length();i++)
-    {
-        xmlFile.removeUnitXML(configPath("unitDefined.xml"),unitList.at(i).name);
-    }
-
-
-    ui->comboUnitList->clear();
-    unitList.clear();
-}
-
 void defTheUnit::on_actHelp_triggered()
 {
     QString pdfPath=QDir::currentPath()+"/Unit编辑窗口使用说明.pdf";
@@ -1567,4 +1598,7 @@ void defTheUnit::on_actHelp_triggered()
         QMessageBox::warning(NULL, tr("提示"), tr("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
     }
 }
+
+
+
 

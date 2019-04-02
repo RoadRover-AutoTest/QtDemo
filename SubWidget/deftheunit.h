@@ -39,6 +39,9 @@ private slots:
     void editCheckDealSlot(bool checked);
     void editErrorDealSlot();
 
+    void unitDeleteSlot();
+    void unitClearSlot();
+
     void on_tableAction_customContextMenuRequested(const QPoint &pos);
 
     void on_tableAction_clicked(const QModelIndex &index);
@@ -69,15 +72,13 @@ private slots:
 
     void on_actApply_triggered();
 
-    void on_comboUnitList_activated(int index);
-
     void on_actnew_triggered();
 
-    void on_actdel_triggered();
-
-    void on_actclear_triggered();
-
     void on_actHelp_triggered();
+
+    void on_listUnit_clicked(const QModelIndex &index);
+
+    void on_listUnit_customContextMenuRequested(const QPoint &pos);
 
 private:
     Ui::defTheUnit *ui;
