@@ -83,6 +83,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                         onProcessEXECmd("Act:Script");
                 }
                 actIsRunning=true;
+                TimeDelay1S=0;
             }
             else
             {
@@ -112,9 +113,9 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                         //脚本运行连续执行
                         if((actionDeal->actFlag==ACT_SCRIPT)&&(!isPRORunning)&&(proList.isEmpty()))
                         {
-                            //if((!TimeDelay1S)||(TimeDelay1S % 1000 == 0))
+                            if(TimeDelay1S % 1000 == 0)
                                 onProcessEXECmd("Act:Script");
-                            //TimeDelay1S++;
+                            TimeDelay1S++;
                         }
                     }
                 }
