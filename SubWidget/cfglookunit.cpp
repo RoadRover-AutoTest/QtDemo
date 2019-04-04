@@ -1,13 +1,6 @@
 #include "cfglookunit.h"
 #include "ui_cfglookunit.h"
 
-typedef enum
-{
-    Cld1_CYC,
-    Cld1_DES,
-    Cld1_Act
-}cld1Type_e;
-
 
 typedef enum
 {
@@ -15,12 +8,7 @@ typedef enum
     Cld2_Wait,
     Cld2_ChkTime,
     Cld2_Over,
-    Cld2_Info,
-    Cld2_Check
 }actRowType_e;
-
-
-
 
 
 CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
@@ -49,7 +37,7 @@ CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
 
         //将动作最为测试单元子节点显示
         AddTreeNode(topitem,showFlag,QStringList()<<tr("动作")+toStr(i+1)<<theAct.actName);
-        QTreeWidgetItem * item=topitem->child(i+Cld1_Act);//2为添加动作前添加了cycle和描述节点
+        QTreeWidgetItem * item=topitem->child(i+2);//2为添加动作前添加了cycle和描述节点
 
         AddTreeNode(item,showFlag,QStringList()<<tr("执行")<<theAct.actStr);
         AddTreeNode(item,showFlag,QStringList()<<tr("等待时间")<<toStr(theAct.timeDeal.wait));
@@ -65,7 +53,7 @@ CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
 
         for(int j=0;j<theAct.colInfoList.length();j++)
         {
-            QTreeWidgetItem * infoitem = item->child(Cld2_Info);
+            QTreeWidgetItem * infoitem = item->child(item->childCount()-1);
             AddTreeNode(infoitem,showFlag,QStringList()<<""<<theAct.colInfoList.at(j));//信息采集参数不显示
         }
 
@@ -76,7 +64,7 @@ CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
         for(int j=0;j<theAct.checkDeal.length();j++)
         {
             checkParam chkShow = theAct.checkDeal.at(j);
-            QTreeWidgetItem * chkitem = item->child(Cld2_Check);
+            QTreeWidgetItem * chkitem = item->child(item->childCount()-1);
 
             switch(chkShow.check)
             {
