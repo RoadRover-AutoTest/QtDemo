@@ -13,6 +13,8 @@ public:
 
     QString hexToString(unsigned char *in, int len);
 
+    QString StringDeal_Middle(QString strdat, QString start,QString end);
+
 private:
     char ConvertHexChar(char ch);
 };

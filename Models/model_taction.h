@@ -8,6 +8,7 @@
 #include "model_process.h"
 //#include "model_piccompare.h"
 #include "model_include.h"
+#include "model_string.h"
 
 #define ACT_Front   false
 #define ACT_Back    true

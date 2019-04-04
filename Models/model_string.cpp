@@ -102,5 +102,28 @@ QString Model_String::hexToString(unsigned char *in, int len)
 }
 
 
+/*
+ *描述：在一个字符串中取以start字符串开始以end结束的字符串数据
+ *参数：strdat：源字符串，start：开始字符串，end：结束字符串
+ *返回值：目标字符串
+*/
+QString Model_String::StringDeal_Middle(QString strdat, QString start,QString end)
+{
+    int cursor_l,cursor_r;//光标位置
+    int len ;
 
+    cursor_l=strdat.indexOf(start);
+    cursor_r=strdat.indexOf(end);
+
+    if(cursor_r<cursor_l)
+    {
+        cursor_r=cursor_l+strdat.mid(cursor_l).indexOf(end);//必须为前一个字节的后面字节
+    }
+    if((cursor_l>0)&&(cursor_r>0))
+    {
+        len=cursor_r-cursor_l;
+        return strdat.mid(cursor_l,len);
+    }
+    return "null";
+}
 

@@ -56,7 +56,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             tempSoundInfo.clear();
 
             //显示执行且保存到结果文件：
-            ShowList <<"【"+ QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss")+"  INILoop:"+toStr(iniLoop)+"】 evaluateTheAction:"+actionDeal->actName;
+            ShowList <<"【"+ QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss")+"  INILoop:"+toStr(iniLoop+1)+"】 evaluateTheAction:"+actionDeal->actName;
             appendTheResultToFile("evaluateTheAction:"+actionDeal->actName);
 
             //判断动作执行前是否采集信息：
@@ -946,13 +946,13 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
                 /*处理界面采集信息*/
                 if(String.contains("mFocusedActivity: ActivityRecord"))
                 {
-                    QString faceStr = String;
-                    int startIndex=faceStr.indexOf("com.");
-
+                    Model_String strDeal;
+                    //QString faceStr = String;
+                    //int startIndex=faceStr.indexOf("com.");
                     storageInfo_type_s infoStorage;
 
                     infoStorage.name = proItemString;
-                    infoStorage.information = faceStr.mid(startIndex).remove("}\r\r\n");
+                    infoStorage.information = strDeal.StringDeal_Middle(String,"com."," ");//faceStr.mid(startIndex).remove("}\r\r\n");
 
                     infoAppendDeal(SIZE_Interface,infoStorage);
 
