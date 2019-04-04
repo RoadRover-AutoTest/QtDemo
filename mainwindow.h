@@ -89,7 +89,6 @@ private:
     void setIsRunInterface(bool IsRun);
     void initkeyList();
 
-    bool NumberListIsSingle();
     /*
      * 测试流处理
     */

@@ -134,7 +134,7 @@ void DiaReport::onProcessOverSlot(uint8_t pNum)
 {
     if(pNum == PROSYS)
     {
-        ui->textShow->append(tr("<html><p><a>报告生成结束，请</a><a href=\"%1\">点击查阅</a></p></html>").arg("http://192.168.13.96/result/"+resultPath+"/report.html"));//ResultPath+"/"
+        ui->textShow->append(tr("<html><a>报告生成结束，请</a><a href=\"%1\">点击查阅</a></html>").arg("http://192.168.13.96/result/"+resultPath+"/report.html"));//ResultPath+"/"
     }
 }
 void DiaReport::onProcessOutputSlot(int pNum,QString string)

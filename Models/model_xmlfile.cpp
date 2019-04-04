@@ -213,9 +213,9 @@ void Model_XMLFile::writeSequenceActXML(QDomDocument &doc, QDomElement &root, tA
     actEmt.appendChild(actflagEle);
 
     //添加信息采集标志位：infoFlag
-    QDomElement infoEle = doc.createElement("InfoFlag");
-    infoEle.appendChild(doc.createTextNode(toStr(list.infoFlag)));
-    actEmt.appendChild(infoEle);
+//    QDomElement infoEle = doc.createElement("InfoFlag");
+//    infoEle.appendChild(doc.createTextNode(toStr(list.infoFlag)));
+//    actEmt.appendChild(infoEle);
 
     //添加错误处理标志位：ErrorFlag
     QDomElement errorEle = doc.createElement("ErrorFlag");
@@ -237,6 +237,17 @@ void Model_XMLFile::writeSequenceActXML(QDomDocument &doc, QDomElement &root, tA
     QDomElement endEle = doc.createElement("End");
     endEle.appendChild(doc.createTextNode(toStr(list.timeDeal.end)));
     timeEle.appendChild(endEle);
+
+    //信息采集标志
+    if(list.colInfoList.isEmpty()==false)
+    {
+        for(int i=0;i<list.colInfoList.length();i++)
+        {
+            QDomElement colInfoEle = doc.createElement("colInfo");
+            colInfoEle.appendChild(doc.createTextNode(list.colInfoList.at(i)));
+            actEmt.appendChild(colInfoEle);
+        }
+    }
 
     //check处理：
     if(list.checkDeal.isEmpty()==false)
@@ -296,6 +307,13 @@ void Model_XMLFile::writeSequenceActXML(QDomDocument &doc, QDomElement &root, tA
                 QDomElement memEle = doc.createElement("InfoCompare");
                 memEle.appendChild(doc.createTextNode(toStr(chk.infoCompare)));
                 checkEle.appendChild(memEle);
+
+                if(chk.infoCompare == MemoryCompare)
+                {
+                    QDomElement targetEle = doc.createElement("CompareTarget");
+                    targetEle.appendChild(doc.createTextNode(chk.comTarget));
+                    checkEle.appendChild(targetEle);
+                }
                 break;
             }
             default:
@@ -402,8 +420,8 @@ void Model_XMLFile::readSequenceXML(QString filePath,QList <tUnit> &tFlow)
                                     act.actStr = actEle.toElement().text();
                                 else if(emtName == "actFlag")
                                     act.actFlag = actEle.toElement().text().toUInt();
-                                else if(emtName == "InfoFlag")
-                                    act.infoFlag = actEle.toElement().text().toUInt();
+                                //else if(emtName == "InfoFlag")
+                                //    act.infoFlag = actEle.toElement().text().toUInt();
                                 else if(emtName == "ErrorFlag")
                                     act.errorDeal = actEle.toElement().text().toUInt();
                                 else if(emtName == "Time")
@@ -418,6 +436,10 @@ void Model_XMLFile::readSequenceXML(QString filePath,QList <tUnit> &tFlow)
                                     }
                                     else
                                         cout << "XMl 存储的序列时间有误";
+                                }
+                                else if(emtName == "colInfo")
+                                {
+                                    act.colInfoList.append(actEle.toElement().text());
                                 }
                                 else if(emtName == "Check")
                                 {
@@ -448,6 +470,8 @@ void Model_XMLFile::readSequenceXML(QString filePath,QList <tUnit> &tFlow)
                                             chkDat.logContains = chkNode.toElement().text();
                                         else if(mleName == "InfoCompare")
                                             chkDat.infoCompare = (compare_type_e)chkNode.toElement().text().toUInt();
+                                        else if(mleName == "CompareTarget")
+                                            chkDat.comTarget = chkNode.toElement().text();
                                     }
                                     act.checkDeal.append(chkDat);//最后一次数据保存
                                 }

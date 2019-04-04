@@ -91,7 +91,8 @@ SOURCES += \
     Models/model_piccompare.cpp \
     SubWidget/deftheunit.cpp \
     Models/model_threadlog.cpp \
-    dialoglogin.cpp
+    dialoglogin.cpp \
+    Rewrite/recheckcombobox.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -117,7 +118,8 @@ HEADERS += \
     Models/model_piccompare.h \
     SubWidget/deftheunit.h \
     Models/model_threadlog.h \
-    dialoglogin.h
+    dialoglogin.h \
+    Rewrite/recheckcombobox.h
 
 FORMS += \
         mainwindow.ui \

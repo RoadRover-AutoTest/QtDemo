@@ -17,6 +17,7 @@
 #define ON          true
 #define OFF         false
 
+
 //程序运行处理目录:
 #define appDirPath QCoreApplication::applicationDirPath()
 
@@ -45,7 +46,7 @@
 #define GETPROP                             ("adb shell getprop")
 #define GETPROP_S(devNum)                   ("adb -s "+devNum+" shell getprop")
 //获取界面信息
-#define ACTIVITYFACE                        ("adb shell dumpsys activity|findstr  mF")
+#define ACTIVITYFACE                        ("adb shell dumpsys activity|findstr  mFocusedActivity")
 #define ACTIVITYFACE_S(devNum)              ("adb -s "+devNum+" shell dumpsys activity|findstr mFocusedActivity")
 //捕捉图片//adb shell screencap -p /sdcard/a.png
 #define SCREENCAP                  ("adb shell screencap -p /sdcard/screen.png")
@@ -243,6 +244,7 @@ typedef struct
     QString logContains;//logContains:log检测
 
     compare_type_e infoCompare; //判断比较方式
+    QString comTarget;//比较对象
 
     bool hReault;//hReault：硬件检测结果判断
 }checkParam;
@@ -259,24 +261,6 @@ typedef struct
     uint64_t check;//检测等待时间
     uint64_t end;//最长等待时间
 }timeParam;
-
-/*************************************************************
-/信息采集：
-/高8位为保留位，低8位：低4位为1bit数据判断，高4位为2bit判断（第2位为用在动作前后的标志）
-*************************************************************/
-typedef enum
-{
-    COLCURRENT  = 0x0001,
-    COLSOUND    = 0x0002,
-    COLRES1     = 0x0004,
-    COLRES2     = 0x0008,
-
-    COLFACE         = 0x0010,   //采集界面信息
-    COLFACESITE     = 0x0020,   //采集界面位置：动作执行前0或后1
-    COLPICTURE      = 0x0040,   //采集图片
-    COLPICTURESITE  =0x0080     //采集图片位置：动作执行前0或后1
-}collect_type_e;
-
 
 typedef enum
 {
@@ -313,12 +297,13 @@ typedef struct
     QString actStr;
     uint8_t actFlag;//动作类型：0-空 1-KEY 2-Script
 
-    //information 采集:
-    uint16_t infoFlag; //详见:collect_type_e
     uint8_t errorDeal;  //错误处理机制：默认暂停 详见：error_type_e
 
     //time Deal:
     timeParam timeDeal;
+
+    //采集信息处理
+    QStringList colInfoList;//ACT1:PIC:BACK  组成结构：动作序号+类型+执行位置
 
     //chk Deal:
     QList <checkParam>checkDeal;
@@ -492,6 +477,8 @@ void startAction(QString actStr);
 void clearAction();
 
 QString getDevNumber();
+void setDevNumberCount(int count);
+bool NumberListIsSingle();
 
 void initNullChkParam(checkParam *chkParam);
 int getKeyNumber(QString key);

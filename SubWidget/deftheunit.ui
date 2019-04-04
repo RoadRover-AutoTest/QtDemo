@@ -153,20 +153,27 @@
              <string>动作</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_18">
-             <item row="0" column="3">
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>动作名：</string>
                </property>
-               <property name="sizeHint" stdset="0">
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="editActName"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="reCheckComboBox" name="comboBoxActColInfo">
+               <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>20</height>
+                 <width>200</width>
+                 <height>0</height>
                 </size>
                </property>
-              </spacer>
+              </widget>
              </item>
-             <item row="2" column="0" colspan="4">
+             <item row="1" column="0" colspan="4">
               <widget class="QStackedWidget" name="stackedWidget">
                <property name="currentIndex">
                 <number>1</number>
@@ -234,7 +241,7 @@
                   <widget class="QLabel" name="label_15">
                    <property name="maximumSize">
                     <size>
-                     <width>50</width>
+                     <width>60</width>
                      <height>16777215</height>
                     </size>
                    </property>
@@ -274,15 +281,18 @@
                </widget>
               </widget>
              </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_14">
-               <property name="text">
-                <string>动作名：</string>
+             <item row="0" column="3">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
-              </widget>
-             </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QLineEdit" name="editActName"/>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>
@@ -347,7 +357,7 @@
                 <string notr="true"/>
                </property>
                <property name="currentIndex">
-                <number>5</number>
+                <number>3</number>
                </property>
                <widget class="QWidget" name="tabCurrent">
                 <attribute name="title">
@@ -604,6 +614,23 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="0" column="1">
+                     <widget class="QLabel" name="label_11">
+                      <property name="text">
+                       <string>校验参数：</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="2">
+                     <widget class="QComboBox" name="comboChkParamFace">
+                      <property name="minimumSize">
+                       <size>
+                        <width>200</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </widget>
                  </item>
@@ -627,6 +654,16 @@
                     <string/>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_6">
+                    <item row="0" column="2">
+                     <widget class="QComboBox" name="comboChkParamPic">
+                      <property name="minimumSize">
+                       <size>
+                        <width>200</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="0" column="0">
                      <widget class="QRadioButton" name="radioPicMemory">
                       <property name="text">
@@ -655,6 +692,13 @@
                      <widget class="QRadioButton" name="radioPicLocal">
                       <property name="text">
                        <string>本地检测</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLabel" name="label_13">
+                      <property name="text">
+                       <string>校验参数：</string>
                       </property>
                      </widget>
                     </item>
@@ -856,30 +900,19 @@
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="actdel">
-   <property name="icon">
-    <iconset resource="../Images/images.qrc">
-     <normaloff>:/Title/delUnit.png</normaloff>:/Title/delUnit.png</iconset>
-   </property>
-   <property name="text">
-    <string>删除</string>
-   </property>
-  </action>
-  <action name="actclear">
-   <property name="icon">
-    <iconset resource="../Images/images.qrc">
-     <normaloff>:/Title/clearUnit.png</normaloff>:/Title/clearUnit.png</iconset>
-   </property>
-   <property name="text">
-    <string>清空</string>
-   </property>
-  </action>
   <action name="actHelp">
    <property name="text">
     <string>帮助</string>
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>reCheckComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">rewrite/recheckcombobox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../Images/images.qrc"/>
  </resources>

@@ -231,6 +231,9 @@ void MainWindow::timerEvent(QTimerEvent *event)
             ui->textBrowser_EXEShow->clear();
             ui->textBrowser_mShow->clear();
         }
+
+        //设置当前序列号个数
+        setDevNumberCount(ui->treeWidget->getDevNumberComboBox()->count());
     }
 }
 
@@ -381,26 +384,6 @@ void MainWindow::on_treeWidget_devUseState(bool isUse)
     }
 }
 
-/*************************************************************
-/函数功能：设备列表中是否只有一台设备
-/函数参数：无
-/函数返回：判断结果
-//any:用于若未选择设备列表时，值为1时处理，只有一台设备
-*************************************************************/
-bool MainWindow::NumberListIsSingle()
-{
-    QComboBox *combox = ui->treeWidget->getDevNumberComboBox();
-    if(combox->count() == 1)
-        return true;
-    else
-    {
-        if(combox->count())
-            QMessageBox::warning(NULL, tr("提示"), tr("非单台设备，将不进行ADB命令执行！"));
-        return false;
-    }
-}
-
-
 
 
 /*---------------------------------------this is AutoTest & tFlowDeal option---------------------------------------*/
@@ -467,6 +450,8 @@ void MainWindow::timerTestIDDeal()
         setIsRunInterface(true);
 
         ui->textBrowser_EXEShow->append(tr("启动测试:"));
+        appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");//添加时间
+
         testState=waitnull;
         break;
     }
@@ -559,15 +544,12 @@ void MainWindow::testProcessOverDeal()
     if(testState == getprop)
     {
         if(isHadProp)
-        {
-            appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");//添加时间
             testState = start;
-        }
     }
     else if(testState == report)
     {
         if(isHadReport)
-            ui->textBrowser_EXEShow->append(tr("报告生成结束，请查找本地对应目录或邮件或")+tr("<html><p><a href=\"%1\">点击查阅</a></p></html>")
+            ui->textBrowser_EXEShow->append(tr("报告生成结束，请查找本地对应目录或邮件或")+tr("<html><a href=\"%1\">点击查阅</a></html>")
                                         .arg("http://192.168.13.96/result/"+ ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));//ResultPath+"/"
         else
             ui->textBrowser_EXEShow->append(tr("生成失败，请检查原因后，手动生成。执行后台分析文件：customMessageLog.txt"));
@@ -634,7 +616,7 @@ void MainWindow::unitStartExeSlot(tUnit eUnit)
     QDateTime currentTime = QDateTime::currentDateTime();
     int row=ui->tableWidget->rowCount();
 
-    ui->label_ItemName->setText(eUnit.name+"...");
+    ui->label_ItemName->setText(eUnit.name);
 
     ui->tableWidget->setRowCount(row+1);
     ui->tableWidget->setItem(row,colUnit,new QTableWidgetItem(QIcon(":/test/current.png"),eUnit.name));

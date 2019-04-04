@@ -11,6 +11,7 @@ bool ReportCreat;           //创建报告
 
 //运行中
 QString devNumber;              //设备序列号
+int devNumberCount = 0;
 int Current=0;                  //当前测试电流
 int Volt = 0;
 bool SoundV;
@@ -24,6 +25,8 @@ QString BatKey;
 QString testString;            //以此字符串传递action的执行字符串在主函数中运行
 
 bool actIsRunning=false;
+
+
 
 /*************************************************************
 /函数功能：参数范围判断
@@ -343,6 +346,31 @@ QString getDevNumber()
 {
     return devNumber;
 }
+
+void setDevNumberCount(int count)
+{
+    devNumberCount = count;
+}
+
+/*************************************************************
+/函数功能：设备列表中是否只有一台设备
+/函数参数：无
+/函数返回：判断结果
+//any:用于若未选择设备列表时，值为1时处理，只有一台设备
+*************************************************************/
+bool NumberListIsSingle()
+{
+    if(devNumberCount == 1)
+        return true;
+    else
+    {
+        //if(devNumberCount)
+        ShowList<<("<font color = red>警告：非单台设备或无设备，将不进行ADB命令执行！</font>");
+            //QMessageBox::warning(NULL, tr("提示"), tr("非单台设备，将不进行ADB命令执行！"));
+        return false;
+    }
+}
+
 
 /*************************************************************
 /函数功能：初始化检测参数

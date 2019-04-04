@@ -30,6 +30,8 @@
         <file>login_w.png</file>
         <file>waiting.png</file>
         <file>warn.png</file>
+        <file>check.png</file>
+        <file>nocheck.png</file>
     </qresource>
     <qresource prefix="/flow">
         <file>offScriptFlow.png</file>

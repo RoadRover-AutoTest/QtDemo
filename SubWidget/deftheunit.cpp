@@ -12,6 +12,7 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     //tab标签栏优化
     ui->tabProperties->tabBar()->setStyle(new CustomTabStyle);
     ui->tabProperties->setCurrentWidget(ui->tabAct);
+    ui->tabChkParam->setCurrentWidget(ui->tabCurrent);
 
     //获取文件中存储的测试单元
     Model_XMLFile xmlRead;
@@ -24,6 +25,10 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
             ui->listUnit->addItem(unitList.at(i).name);
     }
 
+    ui->comboBoxActColInfo->appendItem("Interface:Front", false);
+    ui->comboBoxActColInfo->appendItem("Interface:Back", false);
+    ui->comboBoxActColInfo->appendItem("Picture:Front", false);
+    ui->comboBoxActColInfo->appendItem("Picture:Back", false);
 
     //初始化按键列表
     xmlRead.readKeyInfoXML(WorkItem,&keyList);
@@ -70,7 +75,7 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
             ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(unitDeal.actTest.at(i).actName));
             ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(unitDeal.actTest.at(i).actStr));
 
-            refreshPropertiesParam(unitDeal.actTest.at(i));
+            refreshPropertiesParam(i,unitDeal.actTest.at(i));
         }
     }
 
@@ -94,8 +99,6 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     if(userLogin.Permissions == OnlyUser)
     {
         ui->actSave->setEnabled(false);
-        ui->actclear->setEnabled(false);
-        ui->actdel->setEnabled(false);
         ui->actnew->setEnabled(false);
         ui->listUnit->setEnabled(false);
     }
@@ -119,8 +122,9 @@ void defTheUnit::inittActionParam(tAction *tact)
     tact->timeDeal.check = 0;
     tact->timeDeal.end = 0;
 
-    tact->infoFlag=0;
+    //tact->infoFlag=0;
     tact->errorDeal=0;
+    tact->colInfoList.clear();
     tact->checkDeal.clear();
     tact->changedDeal.clear();
 }
@@ -271,6 +275,20 @@ void defTheUnit::moveRow(int nFrom, int nTo )
     tAction testAct=unitDeal.actTest.at(nFrom);
     tAction swopAct=unitDeal.actTest.at(nTo);
 
+    for(int i=0;i<testAct.colInfoList.length();i++)
+    {
+        QString colInfoStr = testAct.colInfoList.at(i);
+        colInfoStr.replace("ACT"+toStr(nFrom+1),"ACT"+toStr(nTo+1));
+        testAct.colInfoList.replace(i,colInfoStr);
+    }
+
+    for(int i=0;i<swopAct.colInfoList.length();i++)
+    {
+        QString colInfoStr = swopAct.colInfoList.at(i);
+        colInfoStr.replace("ACT"+toStr(nTo+1),"ACT"+toStr(nFrom+1));
+        swopAct.colInfoList.replace(i,colInfoStr);
+    }
+
     unitDeal.actTest.replace(nFrom,swopAct);
     unitDeal.actTest.replace(nTo,testAct);
 
@@ -283,12 +301,12 @@ void defTheUnit::moveRow(int nFrom, int nTo )
     ui->tableAction->insertRow( nTo );//即在当前号增加一个空的行，原有数据下移
 
     //取消链接，避免设置项目时，跳转到处理项目改变槽函数，影响测试动作改变
-    disconnect(ui->tableAction,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_tableAction_itemChanged(QTableWidgetItem*)));
+   // disconnect(ui->tableAction,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_tableAction_itemChanged(QTableWidgetItem*)));
     for( int i=0; i<ui->tableAction->columnCount(); i++ )
     {
         ui->tableAction->setItem( nTo, i, ui->tableAction->takeItem( nFrom , i ) );
     }
-    connect(ui->tableAction,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_tableAction_itemChanged(QTableWidgetItem*)));
+   // connect(ui->tableAction,SIGNAL(itemChanged(QTableWidgetItem*)),this,SLOT(on_tableAction_itemChanged(QTableWidgetItem*)));
 
     if( nFrom < nTo  )
         nTo--;
@@ -314,6 +332,22 @@ void defTheUnit::deleteActionSlot()
     if((curIndex>=0)&&(curIndex<unitDeal.actTest.length()))
     {
         unitDeal.actTest.removeAt(curIndex);
+        /*删除当前动作后，后面动作的采集标号修改*/
+        for(uint8_t i=curIndex;i<unitDeal.actTest.length();i++)
+        {
+            tAction tempAct = unitDeal.actTest.at(i);
+            if(tempAct.colInfoList.isEmpty()==false)
+            {
+                for(int j=0;j<tempAct.colInfoList.length();j++)
+                {
+                    QString colInfoStr = tempAct.colInfoList.at(j);
+                    colInfoStr.replace("ACT"+toStr(i+2),"ACT"+toStr(i+1));
+                    //cout << colInfoStr<<i;
+                    tempAct.colInfoList.replace(j,colInfoStr);
+                }
+                unitDeal.actTest.replace(i,tempAct);
+            }
+        }
     }
 }
 
@@ -349,11 +383,15 @@ void defTheUnit::ACCONActionSlot()
     checkCurrent.min = WorkCurrent;
     kAction.checkDeal.append(checkCurrent);
 
-    checkParam checkMemoey;
+   /* checkParam checkMemoey;
     initNullChkParam(&checkMemoey);
     checkMemoey.check = CHKInterface;
     checkMemoey.infoCompare = MemoryCompare;
-    kAction.checkDeal.append(checkMemoey);
+    kAction.checkDeal.append(checkMemoey);*/
+
+    int row=ui->tableAction->rowCount();
+    //kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Back");
+    kAction.colInfoList.append("ACT"+toStr(row+1)+":Current");
 
     /*checkParam checkSound;
     initNullChkParam(&checkSound);
@@ -388,6 +426,10 @@ void defTheUnit::ACCOFFActionSlot()
     kAction.timeDeal.wait = 10000;
     kAction.timeDeal.check = 15000;
     kAction.timeDeal.end = 60000;
+
+    int row=ui->tableAction->rowCount();
+    kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Front");
+    kAction.colInfoList.append("ACT"+toStr(row+1)+":Current");
 
     changedParam changeTime;
     changeTime.changed = WaitTime;
@@ -440,11 +482,15 @@ void defTheUnit::BATONActionSlot()
     checkCurrent.min = WorkCurrent;
     kAction.checkDeal.append(checkCurrent);
 
-    checkParam checkMemoey;
+   /* checkParam checkMemoey;
     initNullChkParam(&checkMemoey);
     checkMemoey.check = CHKInterface;
     checkMemoey.infoCompare = MemoryCompare;
-    kAction.checkDeal.append(checkMemoey);
+    kAction.checkDeal.append(checkMemoey);*/
+
+    int row=ui->tableAction->rowCount();
+    //kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Back");
+    kAction.colInfoList.append("ACT"+toStr(row+1)+":Current");
 
     /*checkParam checkSound;
     initNullChkParam(&checkSound);
@@ -479,6 +525,9 @@ void defTheUnit::BATOFFActionSlot()
     kAction.timeDeal.wait = 5000;
     kAction.timeDeal.check = 0;
     kAction.timeDeal.end = 60000;
+
+    int row=ui->tableAction->rowCount();
+    kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Front");
 
     changedParam changeTime;
     changeTime.changed = WaitTime;
@@ -515,6 +564,10 @@ void defTheUnit::CCDONActionSlot()
     kAction.timeDeal.wait = 5000;
     kAction.timeDeal.check = 0;
     kAction.timeDeal.end = 60000;
+
+    int row=ui->tableAction->rowCount();
+    kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Front");
+    kAction.colInfoList.append("ACT"+toStr(row+1)+":Picture:Back");
 
     changedParam changeTime;
     changeTime.changed = WaitTime;
@@ -558,12 +611,16 @@ void defTheUnit::CCDOFFActionSlot()
     kAction.timeDeal.check = 0;
     kAction.timeDeal.end = 60000;
 
+    /*
     checkParam checkMemoey;
     initNullChkParam(&checkMemoey);
     checkMemoey.check = CHKInterface;
     checkMemoey.infoCompare = MemoryCompare;
     kAction.checkDeal.append(checkMemoey);
 
+    int row=ui->tableAction->rowCount();
+    kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Back");
+*/
     /*checkParam checkSound;
     initNullChkParam(&checkSound);
     checkSound.check = CHKSound;
@@ -628,7 +685,7 @@ void defTheUnit::appendTableAction(tAction act)
     ui->tableAction->selectRow(row);
 
     unitDeal.actTest.append(act);
-    refreshPropertiesParam(act);
+    refreshPropertiesParam(row,act);
 }
 
 /*************************************************************
@@ -644,7 +701,7 @@ void defTheUnit::on_tableAction_clicked(const QModelIndex &index)
     tAction selAction = unitDeal.actTest.at(index.row());
 
     //刷新属性
-    refreshPropertiesParam(selAction);
+    refreshPropertiesParam(index.row(),selAction);
 }
 
 /*************************************************************
@@ -668,10 +725,10 @@ int defTheUnit::getTableActionSelRanges()
 /函数参数：无
 /函数返回：wu
 *************************************************************/
-void defTheUnit::refreshPropertiesParam(tAction act)
+void defTheUnit::refreshPropertiesParam(int index,tAction act)
 {
     ui->editActName->setText(act.actName);
-    refreshColInfo(act.infoFlag);
+    refreshColInfo(act.colInfoList);
 
     //刷新动作属性
     if(act.actFlag == ACT_KEY)
@@ -693,6 +750,20 @@ void defTheUnit::refreshPropertiesParam(tAction act)
     //刷新时间属性
     refreshTimeDeal(act);
     //刷新检测属性
+    ui->comboChkParamFace->clear();
+    ui->comboChkParamPic->clear();
+    for(int i=0;i<index;i++)
+    {
+        tAction ActDeal = unitDeal.actTest.at(i);
+
+        for(int j=0;j<ActDeal.colInfoList.length();j++)
+        {
+            if(ActDeal.colInfoList.at(j).contains("Interface"))
+                ui->comboChkParamFace->addItem(ActDeal.colInfoList.at(j));
+            else if(ActDeal.colInfoList.at(j).contains("Picture"))
+                ui->comboChkParamPic->addItem(ActDeal.colInfoList.at(j));
+        }
+    }
     refreshCheckDeal(act.checkDeal);
 
     refreshErrorDeal(act.errorDeal);
@@ -768,9 +839,74 @@ void defTheUnit::on_editActName_textChanged(const QString &arg1)
     ui->tableAction->setItem(selRow,Col_Name,new QTableWidgetItem(curAct.actName));
 }
 
-void defTheUnit::refreshColInfo(uint16_t flag)
+/*************************************************************
+/函数功能：刷新采集信息列表
+/函数参数：采集列表
+/函数返回：wu
+*************************************************************/
+void defTheUnit::refreshColInfo(QStringList infoDeal)
 {
+    for(int i=0;i<ui->comboBoxActColInfo->count();i++)
+    {
+        ui->comboBoxActColInfo->clickedItem(i,false);
+    }
 
+    for(int i=0;i<infoDeal.length();i++)
+    {
+        QString infoStr = infoDeal.at(i);
+        QStringList infolist = infoStr.split(":");
+        if(infolist.length() == 3)
+        {
+            if(infolist.at(1) == "Interface")
+            {
+                if(infolist.at(2) == "Front")
+                    ui->comboBoxActColInfo->clickedItem(ACTFront_Interface,true);
+                else if(infolist.at(2) == "Back")
+                    ui->comboBoxActColInfo->clickedItem(ACTBack_Interface,true);
+            }
+            else if(infolist.at(1) == "Picture")
+            {
+                if(infolist.at(2) == "Front")
+                    ui->comboBoxActColInfo->clickedItem(ACTFront_Picture,true);
+                else if(infolist.at(2) == "Back")
+                    ui->comboBoxActColInfo->clickedItem(ACTBack_Picture,true);
+            }
+        }
+    }
+}
+
+/*************************************************************
+/函数功能：状态改变
+/函数参数：项目指针，及状态
+/函数返回：wu anydeal
+*************************************************************/
+void defTheUnit::on_comboBoxActColInfo_checkedStateChange(int index, bool checked)
+{
+    int selRow = getTableActionSelRanges();
+    if(selRow>=unitDeal.actTest.length())
+        return ;
+
+    //修改列表信息
+    tAction curAct = unitDeal.actTest.at(selRow);
+    QString infoStr;
+
+    switch(index)
+    {
+    case ACTFront_Interface:infoStr ="ACT"+toStr(selRow+1)+":Interface:Front";break;
+    case ACTBack_Interface:infoStr ="ACT"+toStr(selRow+1)+":Interface:Back";break;
+    case ACTFront_Picture:infoStr ="ACT"+toStr(selRow+1)+":Picture:Front";break;
+    case ACTBack_Picture:infoStr ="ACT"+toStr(selRow+1)+":Picture:Back";break;
+    }
+
+    if(checked)
+    {
+         curAct.colInfoList.append(infoStr);//加
+    }
+    else
+    {
+        curAct.colInfoList.removeOne(infoStr);//减
+    }
+    unitDeal.actTest.replace(selRow,curAct);
 }
 
 /*************************************************************
@@ -785,7 +921,7 @@ void defTheUnit::refreshKeyList(QString actStr)
     if((keyNum != -1)&&(actStr.isEmpty()==false))
     {
         ui->labelDescript->setText(keyList.at(keyNum).des);
-        if(keyList.at(keyNum).type == Can1_1)
+        if((keyList.at(keyNum).type == Can1_1)||(keyList.at(keyNum).type == Can2_1))
         {
             ui->groupKeyONOFF->setEnabled(false);
             ui->groupKeyONOFF->setChecked(false);
@@ -828,7 +964,7 @@ void defTheUnit::on_comboKeyList_activated(const QString &arg1)
 
     int keyNum=getKeyNumber(arg1)-1;
     ui->labelDescript->setText(keyList.at(keyNum).des);
-    if(keyList.at(keyNum).type == Can1_1)
+    if((keyList.at(keyNum).type == Can1_1)||(keyList.at(keyNum).type == Can2_1))
         ui->groupKeyONOFF->setEnabled(false);
     else
     {
@@ -1065,6 +1201,8 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
     ui->groupBox_log->setEnabled(true);
     ui->groupBox_face->setEnabled(true);
     ui->groupBox_pic->setEnabled(true);
+    ui->comboChkParamFace->setCurrentIndex(0);
+    ui->comboChkParamPic->setCurrentIndex(0);
 
 
     if(chkDeal.isEmpty()==false)
@@ -1108,7 +1246,10 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
                 if(chkParam.infoCompare == NoCompare)
                     ui->radioFaceExist->setChecked(true);
                 else if(chkParam.infoCompare == MemoryCompare)
+                {
                     ui->radioFaceMemory->setChecked(true);
+                    ui->comboChkParamFace->setCurrentText(chkParam.comTarget);
+                }
                 else if(chkParam.infoCompare == SelfCompare)
                     ui->radioFaceSelf->setChecked(true);
                 ui->groupBox_face->setEnabled(false);
@@ -1119,7 +1260,10 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
                 if(chkParam.infoCompare == NoCompare)
                     ui->radioPicExist->setChecked(true);
                 else if(chkParam.infoCompare == MemoryCompare)
+                {
                     ui->radioPicMemory->setChecked(true);
+                    ui->comboChkParamPic->setCurrentText(chkParam.comTarget);
+                }
                 else if(chkParam.infoCompare == SelfCompare)
                     ui->radioPicSelf->setChecked(true);
                 else if(chkParam.infoCompare == LocalCompare)
@@ -1160,6 +1304,8 @@ void defTheUnit::editCheckDealSlot(bool checked)
             chkDeal.max = ui->editCurMax->text().toUInt();
             curAct.checkDeal.append(chkDeal);
 
+            curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Current");
+
             ui->groupBox_cur->setEnabled(false);
         }
         else if(sender == ui->checkSetVolt)
@@ -1177,6 +1323,7 @@ void defTheUnit::editCheckDealSlot(bool checked)
             chkDeal.check = CHKSound;
             chkDeal.sound = (sound_type_e)ui->comboSoundChanged->currentIndex();
             curAct.checkDeal.append(chkDeal);
+            curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Sound");
 
             ui->groupBox_sound->setEnabled(false);
         }
@@ -1195,11 +1342,17 @@ void defTheUnit::editCheckDealSlot(bool checked)
             if(ui->radioFaceExist->isChecked())
                 chkDeal.infoCompare = NoCompare;
             else if(ui->radioFaceMemory->isChecked())
+            {
                 chkDeal.infoCompare = MemoryCompare;
+                chkDeal.comTarget = ui->comboChkParamFace->currentText();
+            }
             else if(ui->radioFaceSelf->isChecked())
                 chkDeal.infoCompare = SelfCompare;
 
             curAct.checkDeal.append(chkDeal);
+
+            curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Interface:Back");
+            ui->comboBoxActColInfo->clickedItem(ACTBack_Interface,true);
 
             ui->groupBox_face->setEnabled(false);
         }
@@ -1212,11 +1365,17 @@ void defTheUnit::editCheckDealSlot(bool checked)
             else if(ui->radioPicLocal->isChecked())
                 chkDeal.infoCompare = LocalCompare;
             else if(ui->radioPicMemory->isChecked())
+            {
                 chkDeal.infoCompare = MemoryCompare;
+                chkDeal.comTarget = ui->comboChkParamPic->currentText();
+            }
             else if(ui->radioPicSelf->isChecked())
                 chkDeal.infoCompare = SelfCompare;
 
             curAct.checkDeal.append(chkDeal);
+
+            curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Picture:Back");
+            ui->comboBoxActColInfo->clickedItem(ACTBack_Picture,true);
 
             ui->groupBox_pic->setEnabled(false);
         }
@@ -1224,12 +1383,32 @@ void defTheUnit::editCheckDealSlot(bool checked)
     //删除
     else
     {
-        if(sender == ui->checkSetCurrent)ui->groupBox_cur->setEnabled(true);
-        else if(sender == ui->checkSetVolt)ui->groupBox_vol->setEnabled(true);
-        else if(sender == ui->checkSetSound)ui->groupBox_sound->setEnabled(true);
-        else if(sender == ui->checkSetLogStr)ui->groupBox_log->setEnabled(true);
-        else if(sender == ui->checkSetInterface)ui->groupBox_face->setEnabled(true);
-        else if(sender == ui->checkSetPic)ui->groupBox_pic->setEnabled(true);
+        if(sender == ui->checkSetCurrent)
+        {
+            ui->groupBox_cur->setEnabled(true);
+            curAct.colInfoList.removeOne("ACT"+toStr(selRow+1)+":Current");
+        }
+        else if(sender == ui->checkSetVolt)
+            ui->groupBox_vol->setEnabled(true);
+        else if(sender == ui->checkSetSound)
+        {
+            ui->groupBox_sound->setEnabled(true);
+            curAct.colInfoList.removeOne("ACT"+toStr(selRow+1)+":Sound");
+        }
+        else if(sender == ui->checkSetLogStr)
+            ui->groupBox_log->setEnabled(true);
+        else if(sender == ui->checkSetInterface)
+        {
+            ui->groupBox_face->setEnabled(true);
+            curAct.colInfoList.removeOne("ACT"+toStr(selRow+1)+":Interface:Back");
+            ui->comboBoxActColInfo->clickedItem(ACTBack_Interface,false);
+        }
+        else if(sender == ui->checkSetPic)
+        {
+            ui->groupBox_pic->setEnabled(true);
+            curAct.colInfoList.removeOne("ACT"+toStr(selRow+1)+":Picture:Back");
+            ui->comboBoxActColInfo->clickedItem(ACTBack_Picture,false);
+        }
 
         for(int i=0;i<curAct.checkDeal.length();i++)
         {
@@ -1283,6 +1462,9 @@ void defTheUnit::editErrorDealSlot()
 *************************************************************/
 void defTheUnit::changedInfoFlagDeal()
 {
+
+
+#if 0
     for(int j=0;j<unitDeal.actTest.length();j++)
     {
         tAction act = unitDeal.actTest.at(j);
@@ -1351,6 +1533,7 @@ void defTheUnit::changedInfoFlagDeal()
             unitDeal.actTest.replace(j,act);
         }
     }
+#endif
 }
 
 /*************************************************************
@@ -1474,7 +1657,7 @@ void defTheUnit::on_listUnit_clicked(const QModelIndex &index)
             ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(unitDeal.actTest.at(i).actName));
             ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(unitDeal.actTest.at(i).actStr));
 
-            refreshPropertiesParam(unitDeal.actTest.at(i));
+            refreshPropertiesParam(i,unitDeal.actTest.at(i));
         }
     }
 }
@@ -1598,7 +1781,5 @@ void defTheUnit::on_actHelp_triggered()
         QMessageBox::warning(NULL, tr("提示"), tr("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
     }
 }
-
-
 
 

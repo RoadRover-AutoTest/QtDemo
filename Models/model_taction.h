@@ -65,8 +65,17 @@ private:
     uint64_t TimeDelay1S;
     uint8_t soundTimer;//
 
-    uint16_t colInfoFlag;       //用来标记已完成的信息采集
+    typedef enum
+    {
+        SIZE_Current = 0x0001,
+        SIZE_Sound = 0x0002,
+        SIZE_Interface = 0x0004,
+        SIZE_Picture = 0x0008
+    }sizeColInfo_e;//标记信息采集
+
+    uint16_t colInfoFlag;       // sizeColInfo_e 用来标记已完成的信息采集
     uint16_t actInfoFlag;
+    bool colSize;
     int timeID_T;
 
     int iniLoop;
@@ -97,7 +106,7 @@ private:
     QStringList deviceList;
     bool IsOKCMDRunned;         //  命令运行完成标志，用来标记取字符串OK
 
-    typedef enum
+    /*typedef enum
     {
         CMD_NULL,
         CMD_script,
@@ -105,7 +114,8 @@ private:
         CMD_FACE,
         CMD_ADBPic
     }cmd_type_e;
-    cmd_type_e proCMD;
+    cmd_type_e proCMD;*/
+    QString proItemString;
     QString proCMDString;
 
 
@@ -115,9 +125,11 @@ private:
     void proStopSysUiautomator();
     bool proSysIsRunning();
     void timerProIDDeal();
-    void onProcessEXECmd(cmd_type_e cmdType);
+    void onProcessEXECmd(QString cmdType);
     void infoAppendDeal(uint16_t infoflag,storageInfo_type_s infoDat);
 
+    QString getCollectInfo(bool size,QString info);
+    QString findCollectInfo(QString name,QList <storageInfo_type_s> infoDat);
 
 private slots:
     void onProcessOutputSlot(int pNum,QString String);

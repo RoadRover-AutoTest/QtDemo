@@ -80,6 +80,8 @@ private slots:
 
     void on_listUnit_customContextMenuRequested(const QPoint &pos);
 
+    void on_comboBoxActColInfo_checkedStateChange(int , bool );
+
 private:
     Ui::defTheUnit *ui;
     QList <keyControl> keyList;
@@ -94,10 +96,18 @@ private:
         Col_Str
     }actCol_e;
 
+    typedef enum
+    {
+        ACTFront_Interface,
+        ACTBack_Interface,
+        ACTFront_Picture,
+        ACTBack_Picture
+    }colInfo_e;
+
     void inittActionParam(tAction *tact);
     void appendTableAction(tAction act);
-    void refreshPropertiesParam(tAction act);
-    void refreshColInfo(uint16_t flag);
+    void refreshPropertiesParam(int index,tAction act);
+    void refreshColInfo(QStringList infoDeal);
     void refreshKeyList(QString actStr);
     void refreshTimeDeal(tAction act);
     void refreshCheckDeal(QList<checkParam> chkDeal);
