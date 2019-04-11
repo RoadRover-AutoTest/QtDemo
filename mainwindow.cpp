@@ -137,6 +137,7 @@ void MainWindow::setIsRunInterface(bool IsRun)
         ui->acttest->setChecked(IsRun);
         ui->treeWidget->setEnabled(false);
 
+        ui->actPause->setEnabled(true);
 
         //主窗口涉及清楚任务，因此放置上层处理
         int row=ui->tableWidget->rowCount();
@@ -152,6 +153,11 @@ void MainWindow::setIsRunInterface(bool IsRun)
         ui->acttest->setIcon(QIcon(":/Title/actRunning.png"));
         ui->acttest->setChecked(IsRun);
         ui->treeWidget->setEnabled(true);
+        ui->actPause->setEnabled(false);
+        PauseState=false;
+        ui->actPause->setText(tr("暂停"));
+        ui->actPause->setIcon(QIcon(":/Title/actPause.png"));
+        ui->actPause->setChecked(false);
     }
 }
 
@@ -234,6 +240,14 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
         //设置当前序列号个数
         setDevNumberCount(ui->treeWidget->getDevNumberComboBox()->count());
+
+        //扫描是否暂停测试，并置位测试按键
+        if((PauseState)&&(ui->actPause->isChecked()==false))
+        {
+            ui->actPause->setText(tr("运行"));
+            ui->actPause->setIcon(QIcon(":/Title/actRunning.png"));
+            ui->actPause->setChecked(true);
+        }
     }
 }
 
@@ -244,12 +258,10 @@ void MainWindow::timerEvent(QTimerEvent *event)
 *************************************************************/
 void MainWindow::on_actHard_triggered()
 {
-    ResHardware *hardCfg=new ResHardware;
+    hardCfg=new ResHardware;
 
-    hardCfg->exec();
+    hardCfg->show();
     initkeyList();
-
-    delete hardCfg;
 }
 
 /*************************************************************
@@ -339,6 +351,29 @@ void MainWindow::on_acttest_triggered(bool checked)
     if(checked != getTestRunState())
     {
         ui->acttest->setChecked(!checked);
+    }
+}
+
+/*************************************************************
+/函数功能：暂停测试
+/函数参数：
+/函数返回：无
+*************************************************************/
+void MainWindow::on_actPause_triggered(bool checked)
+{
+    if(checked)
+    {
+        PauseState=true;
+        ui->actPause->setText(tr("运行"));
+        ui->actPause->setIcon(QIcon(":/Title/actRunning.png"));
+        ui->actPause->setChecked(true);
+    }
+    else
+    {
+        PauseState=false;
+        ui->actPause->setText(tr("暂停"));
+        ui->actPause->setIcon(QIcon(":/Title/actPause.png"));
+        ui->actPause->setChecked(false);
     }
 }
 
@@ -549,8 +584,10 @@ void MainWindow::testProcessOverDeal()
     else if(testState == report)
     {
         if(isHadReport)
-            ui->textBrowser_EXEShow->append(tr("报告生成结束，请查找本地对应目录或邮件或")+tr("<html><a href=\"%1\">点击查阅</a></html>")
-                                        .arg("http://192.168.13.96/result/"+ ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html"));//ResultPath+"/"
+        {
+            QString htmlPath = "http://192.168.13.96/result/"+ ui->tableSequence->getSequenceFileName()+ "/" + testTime.toString("yyyyMMddhhmmss")+"/report.html";
+            ui->textBrowser_EXEShow->append(tr("报告生成结束，请查找本地对应目录或邮件或<html><a href=\"%1\">点击查阅</a></html>").arg(htmlPath));//ResultPath+"/"
+        }
         else
             ui->textBrowser_EXEShow->append(tr("生成失败，请检查原因后，手动生成。执行后台分析文件：customMessageLog.txt"));
         testState = overtest;
@@ -1213,4 +1250,21 @@ void MainWindow::on_BtnOverCurrent_clicked()
     appendTxList(CMDOverCurrentUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
     //appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);
     //appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);
+}
+
+void MainWindow::on_btnReadVolt_clicked()
+{
+    chkParamFromHardware(CHKVlot);
+}
+
+void MainWindow::on_BtnCircularVolt_clicked()
+{
+    char buf=200;
+    appendTxList(Upload_CircularVB,&buf,1,CMD_NEEDNACK);
+}
+
+void MainWindow::on_BtnOverVolt_clicked()
+{
+    char buf=0;
+    appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
 }

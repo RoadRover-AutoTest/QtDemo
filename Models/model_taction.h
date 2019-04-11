@@ -52,12 +52,13 @@ private:
         chkAction,
         wait,
         waitover,
-        errorState,
+        pauseState,
         actover
     }time_deal_e;
 
     time_deal_e timeState;
     time_deal_e nextState;
+    time_deal_e lastState;
     uint64_t timeCount;
 
     bool testResult;

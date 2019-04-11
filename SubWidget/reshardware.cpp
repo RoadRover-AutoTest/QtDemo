@@ -133,7 +133,7 @@ void ResHardware::tableWidgetInit()
 
         //key:Width
         ui->tableWidget->setColumnWidth(colKey,80);
-        ui->tableWidget->setColumnWidth(colDes,410);
+        ui->tableWidget->setColumnWidth(colDes,280);
 
         //key:isEnable
         keyisUsetoEnable(row,keyInfo.isUse);
@@ -395,7 +395,7 @@ void ResHardware::timerEvent(QTimerEvent *event)
             upUartDeal();
             break;
         }
-        case usart_CANChannel:
+        case usart_SignalInfo:
         {
             if(!isAck)
             {
@@ -655,6 +655,7 @@ void ResHardware::on_checkBoxENUart_clicked(bool checked)
         keyUart->Close();//关串口
         ui->comboBox_COM->setEnabled(true);
         ui->comboBox_BAUD->setEnabled(true);
+        ui->groupBoxUARTSEND->setEnabled(false);
     }
     else
     {
@@ -668,6 +669,7 @@ void ResHardware::on_checkBoxENUart_clicked(bool checked)
             connect(keyUart,SIGNAL(UartRxAckResault(bool)),this,SLOT(UartRxAckResault(bool)));
             ui->comboBox_COM->setEnabled(false);
             ui->comboBox_BAUD->setEnabled(false);
+            ui->groupBoxUARTSEND->setEnabled(true);
         }
     }
 }
@@ -713,7 +715,7 @@ void ResHardware::on_checkBoxENCAN1_clicked(bool checked)
         ui->comboBoxCAN1Type->setEnabled(true);
     }
 
-    usartTXStatusDeal(true,usart_CANChannel);
+    usartTXStatusDeal(true,usart_SignalInfo);
 
     uint16_t CANbaud = covCANBaudDeal(ui->comboBoxCAN1Baud->currentText());
     char buf[BUFSIZ]={0};
@@ -752,7 +754,7 @@ void ResHardware::on_checkBoxENCAN2_clicked(bool checked)
         ui->comboBoxCAN2Baud->setEnabled(true);
         ui->comboBoxCAN2Type->setEnabled(true);
     }
-    usartTXStatusDeal(true,usart_CANChannel);
+    usartTXStatusDeal(true,usart_SignalInfo);
     uint16_t CANbaud = covCANBaudDeal(ui->comboBoxCAN2Baud->currentText());
     char buf[BUFSIZ]={0};
 
@@ -765,3 +767,83 @@ void ResHardware::on_checkBoxENCAN2_clicked(bool checked)
     txCount=0;
     ui->label_Show->setText(tr("下载:CAN2通道配置"));
 }
+
+
+void ResHardware::on_horizontalSliderBAT_valueChanged(int value)
+{
+    ui->label_ShowBATVal->setText(toStr(value));
+    if(keyUart->isOpenCurrentUart()==false)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+        return ;
+    }
+    usartTXStatusDeal(true,usart_SignalInfo);
+    char buf[BUFSIZ]={0};
+
+    buf[0] = value;
+    keyUart->UartTxCmdDeal(CMDBATPower,buf,1,CMD_NEEDACK);
+    isAck=false;
+    txCount=0;
+    ui->label_Show->setText(tr("下载:Bat电压值")+toStr(value));
+}
+
+void ResHardware::on_horizontalSliderCCD_valueChanged(int value)
+{
+    ui->label_ShowCCDVal->setText(toStr(value));
+    if(keyUart->isOpenCurrentUart()==false)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+        return ;
+    }
+    usartTXStatusDeal(true,usart_SignalInfo);
+    char buf[BUFSIZ]={0};
+
+    buf[0] = value;
+    keyUart->UartTxCmdDeal(CMDCCDPower,buf,1,CMD_NEEDACK);
+    isAck=false;
+    txCount=0;
+    ui->label_Show->setText(tr("下载:摄像头电压值")+toStr(value));
+}
+
+void ResHardware::on_radioBtn15V_clicked()
+{
+    if(keyUart->isOpenCurrentUart()==false)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+        ui->radioBtn24V->setChecked(true);
+        return ;
+    }
+    usartTXStatusDeal(true,usart_SignalInfo);
+    char buf[BUFSIZ]={0};
+
+    buf[0] = false;
+    keyUart->UartTxCmdDeal(CMDBATMaxVal,buf,1,CMD_NEEDACK);
+    isAck=false;
+    txCount=0;
+    ui->label_Show->setText(tr("下载:Bat最大工作电压"));
+
+    ui->horizontalSliderBAT->setMaximum(15);
+    ui->horizontalSliderCCD->setMaximum(15);
+}
+
+void ResHardware::on_radioBtn24V_clicked()
+{
+    if(keyUart->isOpenCurrentUart()==false)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+        ui->radioBtn15V->setChecked(true);
+        return ;
+    }
+    usartTXStatusDeal(true,usart_SignalInfo);
+    char buf[BUFSIZ]={0};
+
+    buf[0] = true;
+    keyUart->UartTxCmdDeal(CMDBATMaxVal,buf,1,CMD_NEEDACK);
+    isAck=false;
+    txCount=0;
+    ui->label_Show->setText(tr("下载:Bat最大工作电压"));
+
+    ui->horizontalSliderBAT->setMaximum(24);
+    ui->horizontalSliderCCD->setMaximum(24);
+}
+

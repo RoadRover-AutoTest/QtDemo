@@ -29,12 +29,12 @@
     </widget>
    </item>
    <item row="4" column="2">
-    <widget class="QLineEdit" name="lineEdit_password"/>
-   </item>
-   <item row="3" column="2">
-    <widget class="QLineEdit" name="lineEdit_name">
-     <property name="text">
-      <string>Q9025FT</string>
+    <widget class="QLineEdit" name="lineEdit_password">
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+     <property name="placeholderText">
+      <string>请输入密码</string>
      </property>
     </widget>
    </item>
@@ -154,6 +154,25 @@
      <item>
       <property name="text">
        <string>English</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QComboBox" name="comboBox_name">
+     <item>
+      <property name="text">
+       <string>Administrator</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Designer</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>User</string>
       </property>
      </item>
     </widget>

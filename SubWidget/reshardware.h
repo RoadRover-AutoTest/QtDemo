@@ -53,7 +53,7 @@ void refreshitemName(QString currentText);
         usart_NONE,
         usart_DownKeyInfo,
         usart_UpKeyInfo,
-        usart_CANChannel,
+        usart_SignalInfo,
     }transType_e;
 
     Model_UART *keyUart;
@@ -99,6 +99,10 @@ private slots:
 
     void on_checkBoxENCAN1_clicked(bool checked);
     void on_checkBoxENCAN2_clicked(bool checked);
+    void on_horizontalSliderBAT_valueChanged(int value);
+    void on_horizontalSliderCCD_valueChanged(int value);
+    void on_radioBtn15V_clicked();
+    void on_radioBtn24V_clicked();
 };
 
 #endif // RESHARDWARE_H

@@ -77,11 +77,20 @@ private slots:
 
     void on_BtnOverCurrent_clicked();
 
+    void on_actPause_triggered(bool checked);
+
+    void on_btnReadVolt_clicked();
+
+    void on_BtnCircularVolt_clicked();
+
+    void on_BtnOverVolt_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     ChartWidget *chartDeal;
     Model_String *qtStrDeal;
+    ResHardware *hardCfg;
 
     QList<QDockWidget*> m_docks;//< 记录所有dockWidget的指针
     void initMainWindow();

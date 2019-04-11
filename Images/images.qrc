@@ -32,6 +32,7 @@
         <file>warn.png</file>
         <file>check.png</file>
         <file>nocheck.png</file>
+        <file>actPause.png</file>
     </qresource>
     <qresource prefix="/flow">
         <file>offScriptFlow.png</file>

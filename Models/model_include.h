@@ -74,14 +74,17 @@
 #define CmdReSendTimer 3   //定义命令重复发送次数
 //CMD
 #define CMDCANChannel      0x18    //打开/关闭CAN1
-#define CMDItemRead         0x20
+#define CMDUploadCAN        0x19
+#define CMDItemRead         0x20    //项目信息
 #define CMDItemWrite        0x21
-
-//CMDKey1~36  0x22~0x46  any:因此该中间命令不可用
 #define CMDDownloadKey      0x22 //定义串口传输命令:按键资源信息  Dat:isUse + type + CANId + CANDat1 + CANDat2
 #define CMDSaveKeyInfo      0x23
-#define CMDUploadKey      0x24
-
+#define CMDUploadKey        0x24
+#define CMDBATPower         0x25       //BAT 电压
+#define CMDUploadBatVal     0x26
+#define CMDCCDPower         0x27        //CCD电压
+#define CMDUploadCCDVal     0x28
+#define CMDBATMaxVal        0x29
 //CMD Control:0x50起
 #define CMDClickedKey       0x50    //点击按键操作：Dat：KeyNum（1~36）+ON/OFF
 
@@ -131,6 +134,7 @@ extern QString BatKey;
 extern QString testString;
 
 extern bool actIsRunning;
+extern bool PauseState;
 
 typedef enum
 {
@@ -379,6 +383,7 @@ typedef enum
 {
     OnlyUser,
     Administrator,
+    Designer,
 }Permissions_type_e;
 
 typedef enum

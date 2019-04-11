@@ -103,10 +103,8 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                     if(overtimeAct++ >= 60000)//actionDeal->timeDeal.end
                     {
                         ShowList << tr("Error:动作执行超时;");
-                        if(actionDeal->errorDeal == OVERTIMEERR)
-                            timeState = errorState;
-                        else
-                            timeState = actover;//动作执行超时
+                        timeState = actover;//动作执行超时
+
                     }
                     else
                     {
@@ -146,7 +144,11 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             {
                 ShowList <<tr("Error:采集信息超时；");
                 if(actionDeal->errorDeal == OVERTIMEERR)
-                    timeState = errorState;
+                {
+                    lastState = nextState;
+                    timeState = pauseState;
+                    PauseState = true;
+                }
                 else
                     timeState=nextState;
             }
@@ -198,7 +200,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 timeState = chkAction;
             break;
         }
-        case errorState:
+        case pauseState:
         {
             break;
         }
@@ -209,6 +211,16 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             killTimer(timeID_T);
             break;
         }
+        }
+
+        if((PauseState)&&(timeState!=pauseState))
+        {
+            lastState = timeState;
+            timeState = pauseState;
+        }
+        else if((!PauseState)&&(timeState==pauseState))
+        {
+            timeState = lastState;
         }
     }
     else if(event->timerId() == timerProID)

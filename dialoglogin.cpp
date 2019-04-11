@@ -13,7 +13,7 @@ DialogLogin::DialogLogin(QTranslator *translator,QWidget *parent) :
     loginTrans = translator;
 
     Model_iniSetting iniRead;
-    ui->lineEdit_name->setText(iniRead.ReadIni_user("userName").toString());
+    ui->comboBox_name->setCurrentText(iniRead.ReadIni_user("userName").toString());
     ui->lineEdit_password->setText(iniRead.ReadIni_user("userPassword").toString());
     ui->comboBoxLanguage->setCurrentIndex(iniRead.ReadIni_user("language").toInt());
 
@@ -30,20 +30,29 @@ DialogLogin::~DialogLogin()
 
 void DialogLogin::accept()
 {
-    QString name = ui->lineEdit_name->text();
+    QString name = ui->comboBox_name->currentText();
     QString password = ui->lineEdit_password->text();
-    if((name == "Q9025FT")&&(password.isEmpty()))
+    if(name == "User")
     {
         userLogin.Permissions = OnlyUser;
     }
-    else if((name == "Administrator")&&(password.isEmpty()))
+    else if(name == "Administrator")
     {
+        if(password != "123.com")
+        {
+            ui->label_show->setText("password is Error.");
+            return ;
+        }
         userLogin.Permissions = Administrator;
     }
-    else
+    else if(name == "Designer")
     {
-        ui->label_show->setText("user is Error.");
-        return ;
+        if(password != "123.com")
+        {
+            ui->label_show->setText("password is Error.");
+            return ;
+        }
+        userLogin.Permissions = Designer;
     }
 
     userLogin.userName = name;
