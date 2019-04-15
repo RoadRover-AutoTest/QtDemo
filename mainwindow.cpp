@@ -1291,3 +1291,20 @@ void MainWindow::on_BtnOverVolt_clicked()
     char buf=0;
     appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
 }
+
+void MainWindow::on_btnReadAudio_clicked()
+{
+    chkParamFromHardware(CHKSound);
+}
+
+void MainWindow::on_BtnCircularAudio_clicked()
+{
+    char buf=200;
+    appendTxList(Upload_CircularAudio,&buf,1,CMD_NEEDNACK);
+}
+
+void MainWindow::on_BtnOverAudio_clicked()
+{
+    char buf=0;
+    appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
+}

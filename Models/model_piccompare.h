@@ -2,12 +2,14 @@
 #define MODEL_PICCOMPARE_H
 
 #include <QObject>
-//#include "model_include.h"//此处不可添加，将会报错，原因不明
+#include "cv.h"
+#include "cxcore.h"
+#include "highgui.h"
 
-//#include "cv.h"
-//#include "cxcore.h"
-//#include "highgui.h"
-//using namespace cv;
+#include "model_include.h"//此处不可添加，将会报错，原因不明
+
+
+using namespace cv;
 class Model_PicCompare:public QObject
 {
     Q_OBJECT

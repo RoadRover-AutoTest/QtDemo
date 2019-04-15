@@ -85,6 +85,12 @@ private slots:
 
     void on_BtnOverVolt_clicked();
 
+    void on_BtnCircularAudio_clicked();
+
+    void on_btnReadAudio_clicked();
+
+    void on_BtnOverAudio_clicked();
+
 private:
     Ui::MainWindow *ui;
 

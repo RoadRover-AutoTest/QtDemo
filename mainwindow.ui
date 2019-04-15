@@ -477,6 +477,27 @@ p, li { white-space: pre-wrap; }
           <string/>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
+          <item row="7" column="0">
+           <widget class="QPushButton" name="BtnCircularAudio">
+            <property name="text">
+             <string>连续声音</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QPushButton" name="btnReadAudio">
+            <property name="text">
+             <string>单点声音</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QPushButton" name="BtnOverAudio">
+            <property name="text">
+             <string>终止声音</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QPushButton" name="btnReadCurrent">
             <property name="text">
@@ -484,7 +505,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
+          <item row="8" column="0">
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -536,6 +557,13 @@ p, li { white-space: pre-wrap; }
            <widget class="QPushButton" name="BtnOverVolt">
             <property name="text">
              <string>终止电压</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="Line" name="line_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
            </widget>
           </item>

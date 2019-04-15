@@ -53,7 +53,7 @@ void ChartWidget::refreshChart(uint8_t type,float value)
     }
     if(type == CHKSound)
     {
-        series2->append(QDateTime::currentDateTime().toMSecsSinceEpoch(),value);//增加新的点到曲线末端
+        series3->append(QDateTime::currentDateTime().toMSecsSinceEpoch(),value);//增加新的点到曲线末端
         ui->radioSound->setChecked(value);
     }
 }
@@ -123,7 +123,7 @@ void ChartWidget::initChart()
     axisY3->setLinePenColor(series3->pen().color());
     axisY3->setGridLinePen((series3->pen()));
 
-    chart->addAxis(axisY3, Qt::AlignRight);
+    //chart->addAxis(axisY3, Qt::AlignRight);
     series3->attachAxis(axisX);
     series3->attachAxis(axisY3);
 
