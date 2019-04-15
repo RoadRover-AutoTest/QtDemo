@@ -559,7 +559,7 @@ continueAppendList:
     {
         tAction actDeal = unit.actTest.at(i);
 
-        if((actDeal.actFlag == ACT_KEY)
+        if((actDeal.actFlag == ACT_KEY)||(actDeal.actFlag == ACT_BATVolt)
                 ||((actDeal.actFlag == ACT_SCRIPT)&&((actDeal.actStr.endsWith(".bat"))||(actDeal.actStr.endsWith(".BAT")))))
         {
             curUnit.actTest.append(actDeal);

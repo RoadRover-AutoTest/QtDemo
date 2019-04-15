@@ -109,7 +109,7 @@ CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
                 cngitem = item->child(Cld2_Wait);//在等待时间上添加支节点
                 break;
             case BatVolt:
-                cngitem = item->child(Cld2_Wait);
+                cngitem = item->child(Cld2_Str);
                 break;
             }
             AddTreeNode(cngitem,showFlag,QStringList()<<"dir"<<toStr(cngShow.dir));

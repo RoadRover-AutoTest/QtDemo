@@ -86,6 +86,10 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     connect(ui->editChkTime,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
     connect(ui->editOverTime,SIGNAL(textChanged(QString)),this,SLOT(editTimeDealSlot(QString)));
 
+    connect(ui->lineEditMixVolt,SIGNAL(textChanged(QString)),this,SLOT(editBatVoltDealSlot(QString)));
+    connect(ui->lineEditMaxVolt,SIGNAL(textChanged(QString)),this,SLOT(editBatVoltDealSlot(QString)));
+    connect(ui->lineEditStepVolt,SIGNAL(textChanged(QString)),this,SLOT(editBatVoltDealSlot(QString)));
+
     connect(ui->checkSetCurrent,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
     connect(ui->checkSetVolt,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
     connect(ui->checkSetSound,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
@@ -172,6 +176,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     QAction *upAct = new QAction(tr("上移"), this);
     QAction *downAct = new QAction(tr("下移"), this);
     QAction *ScriptAction = new QAction(tr("Add Script"), this);
+    QAction *BatVoltAction = new QAction(tr("Add BatControl"), this);
 
     QMenu *keyMenu = new QMenu("Add Key");
     QAction *ACCONAction = new QAction(tr("ACCON"), this);
@@ -193,6 +198,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     {
         popMenu->addMenu(keyMenu);
         popMenu->addAction(ScriptAction);
+        popMenu->addAction(BatVoltAction);
         popMenu->addSeparator();
         popMenu->addAction(upAct);
         popMenu->addAction(downAct);
@@ -208,6 +214,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     connect( OtherAction,        SIGNAL(triggered() ), this, SLOT( keyActionSlot()) );
 
     connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( scriptActionSlot()) );
+    connect( BatVoltAction,        SIGNAL(triggered() ), this, SLOT( BatVoltActionSlot()) );
 
     connect( deleteAct,        SIGNAL(triggered() ), this, SLOT( deleteActionSlot()) );
     connect( upAct,        SIGNAL(triggered() ), this, SLOT( upActionSlot()) );
@@ -671,6 +678,31 @@ void defTheUnit::scriptActionSlot()
 }
 
 /*************************************************************
+/函数功能：batvolt动作添加槽函数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::BatVoltActionSlot()
+{
+    tAction bAction;
+    inittActionParam(&bAction);
+
+    bAction.actName="BATVolt";
+    bAction.actFlag = ACT_BATVolt;
+    bAction.actStr = "BAT:Volt:10";
+
+    changedParam changevolt;
+    changevolt.changed = BatVolt;
+    changevolt.dir = true;
+    changevolt.min  = 10;
+    changevolt.max  = 15;//any:暂时使用
+    changevolt.step = 1;
+    bAction.changedDeal.append(changevolt);
+
+    appendTableAction(bAction);
+}
+
+/*************************************************************
 /函数功能：将动作添加到table中
 /函数参数：无
 /函数返回：wu
@@ -745,6 +777,25 @@ void defTheUnit::refreshPropertiesParam(int index,tAction act)
             ui->checkfileMore->setChecked(false);
         else
             ui->checkfileMore->setChecked(true);
+    }
+    else if(act.actFlag == ACT_BATVolt)
+    {
+        ui->stackedWidget->setCurrentWidget(ui->pageBatVolt);
+        ui->lineEditMixVolt->setText(act.actStr.mid(9));
+        if(act.changedDeal.isEmpty()==false)
+        {
+            for(int i=0;i<act.changedDeal.length();i++)
+            {
+                changedParam cngParam = act.changedDeal.at(i);
+                if(cngParam.changed==BatVolt)
+                {
+                    ui->lineEditMixVolt->setText(toStr(cngParam.min));
+                    ui->lineEditMaxVolt->setText(toStr(cngParam.max));
+                    ui->lineEditStepVolt->setText(toStr(cngParam.step));
+                    break;
+                }
+            }
+        }
     }
 
     //刷新时间属性
@@ -1063,6 +1114,61 @@ void defTheUnit::on_editFilePath_textChanged(const QString &arg1)
     curAct.actStr = arg1;
     unitDeal.actTest.replace(selRow,curAct);
 
+    ui->tableAction->setItem(selRow,Col_Str,new QTableWidgetItem(curAct.actStr));
+}
+
+void defTheUnit::editBatVoltDealSlot(QString volt)
+{
+    int selRow = getTableActionSelRanges();
+    if(selRow>=unitDeal.actTest.length())
+        return ;
+
+    //修改列表信息
+    tAction curAct = unitDeal.actTest.at(selRow);
+    changedParam cngParam;
+
+    cngParam.changed = BatVolt;
+
+    cngParam.min = ui->lineEditMixVolt->text().toUInt();
+    cngParam.max = ui->lineEditMaxVolt->text().toUInt();
+    cngParam.step = ui->lineEditStepVolt->text().toUInt();
+
+    if((cngParam.step!=0)&&(cngParam.min != cngParam.max))
+    {
+        int i;
+
+        if(cngParam.max > cngParam.min)
+            cngParam.dir = true;
+        else
+            cngParam.dir = false;
+
+        for(i=0;i<curAct.changedDeal.length();i++)
+        {
+            if(curAct.changedDeal.at(i).changed == BatVolt)
+            {
+                curAct.changedDeal.replace(i,cngParam);//替换现有参数
+                break;
+            }
+        }
+        //添加变动处理
+        if(i==curAct.changedDeal.length())
+            curAct.changedDeal.append(cngParam);
+    }
+    else
+    {
+        //删除变动处理
+        for(int i=0;i<curAct.changedDeal.length();i++)
+        {
+            if(curAct.changedDeal.at(i).changed == BatVolt)
+            {
+                curAct.changedDeal.removeAt(i);
+                break;
+            }
+        }
+    }
+    curAct.actStr = "BAT:Volt:"+toStr(cngParam.min);
+
+    unitDeal.actTest.replace(selRow,curAct);
     ui->tableAction->setItem(selRow,Col_Str,new QTableWidgetItem(curAct.actStr));
 }
 
@@ -1783,3 +1889,26 @@ void defTheUnit::on_actHelp_triggered()
 }
 
 
+// 鼠标悬停的时候，显示当前用户简要信息
+bool defTheUnit::event(QEvent *e) {
+
+#if 0
+    if(e->type()==QEvent::ToolTip){
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);	//Tooptip弹出事件，帮助
+        QPoint p_Top=helpEvent->globalPos();	//Tooptip的显示位置，全局坐标
+        QPoint p_View=ui->tableAction->mapFromGlobal(p_Top);	//将鼠标的全局坐标转换为treeview中的坐标
+        p_View.setY(p_View.y()+25);
+        QModelIndex currentIndex=ui->tableAction->indexAt(p_View);	//获取鼠标所指向的Index-1
+        QString InfoString;//=currentIndex.data(Qt::DisplayRole).toString();
+        if(currentIndex.row()<unitDeal.actTest.length())
+        {
+            //tAction curAct = unitDeal.actTest.at(currentIndex.row());
+            InfoString = "gfudsgfjh\nfsdahgfdhsfd\ngfshfsahfgfsh\n"+ toStr(currentIndex.row());
+
+            QToolTip::showText(p_Top, InfoString);	//显示ToolTip
+        }
+        return true;
+    }
+#endif
+    return QWidget::event(e);
+}

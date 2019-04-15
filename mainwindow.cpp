@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     initkeyList();
 
     isRunning=false;
-    testState=overtest;
+    testState=NONE;
 }
 
 MainWindow::~MainWindow()
@@ -223,7 +223,7 @@ void MainWindow::timerEvent(QTimerEvent *event)
         ui->treeWidget->refreshUartCOM(UARTDeal->PortList());
 
         //实时扫描设备
-        if((!getTestRunState())&&(testState==overtest))
+        if((!getTestRunState())&&(testState==NONE))
         {
             if(proList.isEmpty())
                 proList.append(ADBDevs);
@@ -429,7 +429,7 @@ void MainWindow::on_treeWidget_devUseState(bool isUse)
 *************************************************************/
 void MainWindow::startTheFlow(QList <tUnit> *testFlow)
 {
-    if((!isRunning)&&(testState==overtest))
+    if((!isRunning)&&(testState==NONE))
     {
         if(devNumber.isEmpty())
         {//设备序列号
@@ -533,15 +533,21 @@ void MainWindow::timerTestIDDeal()
     case overtest:
     {
         delete tFlowDeal;
-        killTimer(timerTestID);
         isRunning=false;
         setIsRunInterface(false);
         appendTheExecLogInfo(ui->textBrowser_EXEShow->toPlainText());
         chartDeal->clearSerials();
         on_BtnOverCurrent_clicked();
-
+        testState = kltime;
         break;
     }
+    case kltime:
+    {
+        testState = NONE;
+        killTimer(timerTestID);
+        break;
+    }
+    default:break;
     }
 }
 
@@ -578,8 +584,16 @@ void MainWindow::testProcessOverDeal()
 {
     if(testState == getprop)
     {
-        if(isHadProp)
-            testState = start;
+        if(!isHadProp)
+        {
+            if(QMessageBox::information(NULL, tr("提示"), tr("获取设备信息失败，将无法生成报告，是否继续测试?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No)==QMessageBox::No)//Upgrading
+            {
+                testState = kltime;
+                return ;
+            }
+        }
+
+        testState = start;
     }
     else if(testState == report)
     {
@@ -621,7 +635,6 @@ void MainWindow::endTheFlow()
         tFlowDeal->endTheTest();
         txList.clear();//结束即清空传输数据帧
         isRunning=false;
-        appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"end_time:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
     }
 }
 
@@ -633,6 +646,7 @@ void MainWindow::endTheFlow()
 void MainWindow::onEndTestSlot()
 {
     ui->textBrowser_EXEShow->append(tr("结束测试！"));
+    appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"end_time:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
 
     if(ReportCreat)
         testState = report;
@@ -710,19 +724,28 @@ void MainWindow::unitEndExeSlot(bool exeResult)
 *************************************************************/
 void MainWindow::execKeyClicked(QString key)
 {
-    char buf[2]={0};
-    int keyNum = getKeyNumber(key);
-
-    if(keyNum != -1)
+    if(key.startsWith("KEY"))
     {
-        buf[0] = keyNum;
-        if(key.contains(":on"))
-            buf[1]=true;
-        else
-            buf[1]=false;
-        appendTxList(CMDClickedKey,buf,2,CMD_NEEDACK);
-        //cout << key;
+        char buf[2]={0};
+        int keyNum = getKeyNumber(key);
+
+        if(keyNum != -1)
+        {
+            buf[0] = keyNum;
+            if(key.contains(":on"))
+                buf[1]=true;
+            else
+                buf[1]=false;
+            appendTxList(CMDClickedKey,buf,2,CMD_NEEDACK);
+            //cout << key;
+        }
     }
+    else if(key.startsWith("BAT:"))
+    {
+        char vol = (char)key.mid(9).toUInt();
+        appendTxList(CMDBATPower,&vol,1,CMD_NEEDACK);
+    }
+
 }
 
 /*************************************************************

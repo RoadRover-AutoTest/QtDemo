@@ -604,7 +604,11 @@ void ResHardware::upUartDeal()
     rxCount++;
 }
 
-
+/*************************************************************
+/函数功能：保存按键信息
+/函数参数：无
+/函数返回：无
+*************************************************************/
 void ResHardware::on_pushButtonSave_clicked()
 {
     bool ok;
@@ -673,7 +677,11 @@ void ResHardware::on_checkBoxENUart_clicked(bool checked)
         }
     }
 }
-
+/*************************************************************
+/函数功能：CAN波特率转换
+/函数参数：字符串
+/函数返回：数值
+*************************************************************/
 uint16_t ResHardware::covCANBaudDeal(QString baud)
 {
     uint16_t Dat_temp=0;
@@ -694,7 +702,11 @@ uint16_t ResHardware::covCANBaudDeal(QString baud)
     else if(baud=="1M")   Dat_temp=1000;
     return Dat_temp;
 }
-
+/*************************************************************
+/函数功能：打开或关闭CAN1
+/函数参数：checked  true :开  false:关
+/函数返回：无
+*************************************************************/
 void ResHardware::on_checkBoxENCAN1_clicked(bool checked)
 {
     if(keyUart->isOpenCurrentUart()==false)
@@ -735,7 +747,11 @@ void ResHardware::on_checkBoxENCAN1_clicked(bool checked)
     txCount=0;
     ui->label_Show->setText(tr("下载:CAN1通道配置"));
 }
-
+/*************************************************************
+/函数功能：打开或关闭CAN2
+/函数参数：checked  true :开  false:关
+/函数返回：无
+*************************************************************/
 void ResHardware::on_checkBoxENCAN2_clicked(bool checked)
 {
     if(keyUart->isOpenCurrentUart()==false)
@@ -768,7 +784,11 @@ void ResHardware::on_checkBoxENCAN2_clicked(bool checked)
     ui->label_Show->setText(tr("下载:CAN2通道配置"));
 }
 
-
+/*************************************************************
+/函数功能：设置BAT电压值
+/函数参数：值
+/函数返回：无
+*************************************************************/
 void ResHardware::on_horizontalSliderBAT_valueChanged(int value)
 {
     ui->label_ShowBATVal->setText(toStr(value));
@@ -786,7 +806,11 @@ void ResHardware::on_horizontalSliderBAT_valueChanged(int value)
     txCount=0;
     ui->label_Show->setText(tr("下载:Bat电压值")+toStr(value));
 }
-
+/*************************************************************
+/函数功能：设置CCD电压值
+/函数参数：值
+/函数返回：无
+*************************************************************/
 void ResHardware::on_horizontalSliderCCD_valueChanged(int value)
 {
     ui->label_ShowCCDVal->setText(toStr(value));
@@ -804,7 +828,11 @@ void ResHardware::on_horizontalSliderCCD_valueChanged(int value)
     txCount=0;
     ui->label_Show->setText(tr("下载:摄像头电压值")+toStr(value));
 }
-
+/*************************************************************
+/函数功能：设置15V最大电压值
+/函数参数：无
+/函数返回：无
+*************************************************************/
 void ResHardware::on_radioBtn15V_clicked()
 {
     if(keyUart->isOpenCurrentUart()==false)
@@ -825,7 +853,11 @@ void ResHardware::on_radioBtn15V_clicked()
     ui->horizontalSliderBAT->setMaximum(15);
     ui->horizontalSliderCCD->setMaximum(15);
 }
-
+/*************************************************************
+/函数功能：设置24V最大电压值
+/函数参数：wu
+/函数返回：无
+*************************************************************/
 void ResHardware::on_radioBtn24V_clicked()
 {
     if(keyUart->isOpenCurrentUart()==false)

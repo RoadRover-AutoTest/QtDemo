@@ -75,7 +75,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             if((!actIsRunning)&&(!overtimeAct))
             {
                 ShowList << tr("~执行动作~")+actionDeal->actStr;
-                if(actionDeal->actFlag == ACT_KEY)
+                if((actionDeal->actFlag == ACT_KEY)||(actionDeal->actFlag == ACT_BATVolt))
                     startAction(actionDeal->actStr);//执行按键动作
                 else
                 {
@@ -469,6 +469,34 @@ void Model_tAction::theActionChangedDeal(QList <changedParam>testChanged)
         }
         case BatVolt:
         {
+            uint16_t curVoltage = actionDeal->actStr.mid(9).toUInt();
+            if(cngDeal.dir)
+            {
+                //递增
+                if((curVoltage)<cngDeal.max)
+                {
+                    if((curVoltage+cngDeal.step)<cngDeal.max)
+                        curVoltage = curVoltage+cngDeal.step;
+                    else
+                        curVoltage = cngDeal.max;
+                }
+                else
+                    curVoltage = cngDeal.min;
+            }
+            else
+            {
+                //递减
+                if((curVoltage)>cngDeal.min)
+                {
+                    if((curVoltage-cngDeal.step)>cngDeal.min)
+                        curVoltage = curVoltage-cngDeal.step;
+                    else
+                        curVoltage = cngDeal.min;
+                }
+                else
+                    curVoltage = cngDeal.max;
+            }
+            actionDeal->actStr = "BAT:Volt:"+toStr(curVoltage);
             break;
         }
         }

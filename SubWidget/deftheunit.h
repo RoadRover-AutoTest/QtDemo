@@ -5,6 +5,8 @@
 #include <QTableWidgetItem>
 #include <QFileDialog>
 #include <QDesktopServices>
+#include <QHelpEvent>
+#include <QToolTip>
 #include "Models/model_include.h"
 #include "Models/model_xmlfile.h"
 #include "cfglookunit.h"
@@ -31,6 +33,7 @@ private slots:
     void CCDOFFActionSlot();
     void keyActionSlot();
     void scriptActionSlot();
+    void BatVoltActionSlot();
     void deleteActionSlot();
     void downActionSlot();
     void upActionSlot();
@@ -57,6 +60,8 @@ private slots:
     void on_checkfileMore_clicked(bool checked);
 
     void on_editFilePath_textChanged(const QString &arg1);
+
+    void editBatVoltDealSlot(QString volt);
 
     //void on_tableAction_itemChanged(QTableWidgetItem *item);
 
@@ -120,6 +125,9 @@ private:
 
 signals:
     void applyTheUnit(tUnit unit);
+
+protected:
+    bool event(QEvent *e);
 
 };
 

@@ -103,11 +103,13 @@ private:
     */
     typedef enum
     {
+        NONE,
         start,
         waitnull,
         overtest,
         getprop,
         report,
+        kltime,
     }test_type_e;
     test_type_e testState;
     Model_tFlow *tFlowDeal;

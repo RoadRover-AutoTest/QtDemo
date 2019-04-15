@@ -270,7 +270,8 @@ typedef enum
 {
     ACT_NULL,
     ACT_KEY,
-    ACT_SCRIPT
+    ACT_SCRIPT,
+    ACT_BATVolt
 }ActType_e;
 
 typedef enum
