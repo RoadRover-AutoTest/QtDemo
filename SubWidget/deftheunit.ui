@@ -144,40 +144,7 @@
              <string>动作</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_10">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_14">
-               <property name="text">
-                <string>动作名：</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="editActName"/>
-             </item>
-             <item row="0" column="2">
-              <widget class="reCheckComboBox" name="comboBoxActColInfo">
-               <property name="minimumSize">
-                <size>
-                 <width>200</width>
-                 <height>0</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="1" column="0" colspan="4">
+             <item row="2" column="0" colspan="4">
               <widget class="QStackedWidget" name="stackedWidget">
                <property name="currentIndex">
                 <number>1</number>
@@ -287,6 +254,49 @@
                  </item>
                 </layout>
                </widget>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>动作名：</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="editActName"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="reCheckComboBox" name="comboBoxActColInfo">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="label_18">
+               <property name="styleSheet">
+                <string notr="true">color: rgb(255, 0, 0);</string>
+               </property>
+               <property name="text">
+                <string>注：尽量避免带空格、汉子等。</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -782,9 +792,6 @@
         </layout>
        </item>
       </layout>
-      <zorder>groupBox_2</zorder>
-      <zorder>tableAction</zorder>
-      <zorder>tabProperties</zorder>
      </widget>
     </item>
    </layout>

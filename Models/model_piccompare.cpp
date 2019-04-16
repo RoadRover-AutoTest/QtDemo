@@ -1,5 +1,9 @@
 #include "model_piccompare.h"
 
+//any:放在文件中，避免与Qt本身函数冲突
+#include<opencv2/opencv.hpp>
+using namespace cv;
+
 Model_PicCompare::Model_PicCompare()
 {
 
@@ -9,7 +13,7 @@ Model_PicCompare::~Model_PicCompare()
 
 }
 
-#if 0
+#if 1
 /*************************************************************
 /函数功能：比较图片
 /函数参数：无
@@ -17,12 +21,15 @@ Model_PicCompare::~Model_PicCompare()
 //得到指纹以后，就可以对比不同的图片，看看64位中有多少位是不一样的。
 //在理论上，这等同于计算"汉明距离"（Hamming distance）。
 *************************************************************/
-void Model_PicCompare::Cameracompare(QString pic1,QString pic2)
+bool Model_PicCompare::Cameracompare(QString pic1,QString pic2)
 {    
-    cv::Mat matSrc1 = cv::imread(pic1.toStdString(), CV_LOAD_IMAGE_COLOR);
-    cv::Mat matSrc2 = cv::imread(pic2.toStdString(), CV_LOAD_IMAGE_COLOR);
 
-    int iDiffNum= PerHash(matSrc1,matSrc2);
+    int iDiffNum= PerHash(pic1,pic2);
+
+    if(iDiffNum<=8)
+        return true;
+    else
+        return false;
 
     //如果不相同的数据位不超过5，就说明两张图片很相似；如果大于10，就说明这是两张不同的图片。
     //if (iDiffNum <= 5)
@@ -38,12 +45,16 @@ void Model_PicCompare::Cameracompare(QString pic1,QString pic2)
 /函数参数：event：定时器事件
 /函数返回：无
 *************************************************************/
-int Model_PicCompare::PerHash(const cv::Mat matSrc1,const cv::Mat matSrc2)//QString ImageName1, QString ImageName2
+int Model_PicCompare::PerHash(const QString srcpath1,const QString srcpath2 )//QString ImageName1, QString ImageName2
 {
     //1.缩小尺寸
     //将图片缩小到8x8的尺寸，总共64个像素。
     //这一步的作用是去除图片的细节，只保留结构、明暗等基本信息，摒弃不同尺寸、比例带来的图片差异。
     cv::Mat matDst1, matDst2;
+
+    cv::Mat matSrc1 = cv::imread(srcpath1.toStdString(), CV_LOAD_IMAGE_COLOR);
+    cv::Mat matSrc2 = cv::imread(srcpath2.toStdString(), CV_LOAD_IMAGE_COLOR);
+
 
     cv::resize(matSrc1, matDst1, cv::Size(8, 8), 0, 0, cv::INTER_CUBIC);
     cv::resize(matSrc2, matDst2, cv::Size(8, 8), 0, 0, cv::INTER_CUBIC);//scipy.misc.imresize

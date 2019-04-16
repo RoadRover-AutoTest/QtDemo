@@ -806,23 +806,16 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
         /*根据比较添加进行界面检验*/
         if(curPicInfo.isEmpty() == false)
         {
-            //Model_PicCompare picDeal;
+            Model_PicCompare picDeal;
             if(adbpic.infoCompare == MemoryCompare)
             {
                 //查询之前对比界面，并比较
                 lastPicInfo = findCollectInfo(adbpic.comTarget,tempPicInfo);
 
                 if(lastPicInfo.isEmpty()==false)
-                {
-                    //any:比较2图片的相似度
-                    if(lastPicInfo == curPicInfo)
-                        result = true;
-                    //picDeal.Cameracompare(curPicInfo,lastPicInfo);
-                }
+                    result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
                 else
-                {
-                    ShowList <<tr("Warn:未采集到动作执行前界面，检测失败！");
-                }
+                    ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
             }
             else if(adbpic.infoCompare == NoCompare)
             {
@@ -833,21 +826,18 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
             {
                 for(int i=0;i<fixedInfo.length();i++)
                 {
-                    if(fixedInfo.at(i).name.contains(actionDeal->actStr) && fixedInfo.at(i).name.contains("-PICTURE"))
+                    //查找同动作下采集的固定信息数据
+                    if(fixedInfo.at(i).name == infoStr)
                     {
                         lastPicInfo = fixedInfo.at(i).information.toString();
-                        //picDeal.Cameracompare(curPicInfo,lastPicInfo);
-                        result = true;
+                        result=picDeal.Cameracompare(curPicInfo,lastPicInfo);
                         break;
                     }
                 }
             }
         }
         else
-        {
-            ShowList <<tr("Warn:未查询到当前界面，检测失败！");
-        }
-
+            ShowList <<tr("Warn:未查询到当前图片，检测失败！");
     }
     else
         cout <<tr("未或许到相关需要采集的信息标志");//未取到采集信息字符串，将退出采集

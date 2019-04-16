@@ -31,11 +31,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
-INCLUDEPATH +=D:\OpenCV\include\opencv\
-            D:\OpenCV\include\opencv2\
-            D:\OpenCV\include
-
-LIBS+=D:\OpenCV\lib\libopencv_*.a\
+INCLUDEPATH +=D:\OpenCV\opencv\BuildMinGW\install\include
+#D:\OpenCV\include\opencv\
+#            D:\OpenCV\include\opencv2\
+#            D:\OpenCV\include
+LIBS +=D:\OpenCV\opencv\BuildMinGW\lib\libopencv_*.a\
+   #D:\OpenCV\opencv\BuildMinGW\install\x86\mingw\bin\libopencv_core340.dll\
+   #D:\OpenCV\opencv\BuildMinGW\install\x86\mingw\bin\libopencv_highgui340.dll\
+   #D:\OpenCV\opencv\BuildMinGW\install\x86\mingw\bin\libopencv_imgcodecs340.dll\
+   #D:\OpenCV\opencv\BuildMinGW\install\x86\mingw\bin\libopencv_imgproc340.dll\
+   #D:\OpenCV\opencv\BuildMinGW\install\x86\mingw\bin\libopencv_features2d340.dll\
+   #D:\OpenCV\opencv\BuildMinGW\install\x86\mingw\bin\libopencv_calib3d340.dll
+#LIBS+=D:\OpenCV\lib\libopencv_*.a\
         #D:\OpenCV\lib\libopencv_calib3d249.dll.a\
         #D:\OpenCV\lib\libopencv_contrib249.dll.a\
         #D:\OpenCV\lib\libopencv_core249.dll.a\

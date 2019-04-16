@@ -6,7 +6,7 @@
 
 #include "model_delay.h"
 #include "model_process.h"
-//#include "model_piccompare.h"
+#include "model_piccompare.h"
 #include "model_include.h"
 #include "model_string.h"
 
