@@ -2,6 +2,7 @@
 #define RESHARDWARE_H
 
 #include <QDialog>
+#include <QCloseEvent>
 #include <QInputDialog>
 #include "Models/model_include.h"
 #include "Models/model_inisetting.h"
@@ -82,6 +83,7 @@ void refreshitemName(QString currentText);
 
 protected:
     void timerEvent(QTimerEvent *event);
+    void closeEvent(QCloseEvent *event);
 
 
 private slots:
@@ -103,6 +105,9 @@ private slots:
     void on_horizontalSliderCCD_valueChanged(int value);
     void on_radioBtn15V_clicked();
     void on_radioBtn24V_clicked();
+
+signals:
+    void itemNameChange(QString name);
 };
 
 #endif // RESHARDWARE_H

@@ -37,10 +37,21 @@ ResHardware::ResHardware(QWidget *parent) :
 
 ResHardware::~ResHardware()
 {
+
+}
+
+/*************************************************************
+/函数功能：窗口关闭事件:主窗口调用是全局变量，未能及时释放，因此在关闭窗口处处理
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void ResHardware::closeEvent(QCloseEvent *event)
+{
     killTimer(timeIDSendUart);
 
     delete keyUart;
     delete ui;
+    event->accept();
 }
 
 void ResHardware::refreshitemName(QString currentText)
@@ -334,9 +345,7 @@ void ResHardware::on_pushButton_outDat_clicked()
 void ResHardware::itemNameSlot(const QString &arg1)
 {
     readItemKeyInfo(arg1);
-    WorkItem=arg1;
-    Model_iniSetting itemName;
-    itemName.WriteIni_item("item_Name",WorkItem);
+    itemNameChange(arg1);
 }
 
 /*************************************************************

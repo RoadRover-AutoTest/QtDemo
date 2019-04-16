@@ -36,6 +36,7 @@ public:
 private slots:
     void reRankDockWidget();
     void on_actHard_triggered();
+    void itemNameChangedSlot(QString name);
 
     void on_about_triggered();
 

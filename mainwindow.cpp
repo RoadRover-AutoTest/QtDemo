@@ -259,8 +259,23 @@ void MainWindow::timerEvent(QTimerEvent *event)
 void MainWindow::on_actHard_triggered()
 {
     hardCfg=new ResHardware;
+    connect(hardCfg ,SIGNAL(itemNameChange(QString)),this,SLOT(itemNameChangedSlot(QString)));
 
     hardCfg->show();
+}
+
+/*************************************************************
+/函数功能：项目名变动
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void MainWindow::itemNameChangedSlot(QString name)
+{
+    Model_iniSetting itemName;
+    itemName.WriteIni_item("item_Name",name);
+
+    WorkItem=name;
+
     initkeyList();
 }
 
@@ -292,6 +307,8 @@ void MainWindow::on_actATtool_triggered()
         Model_iniSetting InfoINI;
         IsLogcatEnable  = InfoINI.ReadIni_item("LogcatEnable").toBool();
         logcatPath      = InfoINI.ReadIni_item("LogcatPath").toString();
+
+        initkeyList();
     }
 
     delete ATConfig;
@@ -804,9 +821,9 @@ void MainWindow::UartOpen(const QString &com, const QString &baud)
 {
     UARTDeal->Open(com,baud);
 
-    if(!UARTDeal->isOpenCurrentUart())
-        ui->treeWidget->setCheckedState(topUart,false);
-    else
+    //if(!UARTDeal->isOpenCurrentUart())
+    //    ui->treeWidget->setCheckedState(topUart,false);
+    if(UARTDeal->isOpenCurrentUart())
     {
         connect(UARTDeal,SIGNAL(RxFrameDat(char,uint8_t,char*)),this,SLOT(UartRxDealSlot(char,uint8_t,char*)));
         connect(UARTDeal,SIGNAL(UartByteArrayBackStage(QByteArray,uartDir,bool)),this,SLOT(UartByteArraySlot(QByteArray,uartDir,bool)));
