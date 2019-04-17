@@ -137,7 +137,7 @@
             <enum>QTabWidget::West</enum>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="tabAct">
             <attribute name="title">
@@ -359,7 +359,7 @@
              <item row="0" column="0">
               <widget class="QTabWidget" name="tabChkParam">
                <property name="currentIndex">
-                <number>0</number>
+                <number>3</number>
                </property>
                <property name="documentMode">
                 <bool>true</bool>
@@ -440,15 +440,15 @@
                 </layout>
                </widget>
                <widget class="QWidget" name="tabVolt">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
                 <attribute name="title">
                  <string>电压</string>
                 </attribute>
                 <layout class="QGridLayout" name="gridLayout_13">
                  <item row="0" column="0">
                   <widget class="QGroupBox" name="groupBox_vol">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
                    <property name="title">
                     <string/>
                    </property>
@@ -597,6 +597,9 @@
                    <layout class="QGridLayout" name="gridLayout_5">
                     <item row="0" column="0">
                      <widget class="QRadioButton" name="radioFaceMemory">
+                      <property name="toolTip">
+                       <string>例子：与关机前采集界面比较，判断界面记忆；根据此特性可自行扩展。</string>
+                      </property>
                       <property name="text">
                        <string>记忆检测</string>
                       </property>
@@ -607,6 +610,9 @@
                     </item>
                     <item row="1" column="0">
                      <widget class="QRadioButton" name="radioFaceExist">
+                      <property name="toolTip">
+                       <string>注：动作执行后采集可采集到界面即可。</string>
+                      </property>
                       <property name="text">
                        <string>界面存在</string>
                       </property>
@@ -614,6 +620,9 @@
                     </item>
                     <item row="2" column="0">
                      <widget class="QRadioButton" name="radioFaceSelf">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="text">
                        <string>自身检测</string>
                       </property>
@@ -671,6 +680,9 @@
                     </item>
                     <item row="0" column="0">
                      <widget class="QRadioButton" name="radioPicMemory">
+                      <property name="toolTip">
+                       <string>例子：与关机前采集图片比较，判断界面记忆；根据此特性可自行扩展。</string>
+                      </property>
                       <property name="text">
                        <string>记忆检测</string>
                       </property>
@@ -678,6 +690,9 @@
                     </item>
                     <item row="1" column="0">
                      <widget class="QRadioButton" name="radioPicExist">
+                      <property name="toolTip">
+                       <string>注：动作执行后采集可采集到界面即可。</string>
+                      </property>
                       <property name="text">
                        <string>图片存在</string>
                       </property>
@@ -685,6 +700,9 @@
                     </item>
                     <item row="2" column="0">
                      <widget class="QRadioButton" name="radioPicSelf">
+                      <property name="toolTip">
+                       <string>注：每次执行到该动作采集得到的图片均与首次获取图片比较。</string>
+                      </property>
                       <property name="text">
                        <string>自身检测</string>
                       </property>
@@ -695,6 +713,9 @@
                     </item>
                     <item row="3" column="0">
                      <widget class="QRadioButton" name="radioPicLocal">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="text">
                        <string>本地检测</string>
                       </property>

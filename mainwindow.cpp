@@ -336,8 +336,8 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.05\n"
-                                            "日期：2019.04.04\n"
+    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.06\n"
+                                            "日期：2019.04.17\n"
                                             "版权：roadrover\n"
                                             "反馈邮箱：lishuhui@roadrover.cn"));
 
@@ -968,7 +968,7 @@ void MainWindow::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
         {
             tempDat=((uint8_t)dat[i]<<(i*8))|tempDat;//低位在前，高位在后
         }
-        Volt = tempDat;
+        Volt = tempDat/100.0;
         //cout << Volt;
 
         chartDeal->refreshChart(CHKVlot,tempDat/100.0);

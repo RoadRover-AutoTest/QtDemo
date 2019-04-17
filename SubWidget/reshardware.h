@@ -106,6 +106,8 @@ private slots:
     void on_radioBtn15V_clicked();
     void on_radioBtn24V_clicked();
 
+    void on_pushBtnReadVB_clicked();
+
 signals:
     void itemNameChange(QString name);
 };

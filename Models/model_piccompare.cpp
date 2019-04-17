@@ -24,6 +24,7 @@ Model_PicCompare::~Model_PicCompare()
 bool Model_PicCompare::Cameracompare(QString pic1,QString pic2)
 {    
 
+
     int iDiffNum= PerHash(pic1,pic2);
 
     if(iDiffNum<=8)

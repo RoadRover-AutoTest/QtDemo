@@ -102,7 +102,7 @@ CfgLookUnit::CfgLookUnit(tUnit *unit,QWidget *parent) :
         for(int j=0;j<theAct.changedDeal.length();j++)
         {
             changedParam cngShow = theAct.changedDeal.at(j);
-            QTreeWidgetItem * cngitem;//=topitem->child(i+2);
+            QTreeWidgetItem * cngitem = new QTreeWidgetItem();//=topitem->child(i+2);
             switch(cngShow.changed)
             {
             case WaitTime:

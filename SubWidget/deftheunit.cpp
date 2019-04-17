@@ -743,7 +743,7 @@ void defTheUnit::on_tableAction_clicked(const QModelIndex &index)
 *************************************************************/
 int defTheUnit::getTableActionSelRanges()
 {
-    int selrow;
+    int selrow = 0xFFFF;
     //因设置了单选，因此只取一个参数即可
     QList <QTableWidgetSelectionRange>ranges = ui->tableAction->selectedRanges();
 
@@ -1119,6 +1119,7 @@ void defTheUnit::on_editFilePath_textChanged(const QString &arg1)
 
 void defTheUnit::editBatVoltDealSlot(QString volt)
 {
+    Q_UNUSED(volt)
     int selRow = getTableActionSelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
@@ -1290,8 +1291,8 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
     ui->editCurMax->setText(toStr(0));
     ui->checkSetVolt->setChecked(false);
     ui->comboVJudge->setCurrentIndex(0);
-    ui->editCurMin->setText(toStr(0));
-    ui->editCurMax->setText(toStr(0));
+    ui->editVoltMin->setText(toStr(0));
+    ui->editVoltMax->setText(toStr(0));
     ui->checkSetSound->setChecked(false);
     ui->comboSoundChanged->setCurrentIndex(0);
     ui->checkSetLogStr->setChecked(false);
@@ -1330,9 +1331,9 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
             case CHKVlot:{
                 ui->checkSetVolt->setChecked(true);
                 ui->comboVJudge->setCurrentIndex(chkParam.range);
-                ui->editCurMin->setText(toStr(chkParam.min));
-                ui->editCurMax->setText(toStr(chkParam.max));
-                ui->groupBox_pic->setEnabled(false);
+                ui->editVoltMin->setText(toStr(chkParam.min));
+                ui->editVoltMax->setText(toStr(chkParam.max));
+                ui->groupBox_vol->setEnabled(false);
                 break;
             }
             case CHKSound:{
@@ -1422,6 +1423,8 @@ void defTheUnit::editCheckDealSlot(bool checked)
             chkDeal.max = ui->editVoltMax->text().toUInt();
             curAct.checkDeal.append(chkDeal);
 
+            curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Volt");
+
             ui->groupBox_vol->setEnabled(false);
         }
         else if(sender == ui->checkSetSound)
@@ -1495,7 +1498,10 @@ void defTheUnit::editCheckDealSlot(bool checked)
             curAct.colInfoList.removeOne("ACT"+toStr(selRow+1)+":Current");
         }
         else if(sender == ui->checkSetVolt)
+        {
             ui->groupBox_vol->setEnabled(true);
+            curAct.colInfoList.removeOne("ACT"+toStr(selRow+1)+":Volt");
+        }
         else if(sender == ui->checkSetSound)
         {
             ui->groupBox_sound->setEnabled(true);

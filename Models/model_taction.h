@@ -70,9 +70,10 @@ private:
     typedef enum
     {
         SIZE_Current = 0x0001,
-        SIZE_Sound = 0x0002,
-        SIZE_Interface = 0x0004,
-        SIZE_Picture = 0x0008
+        SIZE_Volt = 0x0002,
+        SIZE_Sound = 0x0004,
+        SIZE_Interface = 0x0008,
+        SIZE_Picture = 0x0010
     }sizeColInfo_e;//标记信息采集
 
     uint16_t colInfoFlag;       // sizeColInfo_e 用来标记已完成的信息采集

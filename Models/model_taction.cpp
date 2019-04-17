@@ -265,6 +265,8 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
                 actInfoFlag|=SIZE_Picture;
             else if(infoStr.endsWith("Current"))
                 actInfoFlag|=SIZE_Current;
+            else if(infoStr.endsWith("Volt"))
+                actInfoFlag|=SIZE_Volt;
             else if(infoStr.endsWith("Sound"))
                 actInfoFlag|=SIZE_Sound;
         }
@@ -335,6 +337,29 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
         }
         else
             colInfoFlag |= SIZE_Current;      //电流采集完成
+    }
+
+    //采集电压：
+    if((!(colInfoFlag & SIZE_Volt))&&(infoFlag & SIZE_Volt))
+    {
+        //处理的时间超过检测时间方可检测数据：
+        if(actionDeal->timeDeal.wait > actionDeal->timeDeal.check)
+        {
+            for(int i=0;i<actionDeal->checkDeal.length();i++)
+            {
+                checkParam chkDeal = actionDeal->checkDeal.at(i);
+                if(chkDeal.check == CHKVlot)
+                {
+                    ShowList << tr("采集信息：电压");
+                    if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,Volt)==false)
+                        return ;
+
+                    colInfoFlag |= SIZE_Volt;      //电流采集完成
+                }
+            }
+        }
+        else
+            colInfoFlag |= SIZE_Volt;      //电流采集完成
     }
 
     //采集界面：
@@ -526,7 +551,7 @@ void Model_tAction::theActionCheckReault(QList <checkParam> testChk)
         result &= chkCurrent(testChk.at(i));
         break;
         case CHKVlot:
-        result &= chkCurrent(testChk.at(i));
+        result &= chkVolt(testChk.at(i));
         break;
         case CHKSound:
         result &= chkSound(testChk.at(i));
@@ -803,16 +828,20 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
         /*获取当前界面信息*/
         curPicInfo = findCollectInfo(infoStr,tempPicInfo);
 
+        QFileInfo file(curPicInfo);
+
         /*根据比较添加进行界面检验*/
-        if(curPicInfo.isEmpty() == false)
-        {
+        if((curPicInfo.isEmpty() == false)&&(file.exists()))
+        {                    
             Model_PicCompare picDeal;
             if(adbpic.infoCompare == MemoryCompare)
             {
                 //查询之前对比界面，并比较
                 lastPicInfo = findCollectInfo(adbpic.comTarget,tempPicInfo);
 
-                if(lastPicInfo.isEmpty()==false)
+                QFileInfo filel(lastPicInfo);
+
+                if((lastPicInfo.isEmpty()==false)&&(filel.exists()))
                     result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
                 else
                     ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
@@ -830,14 +859,24 @@ bool Model_tAction::chkADBPic(checkParam adbpic)
                     if(fixedInfo.at(i).name == infoStr)
                     {
                         lastPicInfo = fixedInfo.at(i).information.toString();
-                        result=picDeal.Cameracompare(curPicInfo,lastPicInfo);
+
+                        QFileInfo filel(lastPicInfo);
+                        if((lastPicInfo.isEmpty()==false)&&(filel.exists()))
+                            result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
+                        else
+                            ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
+
                         break;
                     }
                 }
             }
         }
         else
+        {
             ShowList <<tr("Warn:未查询到当前图片，检测失败！");
+            curPicInfo = "Warn:未查询到当前图片，检测失败！";
+        }
+
     }
     else
         cout <<tr("未或许到相关需要采集的信息标志");//未取到采集信息字符串，将退出采集
@@ -990,6 +1029,21 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
                     IsOKCMDRunned=true;
                 }
             }
+            else if(proItemString.contains("Picture"))
+            {
+                IsOKCMDRunned=true;
+                //any：优化bug处理
+                if(currentCMDString.contains("screencap"))
+                {
+                    if(String.contains("Error>>"))
+                        IsOKCMDRunned=false;
+                }
+                else if(currentCMDString.contains("pull"))
+                {
+                    if(String.contains("adb:error:"))
+                        IsOKCMDRunned=false;
+                }
+            }
         }
         ShowList << String;
     }
@@ -1041,13 +1095,11 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                 if(IsOKCMDRunned)
                     colInfoFlag |= SIZE_Interface;      //界面采集完成
             }
-            else if(proItemString.contains("Picture"))
+            else if((proItemString.contains("Picture"))&&(IsOKCMDRunned))
             {
                 if(currentCMDString.contains("screencap"))
                 {
-                    QString picPath = savePath
-                            +"/"+actionDeal->actName;
-
+                    QString picPath = savePath+"/"+actionDeal->actName;
                     QDir dir(picPath);
                     if(!dir.exists())
                     {

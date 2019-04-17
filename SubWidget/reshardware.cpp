@@ -449,6 +449,18 @@ void ResHardware::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
 
         //this->close();any:处理项目接收解析
     }
+    else if(cmd == CMDUploadBatVal)
+    {
+        unsigned int tempDat=0;
+        for(int i=0;i<dLen;i++)
+        {
+            tempDat=((uint8_t)dat[i]<<(i*8))|tempDat;//低位在前，高位在后
+        }
+        ui->lineEditShowVB->setText(toStr(tempDat/100.0)+"V");
+    }
+
+    ui->label_Show->setText(tr("读取完成！"));
+    usartTXStatusDeal(false,usart_NONE);
 }
 
 /*************************************************************
@@ -888,3 +900,20 @@ void ResHardware::on_radioBtn24V_clicked()
     ui->horizontalSliderCCD->setMaximum(24);
 }
 
+
+void ResHardware::on_pushBtnReadVB_clicked()
+{
+    if(keyUart->isOpenCurrentUart()==false)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+        return ;
+    }
+    usartTXStatusDeal(true,usart_SignalInfo);
+    char buf[BUFSIZ]={0};
+
+    buf[0] = true;
+    keyUart->UartTxCmdDeal(CMDUploadBatVal,buf,1,CMD_NEEDNACK);
+    isAck=false;
+    txCount=0;
+    ui->label_Show->setText(tr("读取当前工作电压..."));
+}
