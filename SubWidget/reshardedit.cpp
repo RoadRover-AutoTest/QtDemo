@@ -63,7 +63,7 @@ void ResHardEdit::keyEditInit()
     case HardBrake:
         ui->radioButtonBrake->setChecked(true);
         goto toHardPage;
-    case HardRes:
+    case HardCCDPower:
         ui->radioButtonRES->setChecked(true);
         goto toHardPage;
 
@@ -195,7 +195,7 @@ void ResHardEdit::on_KeyTypeChanged()
     if(ui->radioButtonBrake->isChecked())
         editKeyInfo->type = HardBrake;
     if(ui->radioButtonRES->isChecked())
-        editKeyInfo->type = HardRes;
+        editKeyInfo->type = HardCCDPower;
 }
 
 void ResHardEdit::accept()

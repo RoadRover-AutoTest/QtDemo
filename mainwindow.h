@@ -37,6 +37,7 @@ private slots:
     void reRankDockWidget();
     void on_actHard_triggered();
     void itemNameChangedSlot(QString name);
+    void hardCfgWindowClose();
 
     void on_about_triggered();
 
@@ -45,7 +46,7 @@ private slots:
     void UartRxDealSlot(char cmd,uint8_t dLen,char *dat);
     void UartByteArraySlot(QByteArray revDats,uartDir dir,bool isHex);
     void UartRxAckResault(bool result);
-    void UartDisconnect();
+    void UartErrorDeal();
 
     void unitStartExeSlot(tUnit eUnit);
     void unitEndExeSlot(bool exeResult);
@@ -56,8 +57,6 @@ private slots:
     void on_treeWidget_uartOpen(const QString &com, const QString &baud);
     void on_treeWidget_uartClose();
     void on_treeWidget_devUseState(bool isUse);
-
-    void on_pushButton_2_clicked();
 
     void on_pushButtonhide_clicked(bool checked);
 
@@ -97,13 +96,16 @@ private:
 
     ChartWidget *chartDeal;
     Model_String *qtStrDeal;
+
+
     ResHardware *hardCfg;
+    bool hardCfgIsOpen;
+    QString gstr_hardCfgCOM;
 
     QList<QDockWidget*> m_docks;//< 记录所有dockWidget的指针
     void initMainWindow();
 
     void setIsRunInterface(bool IsRun);
-    void initkeyList();
 
     /*
      * 测试流处理
@@ -137,17 +139,12 @@ private:
      * 串口处理
     */
     Model_UART *UARTDeal;
-    QList <uartFrame> txList;      //将待发送的命令填充列表，然后在定时器中调用发送
-    int timerUartID;
-    uint8_t ackWait;
 
     void initUartParam();
     void deleteUartParam();
-    void timerUartIDDeal();
     void UartOpen(const QString &com, const QString &baud);
     void UartClose();
     bool UartConnectStatus();
-    void appendTxList(char cmd,char* dat,char len,uint8_t ack);
 
 
     /*

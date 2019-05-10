@@ -18,6 +18,7 @@ public:
     void hidePopup();
 
     void clickedItem(int index,bool checked);
+    bool isClickedItem(int index);
 
 protected:
     void mousePressEvent(QMouseEvent *event);

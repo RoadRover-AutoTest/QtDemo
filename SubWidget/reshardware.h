@@ -4,6 +4,9 @@
 #include <QDialog>
 #include <QCloseEvent>
 #include <QInputDialog>
+#include <QMenu>
+#include <QDesktopServices>
+#include <QFileDialog>
 #include "Models/model_include.h"
 #include "Models/model_inisetting.h"
 #include "reshardedit.h"
@@ -11,9 +14,7 @@
 #include "Models/model_xmlfile.h"
 #include "Models/model_uart.h"
 #include "Models/model_string.h"
-
-#define proValueAdd 100/(MaxKey+1)
-
+#include "Models/model_delay.h"
 
 namespace Ui {
 class ResHardware;
@@ -24,23 +25,35 @@ class ResHardware : public QDialog
     Q_OBJECT
 
 public:
-    explicit ResHardware(QWidget *parent = 0);
+    explicit ResHardware(Model_UART *uart,QWidget *parent = 0);
     ~ResHardware();
 
 private:
     Ui::ResHardware *ui;
+    Model_String *strDeal;
 
+    //按键信息
     QList <keyControl> keyList;
+    keyControl copyTempKey;//拷贝临时按键
 
     void fixedKeyEdit();
     void tableWidgetInit();
     void keyisUsetoEnable(int Num,bool isEn);
     void readItemKeyInfo(QString item);
-    void readItemListInfo(QStringList &itemList);
 
     uint16_t covCANBaudDeal(QString baud);
-    void usartTXStatusDeal(bool status,uint8_t transType);
-void refreshitemName(QString currentText);
+    void refreshitemName(QString currentText);
+    void initkeyList();
+
+    void saveKeysInfoToXML(QString itemName);
+    QString g_ItemReadString;
+
+    void uartReadCANParamDeal();
+    QString recovCANBaudDeal(uint16_t baud);
+
+
+    QString g_DisplayBuf[8];//显示缓存
+    void DispBufClear();
 
     typedef enum
     {
@@ -59,45 +72,33 @@ void refreshitemName(QString currentText);
 
     Model_UART *keyUart;
 
-    bool isStartUartTx;
-
-    bool isDownLoadLast;
-    uint8_t gcv_transType;
-
-    bool isAck;
-
-    int timeIDSendUart;
-
     uint8_t rxCount;
 
-    uint8_t downloadIndex;
-
-    uint8_t txCount;
-
-    void downUartDeal();
-
-    void upUartDeal();
 
     //bool downIsFileSave();
     //bool downIsUartHardware();
 
 protected:
-    void timerEvent(QTimerEvent *event);
     void closeEvent(QCloseEvent *event);
 
 
 private slots:
     void EditKeyClicked();
     void on_cellChanged(int row, int column);
-    void on_pushButton_inDat_clicked();
-    void on_pushButton_outDat_clicked();
-    void on_pushButton_reset_clicked();
+    void customContextMenuUpload_clicked();
+    void uploadKeysDeal();
+    void customContextMenuDownload_clicked();
+    void customContextMenuReset_clicked();
     void itemNameSlot(const QString &arg1);
-    void on_pushButtonSave_clicked();
-    void on_checkBoxENUart_clicked(bool checked);
+    void customContextMenuSave_clicked();
+    void customContextMenuCopy_clicked();
+    void customContextMenuPaste_clicked();
+    void customContextMenuDelete_clicked();
 
     void UartRxDealSlot(char cmd,uint8_t dLen,char *dat);
     void UartRxAckResault(bool ack);
+    void UartErrorDeal();
+    void UartByteArraySlot(QByteArray revDats,uartDir dir,bool isHex);
 
     void on_checkBoxENCAN1_clicked(bool checked);
     void on_checkBoxENCAN2_clicked(bool checked);
@@ -108,8 +109,22 @@ private slots:
 
     void on_pushBtnReadVB_clicked();
 
+
+    void UpdateScreenSlot(unsigned char line);
+
+    void on_comboBox_MediaTrans_currentIndexChanged(int index);
+
+    void on_pushButton_KeyClicked_clicked();
+
+    void on_tableWidget_customContextMenuRequested(const QPoint &pos);
+
+
+    void on_pushBtnHelp_clicked();
+
 signals:
     void itemNameChange(QString name);
+    void windowClose();
+    void keysUploadOver();
 };
 
 #endif // RESHARDWARE_H

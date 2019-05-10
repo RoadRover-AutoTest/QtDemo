@@ -94,11 +94,12 @@ QString getKeyType(kType type)
     case HardCCD:str="硬件CCD";break;
     case HardLamp:str="硬件LAMP";break;
     case HardBrake:str="硬件Brake";break;
-    case HardRes:str="硬件保留";break;
+    case HardCCDPower:str="CCD摄像头供电使能";break;
     case Can1_1:str="CAN1-单协议";break;
     case Can1_2:str="CAN1-双协议";break;
     case Can2_1:str="CAN2-单协议";break;
     case Can2_2:str="CAN2-双协议";break;
+    case KEYOTHER:str="其他按键类型";break;
     }
     return str;
 }
@@ -395,7 +396,11 @@ int getKeyNumber(QString key)
     int keyNum=-1;
 
     if(theAct.isEmpty()==false)
-        keyNum = theAct.at(0).right(1).toInt();//KEY1 取"1"
+    {
+        QString keyNumber = theAct.at(0);
+        keyNum = keyNumber.remove("KEY").toInt();//KEY1 取"1"
+    }
+
 
     return keyNum;
 }

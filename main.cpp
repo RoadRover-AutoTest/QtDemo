@@ -4,6 +4,17 @@
 #include <QtMsgHandler>
 #include <QTranslator>
 
+//*************************************************************************************************
+//ATtool:致力于自动化测试
+//集成进程，线程，串口模块，opencv，等操作；
+//注意事项：
+//  1.编译时需将opencv相应的库放置在编译目录下，否则会提示动态库找不到（放置在环境目录下无效---待解释）；
+//  2.
+//作者：李书会
+//日期：20190425更新
+//*************************************************************************************************
+
+
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QString txtMessage;
@@ -41,7 +52,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    qInstallMessageHandler(customMessageHandler); //注册MsgHandler回调函数
+    //qInstallMessageHandler(customMessageHandler); //注册MsgHandler回调函数
 
     QTranslator translator;
     if(translator.load("uav_tr_laEN"))

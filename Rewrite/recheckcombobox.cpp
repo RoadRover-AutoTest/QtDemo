@@ -68,6 +68,11 @@ void reCheckComboBox::clickedItem(int index,bool checked)
     //checkedStateChange(index, !checked);//点击时已经确定了状态，无需再上传，避免进行处理又恢复
 }
 
+bool reCheckComboBox::isClickedItem(int index)
+{
+    return this->itemData(index).toBool();
+}
+
 void reCheckComboBox::setCurrentTextDeal(bool checked,const QString &itemtext)
 {
     QString text = this->currentText();

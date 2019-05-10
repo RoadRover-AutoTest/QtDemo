@@ -10,7 +10,7 @@ Model_tUnit::Model_tUnit(tUnit *testUnit)
     UnitDeal = *testUnit;
     testState = start;
 
-    timeID_U = startTimer(100);
+    timeID_U = startTimer(100,Qt::PreciseTimer);
 }
 
 Model_tUnit::~Model_tUnit()

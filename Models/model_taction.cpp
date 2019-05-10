@@ -20,7 +20,7 @@ Model_tAction::Model_tAction(int loop,tAction *Action)
     iniLoop = loop;
     actionDeal = Action;
     timeState = start;
-    timeID_T = startTimer(1);//开启定时器
+    timeID_T = startTimer(1,Qt::PreciseTimer);//开启定时器,并使用精确定时器
     initProcessDeal();
 }
 
@@ -100,11 +100,10 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 }
                 else
                 {
-                    if(overtimeAct++ >= 60000)//actionDeal->timeDeal.end
+                    if(overtimeAct++ >= (actionDeal->timeDeal.end/2))//60000
                     {
                         ShowList << tr("Error:动作执行超时;");
                         timeState = actover;//动作执行超时
-
                     }
                     else
                     {
@@ -140,7 +139,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             TimeDelay1S++;
 
             //添加超时处理机制：
-            if(reChkCount >= (actionDeal->timeDeal.end ))/// 1000
+            if(reChkCount >= (actionDeal->timeDeal.end/2 ))/// 1000
             {
                 ShowList <<tr("Error:采集信息超时；");
                 if(actionDeal->errorDeal == OVERTIMEERR)
@@ -160,8 +159,12 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         {
             timeCount++;
 
-            /*未结束等待前检测到应该检测数据，判断数据的结果*/
-            if(timeCount == actionDeal->timeDeal.check)
+            //cout << timeCount;
+
+            /*未结束等待前检测到应该检测数据，判断数据的结果
+             * 因定时器误差，这里/2处理，避免时间过长
+            */
+            if(timeCount == (actionDeal->timeDeal.check/2))
             {
                 //判断动作执行后是否采集信息：
                 if(judgeIsCollectInfo(ACT_Back))
@@ -173,7 +176,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 else
                     timeState = chkAction;
             }
-            else if(timeCount == actionDeal->timeDeal.wait)
+            else if(timeCount == (actionDeal->timeDeal.wait/2))
             {/* 结束等待时，若检测时间不存在将默认进入等待结束，
              * 若存在上述语句已经执行，因此直接进入actover操作*/
                 if(!actionDeal->timeDeal.check)//无检测时间
@@ -913,7 +916,7 @@ void Model_tAction::initProcessDeal()
     connect(PRODeal,SIGNAL(ProcessOutDeal(int,QString)),this,SLOT(onProcessOutputSlot(int,QString)));
 
     PRODeal->ProcessPathJump(QCoreApplication::applicationDirPath());
-    timerProID = startTimer(1);
+    timerProID = startTimer(1,Qt::PreciseTimer);
     isPRORunning=false;
     proItemString.clear();
 }

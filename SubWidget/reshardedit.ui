@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>382</width>
-    <height>395</height>
+    <width>359</width>
+    <height>288</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,7 +79,7 @@
       <string notr="true">font: 75 12pt &quot;Aparajita&quot;;</string>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page_hard">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -114,7 +114,7 @@
        <item row="5" column="0">
         <widget class="QRadioButton" name="radioButtonRES">
          <property name="text">
-          <string>RES</string>
+          <string>CCD_Power</string>
          </property>
         </widget>
        </item>

@@ -5,6 +5,7 @@ Model_UART::Model_UART()
 
     RxCount=0;
     reSendCount=0;
+    isWaitACK=0;
 
     isOpen=false;
     openCom.clear();
@@ -45,10 +46,7 @@ bool Model_UART::Open(QString com,QString baud)
     defSerial->setPortName("\\\\.\\"+com.toLower());
 
     if(defSerial->open(QIODevice::ReadWrite) == false)
-    {
-        QMessageBox::warning(NULL,"串口打开失败！","请选择正确的串口\n或该串口被占用！",QMessageBox::Ok, QMessageBox::NoButton);
         return 0;
-    }
 
     //设置串口
     defSerial->setBaudRate(portbaud);
@@ -61,18 +59,17 @@ bool Model_UART::Open(QString com,QString baud)
 
     defSerial->close();//先关闭
     if(defSerial->open(QIODevice::ReadWrite) == false)//再打开，使配置生效
-    {
-        QMessageBox::information(NULL,"串口打开失败！","请选择正确的串口\n或该串口被占用！",QMessageBox::Ok, QMessageBox::NoButton);
         return 0;
-    }
+
     p_connect();
 
     isOpen=true;
     openCom=com;
 
-    m_timerIDACK=startTimer(CmdACKDelay);//CmdACKDelay未中断定时器，进入定时器处理再次发送，若中断代表在这段时间内已经接收到了响应数据
-    m_timerID=startTimer(10);
-    timerCheckState=startTimer(100);
+    m_timerIDACK=startTimer(CmdACKDelay,Qt::PreciseTimer);//CmdACKDelay未中断定时器，进入定时器处理再次发送，若中断代表在这段时间内已经接收到了响应数据
+    m_timerID=startTimer(10,Qt::PreciseTimer);
+    timerCheckState=startTimer(100,Qt::PreciseTimer);
+    txList.clear();//结束即清空传输数据帧
     return 1;
 }
 
@@ -247,6 +244,7 @@ void Model_UART::timerEvent(QTimerEvent *event)
     }
     else if(event->timerId()==m_timerIDACK)
     {
+
         //间隔CmdACKDelay时间，若无响应，重复发送
         if(reSendCount)
         {
@@ -254,6 +252,10 @@ void Model_UART::timerEvent(QTimerEvent *event)
             if(reSendCount>CmdReSendTimer)
             {
                 reSendCount=0;
+                isWaitACK=0;
+                txList.clear();
+                QMessageBox::warning(NULL, tr("警告"), tr("串口响应失败，请检查！"));
+                UartError();
                 return ;
             }
             else if(reSendCount>1)
@@ -263,11 +265,14 @@ void Model_UART::timerEvent(QTimerEvent *event)
     }
     else if(event->timerId()==timerCheckState)
     {
+        timerUartIDDeal();
+
+
         if(PortCompare(openCom) == false)
         {
-            QMessageBox::warning(NULL,"Warn","串口断开，请检查连接...");
+            QMessageBox::warning(NULL,tr("警告"),tr("串口断开，请检查连接..."));
             Close();
-            UartDisConnect();
+            UartError();
         }
     }
 }
@@ -405,6 +410,7 @@ void Model_UART::UartRxCmdDeal(QByteArray Frame,uint8_t fLen)
     else
     {
         reSendCount=0;
+        isWaitACK=0;
         //处理0x55响应
         UartRxAckResault((uint8_t)Frame[3]);
     }
@@ -435,5 +441,57 @@ bool Model_UART::UartFrameCHK(QByteArray frame,uint8_t fLen)
     }
     else
         return true;
+}
+
+/*************************************************************
+/函数功能：填充串口发送列表
+/函数参数：同命令发送
+/函数返回：无
+/备注：为避免堵塞串口，将设定的串口数据先以链表形式存储，之后一个个发送
+*************************************************************/
+bool Model_UART::appendTxList(char cmd,char* dat,char len,uint8_t ack)
+{
+    bool status=isOpenCurrentUart();
+    if(status)
+    {
+        uartFrame uartDat;
+
+        uartDat.cmd = cmd;
+        for(int i=0;i<len;i++)
+        {
+            uartDat.dat[i] = dat[i];
+        }
+
+        uartDat.len = len;
+        uartDat.ack = ack;
+        txList.append(uartDat);
+    }
+    else
+    {
+        QMessageBox::warning(NULL, tr("警告"), tr("未打开串口，请处理！"));
+    }
+    return status;
+}
+
+/*************************************************************
+/函数功能：处理定时串口ID数据
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_UART::timerUartIDDeal()
+{
+    if((txList.isEmpty() == false) && (!isWaitACK))
+    {
+        uartFrame uartDat=txList.at(0);
+
+        if(uartDat.ack == CMD_NEEDACK)
+        {
+            isWaitACK=1;
+        }
+
+        cout << "txList:" <<txList.length();
+        UartTxCmdDeal(uartDat.cmd,uartDat.dat,uartDat.len,uartDat.ack);
+        txList.removeFirst();
+    }
 }
 

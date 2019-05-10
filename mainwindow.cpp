@@ -17,11 +17,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initLogcatThreadDeal();
 
-    timer1SID=startTimer(1000);
-    initkeyList();
+    timer1SID=startTimer(1000,Qt::PreciseTimer);
 
     isRunning=false;
     testState=NONE;
+    hardCfgIsOpen=false;
 }
 
 MainWindow::~MainWindow()
@@ -158,6 +158,7 @@ void MainWindow::setIsRunInterface(bool IsRun)
         ui->actPause->setText(tr("暂停"));
         ui->actPause->setIcon(QIcon(":/Title/actPause.png"));
         ui->actPause->setChecked(false);
+
     }
 }
 
@@ -189,13 +190,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 *************************************************************/
 void MainWindow::timerEvent(QTimerEvent *event)
 {
-    //串口定时器处理：
-    if(event->timerId()==timerUartID)
-    {
-        timerUartIDDeal();
-    }
     //进程定时器处理+显示处理：
-    else if(event->timerId() == timerProID)
+    if(event->timerId() == timerProID)
     {
         timerProIDDeal();
 
@@ -258,10 +254,42 @@ void MainWindow::timerEvent(QTimerEvent *event)
 *************************************************************/
 void MainWindow::on_actHard_triggered()
 {
-    hardCfg=new ResHardware;
-    connect(hardCfg ,SIGNAL(itemNameChange(QString)),this,SLOT(itemNameChangedSlot(QString)));
+    if(UartConnectStatus())
+    {
+        Model_UART *keyUart = new Model_UART;
 
-    hardCfg->show();
+        if(keyUart->Open(gstr_hardCfgCOM,"115200"))
+        {
+            hardCfg=new ResHardware(keyUart);//<<"115200"
+            connect(hardCfg ,SIGNAL(itemNameChange(QString)),this,SLOT(itemNameChangedSlot(QString)));
+            connect(hardCfg ,SIGNAL(windowClose()),this,SLOT(hardCfgWindowClose()));
+
+            hardCfg->show();
+            hardCfgIsOpen=true;
+        }
+        else
+        {
+            if(hardCfgIsOpen)
+            {
+                //窗口置顶
+                hardCfg->hide();
+                hardCfg->setWindowFlag(Qt::WindowStaysOnTopHint,true);
+                hardCfg->show();
+
+                //窗口其他属性保留，避免一直置顶
+                hardCfg->hide();
+                hardCfg->setWindowFlags(Qt::Widget);
+                hardCfg->show();
+            }
+            else
+            {
+                cout<<"error:串口打开失败";
+            }
+        }
+    }
+    else
+        QMessageBox::warning(NULL, tr("警告"), tr("未打开串口，请处理！"));
+
 }
 
 /*************************************************************
@@ -275,8 +303,16 @@ void MainWindow::itemNameChangedSlot(QString name)
     itemName.WriteIni_item("item_Name",name);
 
     WorkItem=name;
+}
 
-    initkeyList();
+/*************************************************************
+/函数功能：硬件资源窗口关
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void MainWindow::hardCfgWindowClose()
+{
+    hardCfgIsOpen=false;
 }
 
 /*************************************************************
@@ -307,8 +343,6 @@ void MainWindow::on_actATtool_triggered()
         Model_iniSetting InfoINI;
         IsLogcatEnable  = InfoINI.ReadIni_item("LogcatEnable").toBool();
         logcatPath      = InfoINI.ReadIni_item("LogcatPath").toString();
-
-        initkeyList();
     }
 
     delete ATConfig;
@@ -336,8 +370,8 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.06\n"
-                                            "日期：2019.04.17\n"
+    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.07\n"
+                                            "日期：2019.05.06\n"
                                             "版权：roadrover\n"
                                             "反馈邮箱：lishuhui@roadrover.cn"));
 
@@ -363,6 +397,8 @@ void MainWindow::on_acttest_triggered(bool checked)
         else
             endTheFlow();
     }
+    else
+        QMessageBox::warning(NULL, tr("警告"), tr("未打开串口，请处理！"));
 
     //处理后状态不一致，代表处理失败，按键状态恢复
     if(checked != getTestRunState())
@@ -406,6 +442,10 @@ void MainWindow::on_actPause_triggered(bool checked)
 void MainWindow::on_treeWidget_uartOpen(const QString &com, const QString &baud)
 {
     UartOpen(com,baud);
+    gstr_hardCfgCOM = com;
+    uint8_t comNum = gstr_hardCfgCOM.remove("COM").toUInt();
+    gstr_hardCfgCOM = "COM"+toStr(comNum+1);
+    //cout<<gstr_hardCfgCOM;
 }
 
 /*************************************************************
@@ -446,7 +486,7 @@ void MainWindow::on_treeWidget_devUseState(bool isUse)
 *************************************************************/
 void MainWindow::startTheFlow(QList <tUnit> *testFlow)
 {
-    if((!isRunning)&&(testState==NONE))
+    if((!isRunning)&&(testState==NONE))//&&(!isPRORunning))
     {
         if(devNumber.isEmpty())
         {//设备序列号
@@ -466,7 +506,7 @@ void MainWindow::startTheFlow(QList <tUnit> *testFlow)
         exeFlow = testFlow;
 
         testState=getprop;
-        timerTestID = startTimer(10);
+        timerTestID = startTimer(10,Qt::PreciseTimer);
         testTime = QDateTime::currentDateTime();
 
         ui->textBrowser_EXEShow->clear();
@@ -474,7 +514,7 @@ void MainWindow::startTheFlow(QList <tUnit> *testFlow)
     }
     else
     {
-        ui->textBrowser_EXEShow->append(tr("启动测试失败：请检查测试是否正在运行或正在生成报告！"));
+        ui->textBrowser_EXEShow->append(tr("启动测试失败：请检查：测试是否正在运行/正在生成报告！"));
     }
 }
 
@@ -650,7 +690,6 @@ void MainWindow::endTheFlow()
             proStopSysUiautomator();
 
         tFlowDeal->endTheTest();
-        txList.clear();//结束即清空传输数据帧
         isRunning=false;
     }
 }
@@ -753,14 +792,14 @@ void MainWindow::execKeyClicked(QString key)
                 buf[1]=true;
             else
                 buf[1]=false;
-            appendTxList(CMDClickedKey,buf,2,CMD_NEEDACK);
+            UARTDeal->appendTxList(CMDClickedKey,buf,2,CMD_NEEDACK);
             //cout << key;
         }
     }
     else if(key.startsWith("BAT:"))
     {
         char vol = (char)key.mid(9).toUInt();
-        appendTxList(CMDBATPower,&vol,1,CMD_NEEDACK);
+        UARTDeal->appendTxList(CMDBATPower,&vol,1,CMD_NEEDACK);
     }
 
 }
@@ -775,11 +814,11 @@ void MainWindow::chkParamFromHardware(uint8_t chk)
     char buf=0;
 
     if(chk==CHKCurrent)
-        appendTxList(Upload_SingleCurrent,&buf,1,CMD_NEEDNACK);
+        UARTDeal->appendTxList(Upload_SingleCurrent,&buf,1,CMD_NEEDNACK);
     else if(chk==CHKSound)
-        appendTxList(Upload_SingleAudio,&buf,1,CMD_NEEDNACK);
+        UARTDeal->appendTxList(Upload_SingleAudio,&buf,1,CMD_NEEDNACK);
     else if(chk==CHKVlot)
-        appendTxList(Upload_SingleVB,&buf,1,CMD_NEEDNACK);
+        UARTDeal->appendTxList(Upload_SingleVB,&buf,1,CMD_NEEDNACK);
 }
 
 
@@ -794,8 +833,6 @@ void MainWindow::chkParamFromHardware(uint8_t chk)
 void MainWindow::initUartParam()
 {
     UARTDeal=new Model_UART;
-    ackWait=0;
-    txList.clear();
 }
 
 /*************************************************************
@@ -819,19 +856,15 @@ void MainWindow::deleteUartParam()
 *************************************************************/
 void MainWindow::UartOpen(const QString &com, const QString &baud)
 {
-    UARTDeal->Open(com,baud);
-
-    //if(!UARTDeal->isOpenCurrentUart())
-    //    ui->treeWidget->setCheckedState(topUart,false);
-    if(UARTDeal->isOpenCurrentUart())
+    if(UARTDeal->Open(com,baud))
     {
         connect(UARTDeal,SIGNAL(RxFrameDat(char,uint8_t,char*)),this,SLOT(UartRxDealSlot(char,uint8_t,char*)));
         connect(UARTDeal,SIGNAL(UartByteArrayBackStage(QByteArray,uartDir,bool)),this,SLOT(UartByteArraySlot(QByteArray,uartDir,bool)));
         connect(UARTDeal,SIGNAL(UartRxAckResault(bool)),this,SLOT(UartRxAckResault(bool)));
-        connect(UARTDeal,SIGNAL(UartDisConnect()),this,SLOT(UartDisconnect()));
-
-        timerUartID=startTimer(CmdACKDelay);
+        connect(UARTDeal,SIGNAL(UartError()),this,SLOT(UartErrorDeal()));
     }
+    else
+        QMessageBox::warning(NULL,"串口打开失败！","请选择正确的串口\n或该串口被占用！",QMessageBox::Ok, QMessageBox::NoButton);
 }
 
 /*************************************************************
@@ -842,7 +875,6 @@ void MainWindow::UartOpen(const QString &com, const QString &baud)
 *************************************************************/
 void MainWindow::UartClose()
 {
-    killTimer(timerUartID);
     UARTDeal->disconnect();
     UARTDeal->Close();
 }
@@ -854,71 +886,7 @@ void MainWindow::UartClose()
 *************************************************************/
 bool MainWindow::UartConnectStatus()
 {
-    bool status=UARTDeal->isOpenCurrentUart();
-    if(!status)
-    {
-        QMessageBox::warning(NULL, tr("警告"), tr("未打开串口，请处理！"));
-        endTheFlow();//内里有判断，若在测试将结束处理
-    }
-    return status;
-}
-
-/*************************************************************
-/函数功能：处理定时串口ID数据
-/函数参数：无
-/函数返回：无
-*************************************************************/
-void MainWindow::timerUartIDDeal()
-{
-    if((txList.isEmpty() == false) && (!ackWait))
-    {
-        uartFrame uartDat=txList.at(0);
-
-        if(uartDat.ack == CMD_NEEDACK)
-        {
-            ackWait=1;
-        }
-
-        cout << "txList:" <<txList.length();
-        UARTDeal->UartTxCmdDeal(uartDat.cmd,uartDat.dat,uartDat.len,uartDat.ack);
-        txList.removeFirst();
-
-    }
-    else if(ackWait)
-    {
-        //cout << ackWait;
-        if((++ackWait) > (CmdReSendTimer+2))
-        {
-            ackWait=0;
-            txList.clear();
-
-            QMessageBox::warning(NULL, tr("警告"), tr("串口响应失败，请检查！"));
-            endTheFlow();
-        }
-    }
-}
-
-/*************************************************************
-/函数功能：填充串口发送列表
-/函数参数：同命令发送
-/函数返回：无
-*************************************************************/
-void MainWindow::appendTxList(char cmd,char* dat,char len,uint8_t ack)
-{
-    if(UartConnectStatus())
-    {
-        uartFrame uartDat;
-
-        uartDat.cmd = cmd;
-        for(int i=0;i<len;i++)
-        {
-            uartDat.dat[i] = dat[i];
-        }
-
-        uartDat.len = len;
-        uartDat.ack = ack;
-        txList.append(uartDat);
-    }
+    return UARTDeal->isOpenCurrentUart();;
 }
 
 /*************************************************************
@@ -993,22 +961,16 @@ void MainWindow::UartRxAckResault(bool result)
     //cout << "Frame ack is " << result;
     if(!result)
         cout <<"Frame Chk is Error.";
-    else
-    {
-        ackWait=0;
-        actIsRunning = false;//KEY有响应时结束测试流动作
-    }
+    actIsRunning = false;//KEY有响应时结束测试流动作
 }
 
 /*************************************************************
-/函数功能：串口断开
+/函数功能：串口错误：串口线断开，串口响应失败
 /函数参数：无
 /函数返回：无
-/备注：原本想做一个按键的翻转，但是只翻转选中项目没有意义，保留功能
 *************************************************************/
-void MainWindow::UartDisconnect()
+void MainWindow::UartErrorDeal()
 {
-    //ui->treeWidget->setCheckedState(topUart,false);
     endTheFlow();
 }
 
@@ -1027,7 +989,7 @@ void MainWindow::initProcessDeal()
     connect(PRODeal,SIGNAL(ProcessOutDeal(int,QString)),this,SLOT(onProcessOutputSlot(int,QString)));
 
     PRODeal->ProcessPathJump(QCoreApplication::applicationDirPath());
-    timerProID = startTimer(1);
+    timerProID = startTimer(1,Qt::PreciseTimer);
     isPRORunning=false;
     currentCMDString.clear();
 }
@@ -1188,64 +1150,8 @@ void MainWindow::stopLogThread()
 }
 
 /*---------------------------------------this is test fun option-----------------------------------------*/
-/*************************************************************
-/函数功能：点击按键操作
-/函数参数：无
-/函数返回：无
-/备注：手动点击按键，用来测试
-*************************************************************/
-void MainWindow::on_pushButton_2_clicked()
-{
-    QStringList theAct=ui->comboBox->currentText().split(':');
-    char buf[2]={0};
-    if(theAct.isEmpty()==false)
-    {
-        buf[0] = theAct.at(0).right(1).toInt();//KEY1  取"1"
 
-        if(ui->checkBox->checkState() == Qt::Checked)
-            buf[1]=1;
-        else
-            buf[1]=0;
-        appendTxList(CMDClickedKey,buf,2,CMD_NEEDACK);
-    }
-}
 
-/*************************************************************
-/函数功能：初始化按键列表
-/函数参数：无
-/函数返回：无
-*************************************************************/
-void MainWindow::initkeyList()
-{
-    Model_XMLFile xmlRead;
-    QList <keyControl> keyList;
-    QStringList comboList;
-
-    xmlRead.readKeyInfoXML(WorkItem,&keyList);
-
-    if(keyList.isEmpty()==false)
-    {
-        for(int i=0;i<keyList.length();i++)
-        {
-            if(keyList.at(i).isUse)
-            {
-                comboList.append("KEY"+QString::number(i+1)+":"+keyList.at(i).name);
-
-                //标记特殊按键处理字符串：
-                if(keyList.at(i).type == HardACC)
-                {
-                    AccKey = comboList.last();
-                }
-                else if(keyList.at(i).type == HardBAT)
-                {
-                    BatKey = comboList.last();
-                }
-            }
-        }
-    }
-    ui->comboBox->clear();
-    ui->comboBox->addItems(comboList);
-}
 
 /*************************************************************
 /函数功能：显示帧或隐藏帧
@@ -1279,17 +1185,17 @@ void MainWindow::on_btnReadCurrent_clicked()
 void MainWindow::on_BtnCircularCurrent_clicked()
 {
     char buf=200;
-    appendTxList(Upload_CircularCurrent,&buf,1,CMD_NEEDNACK);
-    //appendTxList(Upload_CircularVB,&buf,1,CMD_NEEDNACK);
-    //appendTxList(Upload_CircularAudio,&buf,1,CMD_NEEDNACK);
+    UARTDeal->appendTxList(Upload_CircularCurrent,&buf,1,CMD_NEEDNACK);
+    //UARTDeal->appendTxList(Upload_CircularVB,&buf,1,CMD_NEEDNACK);
+    //UARTDeal->appendTxList(Upload_CircularAudio,&buf,1,CMD_NEEDNACK);
 }
 
 void MainWindow::on_BtnOverCurrent_clicked()
 {
     char buf=0;
-    appendTxList(CMDOverCurrentUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
-    //appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);
-    //appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);
+    UARTDeal->appendTxList(CMDOverCurrentUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
+    //UARTDeal->appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);
+    //UARTDeal->appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);
 }
 
 void MainWindow::on_btnReadVolt_clicked()
@@ -1300,13 +1206,13 @@ void MainWindow::on_btnReadVolt_clicked()
 void MainWindow::on_BtnCircularVolt_clicked()
 {
     char buf=200;
-    appendTxList(Upload_CircularVB,&buf,1,CMD_NEEDNACK);
+    UARTDeal->appendTxList(Upload_CircularVB,&buf,1,CMD_NEEDNACK);
 }
 
 void MainWindow::on_BtnOverVolt_clicked()
 {
     char buf=0;
-    appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
+    UARTDeal->appendTxList(CMDOverVBUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
 }
 
 void MainWindow::on_btnReadAudio_clicked()
@@ -1317,11 +1223,12 @@ void MainWindow::on_btnReadAudio_clicked()
 void MainWindow::on_BtnCircularAudio_clicked()
 {
     char buf=200;
-    appendTxList(Upload_CircularAudio,&buf,1,CMD_NEEDNACK);
+    UARTDeal->appendTxList(Upload_CircularAudio,&buf,1,CMD_NEEDNACK);
 }
 
 void MainWindow::on_BtnOverAudio_clicked()
 {
     char buf=0;
-    appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
+    UARTDeal->appendTxList(CMDOverAudioUp,&buf,1,CMD_NEEDNACK);//any:若串口断开，结束测试后仍会发送一帧数据使其断开
 }
+

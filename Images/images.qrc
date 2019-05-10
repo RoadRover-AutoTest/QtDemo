@@ -33,6 +33,11 @@
         <file>check.png</file>
         <file>nocheck.png</file>
         <file>actPause.png</file>
+        <file>Console.png</file>
+        <file>config.png</file>
+        <file>report.png</file>
+        <file>download.png</file>
+        <file>upload.png</file>
     </qresource>
     <qresource prefix="/flow">
         <file>offScriptFlow.png</file>

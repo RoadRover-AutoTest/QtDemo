@@ -6,7 +6,7 @@ Model_tFlow::Model_tFlow(QList <tUnit> *testflow)
     theFlow = testflow;
 
     flowState = start;
-    timeID_UF=startTimer(1000);//单元测试执行定时器：动作与动作直接执行可间隔1S
+    timeID_UF=startTimer(1000,Qt::PreciseTimer);//单元测试执行定时器：动作与动作直接执行可间隔1S
 }
 
 Model_tFlow::~Model_tFlow()

@@ -97,6 +97,10 @@
    <addaction name="newTest"/>
    <addaction name="save"/>
    <addaction name="separator"/>
+   <addaction name="actHard"/>
+   <addaction name="actReport"/>
+   <addaction name="separator"/>
+   <addaction name="actATtool"/>
    <addaction name="acttest"/>
    <addaction name="actPause"/>
    <addaction name="exit"/>
@@ -278,7 +282,17 @@ color: rgb(85, 0, 255);</string>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0" rowspan="7">
+     <item row="0" column="4">
+      <widget class="QPushButton" name="pushButtonhide">
+       <property name="text">
+        <string>隐藏帧</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" rowspan="4">
       <widget class="QTextBrowser" name="textBrowser_EXEShow">
        <property name="styleSheet">
         <string notr="true">font: 10pt &quot;Andalus&quot;;</string>
@@ -295,37 +309,27 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="0" column="1" rowspan="7">
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2" rowspan="7">
-      <widget class="QTextBrowser" name="textBrowser_mShow"/>
-     </item>
-     <item row="0" column="3" rowspan="7">
+     <item row="0" column="3" rowspan="4">
       <widget class="Line" name="line_4">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="pushButtonhide">
-       <property name="text">
-        <string>隐藏帧</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
+     <item row="0" column="2" rowspan="4">
+      <widget class="QTextBrowser" name="textBrowser_mShow"/>
      </item>
      <item row="1" column="4">
       <widget class="QPushButton" name="pushButton">
        <property name="text">
         <string>清空</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" rowspan="4">
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -336,7 +340,7 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
-     <item row="6" column="4">
+     <item row="3" column="4">
       <spacer name="verticalSpacer_2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -348,23 +352,6 @@ p, li { white-space: pre-wrap; }
         </size>
        </property>
       </spacer>
-     </item>
-     <item row="3" column="4">
-      <widget class="QComboBox" name="comboBox"/>
-     </item>
-     <item row="4" column="4">
-      <widget class="QCheckBox" name="checkBox">
-       <property name="text">
-        <string>开/关</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="4">
-      <widget class="QPushButton" name="pushButton_2">
-       <property name="text">
-        <string>点击</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </widget>
@@ -617,7 +604,7 @@ p, li { white-space: pre-wrap; }
   <action name="actHard">
    <property name="icon">
     <iconset resource="Images/images.qrc">
-     <normaloff>:/Title/keyRes.png</normaloff>:/Title/keyRes.png</iconset>
+     <normaloff>:/Title/Console.png</normaloff>:/Title/Console.png</iconset>
    </property>
    <property name="text">
     <string>硬件资源</string>
@@ -705,6 +692,10 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actReport">
+   <property name="icon">
+    <iconset resource="Images/images.qrc">
+     <normaloff>:/Title/report.png</normaloff>:/Title/report.png</iconset>
+   </property>
    <property name="text">
     <string>生成报告</string>
    </property>
@@ -729,11 +720,15 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actATtool">
+   <property name="icon">
+    <iconset resource="Images/images.qrc">
+     <normaloff>:/Title/config.png</normaloff>:/Title/config.png</iconset>
+   </property>
    <property name="text">
-    <string>ATtool配置</string>
+    <string>test配置</string>
    </property>
    <property name="toolTip">
-    <string>ATtool参数配置</string>
+    <string>testFlow参数配置</string>
    </property>
   </action>
   <action name="actRunning_Sequence">

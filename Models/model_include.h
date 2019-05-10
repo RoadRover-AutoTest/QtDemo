@@ -70,9 +70,14 @@
 /*************************************************************
 /串口：命令宏定义
 *************************************************************/
-#define CmdACKDelay 500     //命令响应延时
+#define CmdACKDelay 600     //命令响应延时
 #define CmdReSendTimer 3   //定义命令重复发送次数
 //CMD
+#define CMD_LINK_STATUS    0x01     //小屏连接状态
+#define CMD_MEDIA_INFO2    0x03     //媒体2
+#define CMD_MEDIA_INFO     0x0A     //媒体
+
+
 #define CMDCANChannel      0x18    //打开/关闭CAN1
 #define CMDUploadCAN        0x19
 #define CMDItemRead         0x20    //项目信息
@@ -344,11 +349,12 @@ typedef enum
     HardCCD,
     HardLamp,
     HardBrake,
-    HardRes,
+    HardCCDPower,
     Can1_1,
     Can1_2,
     Can2_1,
-    Can2_2
+    Can2_2,
+    KEYOTHER
 }kType;
 
 /*************************************************************

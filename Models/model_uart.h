@@ -59,6 +59,7 @@ public:
     QStringList PortList();                                         //查询端口列表
 
     void UartTxCmdDeal(char cmd,char* dat,char len,uint8_t ack);
+    bool appendTxList(char cmd,char* dat,char len,uint8_t ack);
 
     bool isOpenCurrentUart();
 
@@ -86,11 +87,16 @@ private:
 
     int timerCheckState; //检测串口在线状态
 
+    QList <uartFrame> txList;      //将待发送的命令填充列表，然后在定时器中调用发送
+    bool isWaitACK;
+    int timerUartID;
+
 
 
     void PortSend(QByteArray g_SendDat);        //串口发送函数
     void UartRxCmdDeal(QByteArray Frame,uint8_t fLen);
     bool UartFrameCHK(QByteArray frame,uint8_t fLen);
+    void timerUartIDDeal();
 
 private slots:
     void ReadAllSlot();                         //接收槽函数
@@ -99,7 +105,7 @@ signals:
     void RxFrameDat(char cmd,uint8_t dLen,char *dat);               //接收帧数据信息
     void UartByteArrayBackStage(QByteArray Str,uartDir dir,bool IsHex);                    //传输过程数据传递给上层用作后台监控
     void UartRxAckResault(bool result);                             //响应结果 true:响应成功   false:0x5F响应失败 ,响应结果发出结束等待响应计时
-    void UartDisConnect();
+    void UartError();
 
 protected:
     void timerEvent(QTimerEvent *event);        //定时器处理函数

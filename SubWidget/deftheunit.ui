@@ -137,58 +137,107 @@
             <enum>QTabWidget::West</enum>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabAct">
             <attribute name="title">
              <string>动作</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_10">
-             <item row="2" column="0" colspan="4">
+             <item row="1" column="1" colspan="4">
+              <widget class="reCheckComboBox" name="comboBoxActColInfo">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_19">
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>采集动作信息：</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="5">
               <widget class="QStackedWidget" name="stackedWidget">
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="pageScript">
                 <layout class="QGridLayout" name="gridLayout_19">
-                 <item row="1" column="0">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_14">
+                   <property name="text">
+                    <string>动作名：</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="3">
+                  <widget class="QCheckBox" name="checkfileMore">
+                   <property name="toolTip">
+                    <string>(测试单元中仅支持一个批量文件处理)</string>
+                   </property>
+                   <property name="text">
+                    <string>批量</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1" colspan="2">
+                  <widget class="QLineEdit" name="editFilePath"/>
+                 </item>
+                 <item row="2" column="0">
                   <widget class="QLabel" name="labelfileShow">
                    <property name="text">
                     <string>文件：</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="0" colspan="2">
-                  <widget class="QCheckBox" name="checkfileMore">
+                 <item row="0" column="2">
+                  <widget class="QLabel" name="label_18">
+                   <property name="styleSheet">
+                    <string notr="true">color: rgb(255, 0, 0);</string>
+                   </property>
                    <property name="text">
-                    <string>批量(测试单元中仅支持一个批量文件处理)</string>
+                    <string>注：尽量避免带空格、汉子等。</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="2">
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="editActName"/>
+                 </item>
+                 <item row="2" column="3">
                   <widget class="QToolButton" name="toolButtonSelFile">
                    <property name="text">
                     <string>...</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
-                  <widget class="QLineEdit" name="editFilePath"/>
+                 <item row="3" column="1">
+                  <spacer name="verticalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                 </layout>
                </widget>
                <widget class="QWidget" name="pageKey">
                 <layout class="QGridLayout" name="gridLayout_21">
-                 <item row="0" column="2" rowspan="2">
-                  <widget class="QLabel" name="labelDescript">
-                   <property name="styleSheet">
-                    <string notr="true">color: rgb(0, 85, 255);</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="0" column="0">
                   <widget class="QLabel" name="label_15">
                    <property name="maximumSize">
@@ -218,10 +267,20 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
+                 <item row="0" column="2">
                   <widget class="QCheckBox" name="groupKeyONOFF">
                    <property name="text">
                     <string>开/关</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" colspan="4">
+                  <widget class="QLabel" name="labelDescript">
+                   <property name="styleSheet">
+                    <string notr="true">color: rgb(0, 85, 255);</string>
+                   </property>
+                   <property name="text">
+                    <string/>
                    </property>
                   </widget>
                  </item>
@@ -229,18 +288,8 @@
                </widget>
                <widget class="QWidget" name="pageBatVolt">
                 <layout class="QGridLayout" name="gridLayout_23">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_16">
-                   <property name="text">
-                    <string>Voltage(V):</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLineEdit" name="lineEditMixVolt"/>
-                 </item>
-                 <item row="0" column="2">
-                  <widget class="QLineEdit" name="lineEditMaxVolt"/>
+                 <item row="0" column="4">
+                  <widget class="QLineEdit" name="lineEditStepVolt"/>
                  </item>
                  <item row="0" column="3">
                   <widget class="QLabel" name="label_17">
@@ -249,54 +298,34 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="4">
-                  <widget class="QLineEdit" name="lineEditStepVolt"/>
+                 <item row="0" column="2">
+                  <widget class="QLineEdit" name="lineEditMaxVolt"/>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="lineEditMixVolt"/>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_16">
+                   <property name="text">
+                    <string>Voltage(V):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                 </layout>
                </widget>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_14">
-               <property name="text">
-                <string>动作名：</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="editActName"/>
-             </item>
-             <item row="0" column="2">
-              <widget class="reCheckComboBox" name="comboBoxActColInfo">
-               <property name="minimumSize">
-                <size>
-                 <width>200</width>
-                 <height>0</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLabel" name="label_18">
-               <property name="styleSheet">
-                <string notr="true">color: rgb(255, 0, 0);</string>
-               </property>
-               <property name="text">
-                <string>注：尽量避免带空格、汉子等。</string>
-               </property>
               </widget>
              </item>
             </layout>

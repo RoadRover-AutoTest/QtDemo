@@ -179,21 +179,35 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     QAction *BatVoltAction = new QAction(tr("Add BatControl"), this);
 
     QMenu *keyMenu = new QMenu("Add Key");
-    QAction *ACCONAction = new QAction(tr("ACCON"), this);
-    QAction *ACCOFFAction = new QAction(tr("ACCOFF"), this);
-    QAction *BATONAction = new QAction(tr("BATON"), this);
-    QAction *BATOFFAction = new QAction(tr("BATOFF"), this);
-    QAction *CCDONAction = new QAction(tr("CCDON"), this);
-    QAction *CCDOFFAction = new QAction(tr("CCDOFF"), this);
-    QAction *OtherAction = new QAction(tr("Other"), this);
+    //定制硬件操作：固定的处理模式，单独处理槽函数
+    QAction *ACCONAction = new QAction(("ACCON"), this);
+    QAction *ACCOFFAction = new QAction(("ACCOFF"), this);
+    QAction *BATONAction = new QAction(("BATON"), this);
+    QAction *BATOFFAction = new QAction(("BATOFF"), this);
+    QAction *CCDONAction = new QAction(("CCDON"), this);
+    QAction *CCDOFFAction = new QAction(("CCDOFF"), this);
+
     keyMenu->addAction(ACCONAction);
     keyMenu->addAction(ACCOFFAction);
     keyMenu->addAction(BATONAction);
     keyMenu->addAction(BATOFFAction);
     keyMenu->addAction(CCDONAction);
     keyMenu->addAction(CCDOFFAction);
-    keyMenu->addAction(OtherAction);
 
+
+    //添加其他按键：统一处理模式
+    for(int i=3;i<keyList.length();i++)
+    {
+        if(keyList.at(i).isUse)
+        {
+            keyControl keyInfo = keyList.at(i);
+            QAction *keyAction = new QAction(keyInfo.name, this);
+            keyMenu->addAction(keyAction);
+            connect( keyAction,        SIGNAL(triggered() ), this, SLOT( keyActionSlot()) );
+        }
+    }
+
+    //添加到主菜单：
     if(userLogin.Permissions == Administrator)
     {
         popMenu->addMenu(keyMenu);
@@ -211,7 +225,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     connect( BATOFFAction,        SIGNAL(triggered() ), this, SLOT( BATOFFActionSlot()) );
     connect( CCDONAction,        SIGNAL(triggered() ), this, SLOT( CCDONActionSlot()) );
     connect( CCDOFFAction,        SIGNAL(triggered() ), this, SLOT( CCDOFFActionSlot()) );
-    connect( OtherAction,        SIGNAL(triggered() ), this, SLOT( keyActionSlot()) );
+
 
     connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( scriptActionSlot()) );
     connect( BatVoltAction,        SIGNAL(triggered() ), this, SLOT( BatVoltActionSlot()) );
@@ -644,10 +658,29 @@ void defTheUnit::CCDOFFActionSlot()
 *************************************************************/
 void defTheUnit::keyActionSlot()
 {
+    QAction *editor = qobject_cast<QAction *>(sender());
     tAction kAction;
     inittActionParam(&kAction);
-    kAction.actName = "KEY";
+
     kAction.actFlag = ACT_KEY;
+    for(int i=0;i<keyList.length();i++)
+    {
+        if((keyList.at(i).isUse)&&(keyList.at(i).name == editor->text()))
+        {
+            if((keyList.at(i).type == Can1_1)||(keyList.at(i).type == Can2_1))
+            {
+                kAction.actName = editor->text();
+                kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name;
+            }
+            else
+            {
+                kAction.actName = editor->text()+"-OFF";
+                kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":off";
+            }
+
+            break;
+        }
+    }
 
     appendTableAction(kAction);
 }
@@ -976,6 +1009,7 @@ void defTheUnit::refreshKeyList(QString actStr)
         {
             ui->groupKeyONOFF->setEnabled(false);
             ui->groupKeyONOFF->setChecked(false);
+            ui->comboKeyList->setCurrentText(actStr);
         }
 
         else
@@ -1010,24 +1044,33 @@ void defTheUnit::on_comboKeyList_activated(const QString &arg1)
 
     //修改列表信息
     tAction curAct = unitDeal.actTest.at(selRow);
-    curAct.actStr = arg1;
-
-
     int keyNum=getKeyNumber(arg1)-1;
+
+    curAct.actStr = arg1;
+    curAct.actName = keyList.at(keyNum).name;
     ui->labelDescript->setText(keyList.at(keyNum).des);
+
     if((keyList.at(keyNum).type == Can1_1)||(keyList.at(keyNum).type == Can2_1))
         ui->groupKeyONOFF->setEnabled(false);
     else
     {
         ui->groupKeyONOFF->setEnabled(true);
         if(ui->groupKeyONOFF->isChecked())
+        {
             curAct.actStr += ":on";
+            curAct.actName +="-ON";
+        }
         else
+        {
             curAct.actStr +=":off";
+            curAct.actName +="-OFF";
+        }
+
     }
 
     unitDeal.actTest.replace(selRow,curAct);
 
+    ui->tableAction->setItem(selRow,Col_Name,new QTableWidgetItem(curAct.actName));
     ui->tableAction->setItem(selRow,Col_Str,new QTableWidgetItem(curAct.actStr));
 }
 
@@ -1052,6 +1095,11 @@ void defTheUnit::on_groupKeyONOFF_clicked(bool checked)
                 curAct.actStr.replace(":off",":on");
             else
                 curAct.actStr += ":on";
+
+            if((curAct.actName.endsWith("OFF")))
+                curAct.actName.replace("OFF","ON");
+            //else
+            //    curAct.actName += "-ON";
         }
     }
     else
@@ -1062,10 +1110,16 @@ void defTheUnit::on_groupKeyONOFF_clicked(bool checked)
                 curAct.actStr.replace(":on",":off");
             else
                 curAct.actStr += ":off";
+
+            if(curAct.actName.endsWith("ON"))
+                curAct.actName.replace("ON","OFF");
+            //else
+            //    curAct.actName += "-OFF";
         }
     }
     unitDeal.actTest.replace(selRow,curAct);
 
+    ui->tableAction->setItem(selRow,Col_Name,new QTableWidgetItem(curAct.actName));
     ui->tableAction->setItem(selRow,Col_Str,new QTableWidgetItem(curAct.actStr));
 }
 
@@ -1460,8 +1514,11 @@ void defTheUnit::editCheckDealSlot(bool checked)
 
             curAct.checkDeal.append(chkDeal);
 
-            curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Interface:Back");
-            ui->comboBoxActColInfo->clickedItem(ACTBack_Interface,true);
+            if(ui->comboBoxActColInfo->isClickedItem(ACTBack_Interface)==false)
+            {
+                curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Interface:Back");
+                ui->comboBoxActColInfo->clickedItem(ACTBack_Interface,true);
+            }
 
             ui->groupBox_face->setEnabled(false);
         }
@@ -1483,8 +1540,11 @@ void defTheUnit::editCheckDealSlot(bool checked)
 
             curAct.checkDeal.append(chkDeal);
 
-            curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Picture:Back");
-            ui->comboBoxActColInfo->clickedItem(ACTBack_Picture,true);
+            if(ui->comboBoxActColInfo->isClickedItem(ACTBack_Picture)==false)
+            {
+                curAct.colInfoList.append("ACT"+toStr(selRow+1)+":Picture:Back");
+                ui->comboBoxActColInfo->clickedItem(ACTBack_Picture,true);
+            }
 
             ui->groupBox_pic->setEnabled(false);
         }
