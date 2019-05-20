@@ -254,8 +254,8 @@ void Model_UART::timerEvent(QTimerEvent *event)
                 reSendCount=0;
                 isWaitACK=0;
                 txList.clear();
-                QMessageBox::warning(NULL, tr("警告"), tr("串口响应失败，请检查！"));
                 UartError();
+                QMessageBox::warning(NULL, tr("警告"), tr("串口响应失败，请检查！"));
                 return ;
             }
             else if(reSendCount>1)
@@ -270,9 +270,9 @@ void Model_UART::timerEvent(QTimerEvent *event)
 
         if(PortCompare(openCom) == false)
         {
-            QMessageBox::warning(NULL,tr("警告"),tr("串口断开，请检查连接..."));
             Close();
             UartError();
+            QMessageBox::warning(NULL,tr("警告"),tr("串口断开，请检查连接..."));
         }
     }
 }
@@ -361,15 +361,14 @@ void Model_UART::UartTxCmdDeal(char cmd,char* dat,char len,uint8_t ack)
 
 SENDDat:
 
-    sendDatas = QByteArray(commond,len);
-    PortSend(sendDatas);
-
     //需要响应的指令，设定重复发送
     if(ack==CMD_NEEDACK)
         reSendCount = 1;
     else
         reSendCount = 0;
 
+    sendDatas = QByteArray(commond,len);
+    PortSend(sendDatas);
 }
 
 /*************************************************************
@@ -465,6 +464,7 @@ bool Model_UART::appendTxList(char cmd,char* dat,char len,uint8_t ack)
         uartDat.len = len;
         uartDat.ack = ack;
         txList.append(uartDat);
+        cout <<"txList.append;"<<"isWaitACK:"<<isWaitACK;
     }
     else
     {
@@ -492,6 +492,10 @@ void Model_UART::timerUartIDDeal()
         cout << "txList:" <<txList.length();
         UartTxCmdDeal(uartDat.cmd,uartDat.dat,uartDat.len,uartDat.ack);
         txList.removeFirst();
+    }
+    else if(isWaitACK)
+    {
+        cout<<"reSendCount:"<<reSendCount;
     }
 }
 

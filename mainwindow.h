@@ -8,7 +8,7 @@
 #include "Models/model_include.h"
 #include "Models/model_uart.h"
 #include "Models/model_inisetting.h"
-#include "Models/model_tflow.h"
+#include "UnitDeal/model_tflow.h"
 #include "Models/model_string.h"
 #include "Models/model_xmlfile.h"
 #include "Models/model_process.h"
@@ -57,9 +57,6 @@ private slots:
     void on_treeWidget_uartOpen(const QString &com, const QString &baud);
     void on_treeWidget_uartClose();
     void on_treeWidget_devUseState(bool isUse);
-
-    void on_pushButtonhide_clicked(bool checked);
-
 
 
     void on_btnReadCurrent_clicked();

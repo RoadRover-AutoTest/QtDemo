@@ -7,6 +7,8 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
 {
     ui->setupUi(this);
 
+    unitH = new testUnit();
+
     //初始化窗口界面
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     //tab标签栏优化
@@ -99,6 +101,7 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
 
     connect(ui->radioBtnNODeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
     connect(ui->radioBtnOverTimeDeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
+    connect(ui->radioButtonchkErrorDeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
 
     if(userLogin.Permissions == OnlyUser)
     {
@@ -110,28 +113,11 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
 
 defTheUnit::~defTheUnit()
 {
+    delete unitH;
     delete ui;
 }
 
-/*************************************************************
-/函数功能：初始化动作参数
-/函数参数：动作
-/函数返回：wu
-*************************************************************/
-void defTheUnit::inittActionParam(tAction *tact)
-{
-    tact->actName = "";
-    tact->actStr =  "";
-    tact->timeDeal.wait = 0;
-    tact->timeDeal.check = 0;
-    tact->timeDeal.end = 0;
 
-    //tact->infoFlag=0;
-    tact->errorDeal=0;
-    tact->colInfoList.clear();
-    tact->checkDeal.clear();
-    tact->changedDeal.clear();
-}
 
 /*************************************************************
 /函数功能：测试单元名修改
@@ -203,7 +189,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
             keyControl keyInfo = keyList.at(i);
             QAction *keyAction = new QAction(keyInfo.name, this);
             keyMenu->addAction(keyAction);
-            connect( keyAction,        SIGNAL(triggered() ), this, SLOT( keyActionSlot()) );
+            connect( keyAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
         }
     }
 
@@ -219,16 +205,14 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
         popMenu->addAction(deleteAct);
     }
 
-    connect( ACCONAction,        SIGNAL(triggered() ), this, SLOT( ACCONActionSlot()) );
-    connect( ACCOFFAction,        SIGNAL(triggered() ), this, SLOT( ACCOFFActionSlot()) );
-    connect( BATONAction,        SIGNAL(triggered() ), this, SLOT( BATONActionSlot()) );
-    connect( BATOFFAction,        SIGNAL(triggered() ), this, SLOT( BATOFFActionSlot()) );
-    connect( CCDONAction,        SIGNAL(triggered() ), this, SLOT( CCDONActionSlot()) );
-    connect( CCDOFFAction,        SIGNAL(triggered() ), this, SLOT( CCDOFFActionSlot()) );
-
-
-    connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( scriptActionSlot()) );
-    connect( BatVoltAction,        SIGNAL(triggered() ), this, SLOT( BatVoltActionSlot()) );
+    connect( ACCONAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
+    connect( ACCOFFAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
+    connect( BATONAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
+    connect( BATOFFAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
+    connect( CCDONAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
+    connect( CCDOFFAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
+    connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
+    connect( BatVoltAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
 
     connect( deleteAct,        SIGNAL(triggered() ), this, SLOT( deleteActionSlot()) );
     connect( upAct,        SIGNAL(triggered() ), this, SLOT( upActionSlot()) );
@@ -373,366 +357,32 @@ void defTheUnit::deleteActionSlot()
 }
 
 /*************************************************************
-/函数功能：ACCON槽函数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::ACCONActionSlot()
-{
-    tAction kAction;
-    inittActionParam(&kAction);
-    kAction.actName = "ACCON";
-    kAction.actFlag = ACT_KEY;
-
-    for(int i=0;i<keyList.length();i++)
-    {
-        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardACC))
-        {
-            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":on";
-            break;
-        }
-    }
-
-    kAction.timeDeal.wait = 5000;
-    kAction.timeDeal.check = 0;
-    kAction.timeDeal.end = 60000;
-
-    checkParam checkCurrent;
-    initNullChkParam(&checkCurrent);
-    checkCurrent.check = CHKCurrent;
-    checkCurrent.range = GE;
-    checkCurrent.min = WorkCurrent;
-    kAction.checkDeal.append(checkCurrent);
-
-   /* checkParam checkMemoey;
-    initNullChkParam(&checkMemoey);
-    checkMemoey.check = CHKInterface;
-    checkMemoey.infoCompare = MemoryCompare;
-    kAction.checkDeal.append(checkMemoey);*/
-
-    int row=ui->tableAction->rowCount();
-    //kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Back");
-    kAction.colInfoList.append("ACT"+toStr(row+1)+":Current");
-
-    /*checkParam checkSound;
-    initNullChkParam(&checkSound);
-    checkSound.check = CHKSound;
-    checkSound.sound = noNSoundCount;
-    kAction.checkDeal.append(checkSound);*/
-
-    appendTableAction(kAction);
-}
-
-/*************************************************************
 /函数功能：按键动作添加槽函数
 /函数参数：无
 /函数返回：wu
 *************************************************************/
-void defTheUnit::ACCOFFActionSlot()
-{
-    tAction kAction;
-    inittActionParam(&kAction);
-    kAction.actName = "ACCOFF";
-    kAction.actFlag = ACT_KEY;
-
-    for(int i=0;i<keyList.length();i++)
-    {
-        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardACC))
-        {
-            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":off";
-            break;
-        }
-    }
-
-    kAction.timeDeal.wait = 10000;
-    kAction.timeDeal.check = 15000;
-    kAction.timeDeal.end = 60000;
-
-    int row=ui->tableAction->rowCount();
-    kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Front");
-    kAction.colInfoList.append("ACT"+toStr(row+1)+":Current");
-
-    changedParam changeTime;
-    changeTime.changed = WaitTime;
-    changeTime.dir = true;
-    changeTime.min  = kAction.timeDeal.wait;
-    changeTime.max  = 30000;
-    changeTime.step = 100;
-    kAction.changedDeal.append(changeTime);
-
-    checkParam checkCurrent;
-    initNullChkParam(&checkCurrent);
-    checkCurrent.check = CHKCurrent;
-    checkCurrent.range = LE;
-    checkCurrent.min = 20;
-    kAction.checkDeal.append(checkCurrent);
-
-    appendTableAction(kAction);
-}
-
-/*************************************************************
-/函数功能：按键动作添加槽函数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::BATONActionSlot()
-{
-    tAction kAction;
-    inittActionParam(&kAction);
-    kAction.actName = "BATON";
-    kAction.actFlag = ACT_KEY;
-
-    for(int i=0;i<keyList.length();i++)
-    {
-        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardBAT))
-        {
-            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":on";
-            break;
-        }
-    }
-
-    kAction.timeDeal.wait = 10000;
-    kAction.timeDeal.check = 0;
-    kAction.timeDeal.end = 60000;
-
-
-    checkParam checkCurrent;
-    initNullChkParam(&checkCurrent);
-    checkCurrent.check = CHKCurrent;
-    checkCurrent.range = GE;
-    checkCurrent.min = WorkCurrent;
-    kAction.checkDeal.append(checkCurrent);
-
-   /* checkParam checkMemoey;
-    initNullChkParam(&checkMemoey);
-    checkMemoey.check = CHKInterface;
-    checkMemoey.infoCompare = MemoryCompare;
-    kAction.checkDeal.append(checkMemoey);*/
-
-    int row=ui->tableAction->rowCount();
-    //kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Back");
-    kAction.colInfoList.append("ACT"+toStr(row+1)+":Current");
-
-    /*checkParam checkSound;
-    initNullChkParam(&checkSound);
-    checkSound.check = CHKSound;
-    checkSound.sound = noNSoundCount;
-    kAction.checkDeal.append(checkSound);*/
-
-    appendTableAction(kAction);
-}
-
-/*************************************************************
-/函数功能：按键动作添加槽函数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::BATOFFActionSlot()
-{
-    tAction kAction;
-    inittActionParam(&kAction);
-    kAction.actName = "BATOFF";
-    kAction.actFlag = ACT_KEY;
-
-    for(int i=0;i<keyList.length();i++)
-    {
-        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardBAT))
-        {
-            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":off";
-            break;
-        }
-    }
-
-    kAction.timeDeal.wait = 5000;
-    kAction.timeDeal.check = 0;
-    kAction.timeDeal.end = 60000;
-
-    int row=ui->tableAction->rowCount();
-    kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Front");
-
-    changedParam changeTime;
-    changeTime.changed = WaitTime;
-    changeTime.dir = true;
-    changeTime.min  = kAction.timeDeal.wait;
-    changeTime.max  = 30000;
-    changeTime.step = 100;
-    kAction.changedDeal.append(changeTime);
-
-    appendTableAction(kAction);
-}
-
-/*************************************************************
-/函数功能：按键动作添加槽函数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::CCDONActionSlot()
-{
-    tAction kAction;
-    inittActionParam(&kAction);
-    kAction.actName = "CCDON";
-    kAction.actFlag = ACT_KEY;
-
-    for(int i=0;i<keyList.length();i++)
-    {
-        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardCCD))
-        {
-            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":on";
-            break;
-        }
-    }
-
-    kAction.timeDeal.wait = 5000;
-    kAction.timeDeal.check = 0;
-    kAction.timeDeal.end = 60000;
-
-    int row=ui->tableAction->rowCount();
-    kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Front");
-    kAction.colInfoList.append("ACT"+toStr(row+1)+":Picture:Back");
-
-    changedParam changeTime;
-    changeTime.changed = WaitTime;
-    changeTime.dir = true;
-    changeTime.min  = kAction.timeDeal.wait;
-    changeTime.max  = 30000;
-    changeTime.step = 100;
-    kAction.changedDeal.append(changeTime);
-
-    checkParam checkPicture;
-    initNullChkParam(&checkPicture);
-    checkPicture.check = CHKADBPIC;
-    checkPicture.infoCompare = SelfCompare;
-    kAction.checkDeal.append(checkPicture);
-
-    appendTableAction(kAction);
-}
-
-/*************************************************************
-/函数功能：按键动作添加槽函数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::CCDOFFActionSlot()
-{
-    tAction kAction;
-    inittActionParam(&kAction);
-    kAction.actName = "CCDOFF";
-    kAction.actFlag = ACT_KEY;
-
-    for(int i=0;i<keyList.length();i++)
-    {
-        if((keyList.at(i).isUse)&&(keyList.at(i).type == HardCCD))
-        {
-            kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":off";
-            break;
-        }
-    }
-
-    kAction.timeDeal.wait = 5000;
-    kAction.timeDeal.check = 0;
-    kAction.timeDeal.end = 60000;
-
-    /*
-    checkParam checkMemoey;
-    initNullChkParam(&checkMemoey);
-    checkMemoey.check = CHKInterface;
-    checkMemoey.infoCompare = MemoryCompare;
-    kAction.checkDeal.append(checkMemoey);
-
-    int row=ui->tableAction->rowCount();
-    kAction.colInfoList.append("ACT"+toStr(row+1)+":Interface:Back");
-*/
-    /*checkParam checkSound;
-    initNullChkParam(&checkSound);
-    checkSound.check = CHKSound;
-    checkSound.sound = noNSoundCount;
-    kAction.checkDeal.append(checkSound);*/
-
-    appendTableAction(kAction);
-}
-
-/*************************************************************
-/函数功能：按键动作添加槽函数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::keyActionSlot()
+void defTheUnit::ActionAppendSlot()
 {
     QAction *editor = qobject_cast<QAction *>(sender());
-    tAction kAction;
-    inittActionParam(&kAction);
+    QString editorName = editor->text();
 
-    kAction.actFlag = ACT_KEY;
-    for(int i=0;i<keyList.length();i++)
+    tAction addAct;
+    int row=ui->tableAction->rowCount();
+
+    if(editorName == "ACCON")       unitH->actAppend_ACCON(row+1,&addAct,keyList);
+    else if(editorName == "ACCOFF") unitH->actAppend_ACCOFF(row+1,&addAct,keyList);
+    else if(editorName == "BATON")  unitH->actAppend_BATON(row+1,&addAct,keyList);
+    else if(editorName == "BATOFF") unitH->actAppend_BATOFF(row+1,&addAct,keyList);
+    else if(editorName == "CCDON")  unitH->actAppend_CCDON(row+1,&addAct,keyList);
+    else if(editorName == "CCDOFF") unitH->actAppend_CCDOFF(row+1,&addAct,keyList);
+    else if(editorName == "Add Script")unitH->actAppend_script(&addAct);
+    else if(editorName == "Add BatControl")unitH->actAppend_batVolt(&addAct);
+    else
     {
-        if((keyList.at(i).isUse)&&(keyList.at(i).name == editor->text()))
-        {
-            if((keyList.at(i).type == Can1_1)||(keyList.at(i).type == Can2_1))
-            {
-                kAction.actName = editor->text();
-                kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name;
-            }
-            else
-            {
-                kAction.actName = editor->text()+"-OFF";
-                kAction.actStr = "KEY"+QString::number(i+1)+":"+keyList.at(i).name+":off";
-            }
-
-            break;
-        }
+        unitH->actAppend_key(editorName,&addAct,keyList);
     }
 
-    appendTableAction(kAction);
-}
-
-/*************************************************************
-/函数功能：脚本动作添加槽函数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::scriptActionSlot()
-{
-    tAction sAction;
-    inittActionParam(&sAction);
-
-    sAction.actName="Script";
-    sAction.actFlag = ACT_SCRIPT;
-
-    sAction.timeDeal.end = 60000;
-
-    //创建脚本检测
-    checkParam checkScript;
-    initNullChkParam(&checkScript);
-    checkScript.check = CHKScript;
-    checkScript.logContains = "OK (1 test)";
-    sAction.checkDeal.append(checkScript);
-
-    appendTableAction(sAction);
-}
-
-/*************************************************************
-/函数功能：batvolt动作添加槽函数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::BatVoltActionSlot()
-{
-    tAction bAction;
-    inittActionParam(&bAction);
-
-    bAction.actName="BATVolt";
-    bAction.actFlag = ACT_BATVolt;
-    bAction.actStr = "BAT:Volt:10";
-
-    changedParam changevolt;
-    changevolt.changed = BatVolt;
-    changevolt.dir = true;
-    changevolt.min  = 10;
-    changevolt.max  = 15;//any:暂时使用
-    changevolt.step = 1;
-    bAction.changedDeal.append(changevolt);
-
-    appendTableAction(bAction);
+    appendTableAction(addAct);
 }
 
 /*************************************************************
@@ -1605,6 +1255,8 @@ void defTheUnit::refreshErrorDeal(uint8_t errorFlag)
         ui->radioBtnNODeal->setChecked(true);
     else if(errorFlag == OVERTIMEERR)
         ui->radioBtnOverTimeDeal->setChecked(true);
+    else if(errorFlag == CHKERROR)
+        ui->radioButtonchkErrorDeal->setChecked(true);
 }
 
 void defTheUnit::editErrorDealSlot()
@@ -1623,6 +1275,10 @@ void defTheUnit::editErrorDealSlot()
     else if(sender == ui->radioBtnOverTimeDeal)
     {
         curAct.errorDeal = OVERTIMEERR;
+    }
+    else if(sender == ui->radioButtonchkErrorDeal)
+    {
+        curAct.errorDeal = CHKERROR;
     }
     unitDeal.actTest.replace(selRow,curAct);
 }

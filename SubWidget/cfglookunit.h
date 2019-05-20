@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QTreeWidgetItem>
 #include "Models/model_include.h"
+#include "UnitDeal/testunit.h"
 
 namespace Ui {
 class CfgLookUnit;

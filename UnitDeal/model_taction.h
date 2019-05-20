@@ -4,33 +4,12 @@
 #include <QObject>
 #include <QTimerEvent>
 
-#include "model_delay.h"
-#include "model_process.h"
-#include "model_piccompare.h"
-#include "model_include.h"
-#include "model_string.h"
+#include "Models/model_delay.h"
+#include "Models/model_process.h"
 
-#define ACT_Front   false
-#define ACT_Back    true
-
-#define ColSOUNDTimer 11
-
-/*存储采集数据类型：
- * 数据名：定义和动作或数据类型相关，以便查找
- * 信息：未固定数据类型，可为多种数据类型
-*/
-typedef struct
-{
-    QString name;
-    QVariant information;
-}storageInfo_type_s;
-
-extern QList <storageInfo_type_s> fixedInfo;
-
-extern QList <storageInfo_type_s> tempFaceInfo;
-extern QList <storageInfo_type_s> tempPicInfo;
-
-extern QList <bool> tempSoundInfo;
+#include "Models/model_include.h"
+#include "Models/model_string.h"
+#include "UnitDeal/testunit.h"
 
 
 /*定义测试动作类*/
@@ -43,6 +22,7 @@ public:
 
 private:
     tAction *actionDeal;
+    testUnit *unitDeal;
 
     typedef enum
     {
@@ -67,14 +47,7 @@ private:
     uint64_t TimeDelay1S;
     uint8_t soundTimer;//
 
-    typedef enum
-    {
-        SIZE_Current = 0x0001,
-        SIZE_Volt = 0x0002,
-        SIZE_Sound = 0x0004,
-        SIZE_Interface = 0x0008,
-        SIZE_Picture = 0x0010
-    }sizeColInfo_e;//标记信息采集
+
 
     uint16_t colInfoFlag;       // sizeColInfo_e 用来标记已完成的信息采集
     uint16_t actInfoFlag;
@@ -85,7 +58,7 @@ private:
 
     bool IsFirstMemory;
 
-    bool judgeIsCollectInfo(bool site);
+    uint16_t judgeIsCollectInfo(bool site);
     void collectInfoDeal(uint16_t infoFlag);
     void evaluateTheAction(QString actStr);
     void theActionChangedDeal(QList <changedParam>testChanged);
@@ -108,7 +81,7 @@ private:
     QStringList proList;
     QStringList deviceList;
     bool IsOKCMDRunned;         //  命令运行完成标志，用来标记取字符串OK
-
+    uint8_t IsReRunning;//重新运行次数
     /*typedef enum
     {
         CMD_NULL,

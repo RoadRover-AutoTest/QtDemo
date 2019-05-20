@@ -370,8 +370,8 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.07\n"
-                                            "日期：2019.05.06\n"
+    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.07.01\n"
+                                            "日期：2019.05.10\n"
                                             "版权：roadrover\n"
                                             "反馈邮箱：lishuhui@roadrover.cn"));
 
@@ -904,11 +904,11 @@ void MainWindow::UartByteArraySlot(QByteArray revDats,uartDir dir,bool isHex)
         strShow=revDats;
 
     if(dir==Uart_Rx)
-        ui->textBrowser_mShow->append("Rx: "+strShow);
+        ui->textBrowser_mShow->append(QDateTime::currentDateTime().toString("【hh.mm.ss】Rx: ")+strShow);
     else if(dir==Uart_Tx)
-        ui->textBrowser_mShow->append("Tx: "+strShow);
+        ui->textBrowser_mShow->append(QDateTime::currentDateTime().toString("【hh.mm.ss】Tx: ")+strShow);
     else
-        ui->textBrowser_mShow->append("Warn: "+strShow);
+        ui->textBrowser_mShow->append(QDateTime::currentDateTime().toString("【hh.mm.ss】Warn: ")+strShow);
 }
 
 /*************************************************************
@@ -1150,28 +1150,6 @@ void MainWindow::stopLogThread()
 }
 
 /*---------------------------------------this is test fun option-----------------------------------------*/
-
-
-
-/*************************************************************
-/函数功能：显示帧或隐藏帧
-/函数参数：无
-/函数返回：无
-*************************************************************/
-void MainWindow::on_pushButtonhide_clicked(bool checked)
-{
-    if(checked)
-    {
-        ui->pushButtonhide->setText(tr("显示帧"));
-        ui->textBrowser_mShow->setVisible(false);
-    }
-    else
-    {
-        ui->pushButtonhide->setText(tr("隐藏帧"));
-        ui->textBrowser_mShow->setVisible(true);
-    }
-}
-
 /*************************************************************
 /函数功能：点击获取参数
 /函数参数：无

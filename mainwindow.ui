@@ -281,77 +281,53 @@ color: rgb(85, 0, 255);</string>
     <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="4">
-      <widget class="QPushButton" name="pushButtonhide">
-       <property name="text">
-        <string>隐藏帧</string>
+    <layout class="QGridLayout" name="gridLayout_8">
+     <item row="0" column="0">
+      <widget class="QTabWidget" name="tabWidget">
+       <property name="tabPosition">
+        <enum>QTabWidget::South</enum>
        </property>
-       <property name="checkable">
-        <bool>true</bool>
+       <property name="tabShape">
+        <enum>QTabWidget::Triangular</enum>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="0" rowspan="4">
-      <widget class="QTextBrowser" name="textBrowser_EXEShow">
-       <property name="styleSheet">
-        <string notr="true">font: 10pt &quot;Andalus&quot;;</string>
+       <property name="currentIndex">
+        <number>0</number>
        </property>
-       <property name="html">
-        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+       <widget class="QWidget" name="tab">
+        <attribute name="title">
+         <string>EXELog</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QTextBrowser" name="textBrowser_EXEShow">
+           <property name="styleSheet">
+            <string notr="true">font: 10pt &quot;Andalus&quot;;</string>
+           </property>
+           <property name="html">
+            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Andalus'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-       <property name="openExternalLinks">
-        <bool>true</bool>
-       </property>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tab_2">
+        <attribute name="title">
+         <string>帧显示</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0">
+          <widget class="QTextBrowser" name="textBrowser_mShow"/>
+         </item>
+        </layout>
+       </widget>
       </widget>
-     </item>
-     <item row="0" column="3" rowspan="4">
-      <widget class="Line" name="line_4">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2" rowspan="4">
-      <widget class="QTextBrowser" name="textBrowser_mShow"/>
-     </item>
-     <item row="1" column="4">
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>清空</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" rowspan="4">
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="4">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="4">
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </widget>
@@ -807,38 +783,6 @@ p, li { white-space: pre-wrap; }
   <include location="Images/images.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>textBrowser_mShow</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1128</x>
-     <y>664</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>969</x>
-     <y>706</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>textBrowser_EXEShow</receiver>
-   <slot>clear()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1128</x>
-     <y>664</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>460</x>
-     <y>733</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>actMonitor</sender>
    <signal>triggered(bool)</signal>

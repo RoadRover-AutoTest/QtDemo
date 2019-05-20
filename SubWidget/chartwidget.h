@@ -3,8 +3,8 @@
 
 #include <QWidget>
 #include <QtCharts/QtCharts>
-#include "Models/model_include.h"
-
+//#include "Models/model_include.h"
+#include "UnitDeal/testunit.h"
 using namespace QtCharts;
 
 namespace Ui {

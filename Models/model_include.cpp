@@ -28,48 +28,6 @@ bool actIsRunning=false;
 
 bool PauseState=false;
 
-/*************************************************************
-/函数功能：参数范围判断
-/函数参数：rJudge:判断条件  param1：判断参数1  param2：判断参数2  value:需判断的数值
-/函数返回：判断结果
-*************************************************************/
-bool rangeJudgeTheParam(range_type_e rJudge,uint16_t param1,uint16_t param2,uint16_t value)
-{
-    bool chkResult=false;
-
-    switch(rJudge)
-    {
-    case GE:
-        if(value>=param1)
-            chkResult=true;
-        break;
-    case GT:
-        if(value>param1)
-            chkResult=true;
-        break;
-    case LE:
-        if(value<=param1)
-            chkResult=true;
-        break;
-    case LT:
-        if(value<param1)
-            chkResult=true;
-        break;
-    case EQ:
-        if(value==param1)
-            chkResult=true;
-        break;
-    case NE:
-        if(value!=param1)
-            chkResult=true;
-        break;
-    case GELE:
-        if((value>=param1)&&(value<=param2))
-            chkResult=true;
-        break;
-    }
-    return chkResult;
-}
 
 /*************************************************************
 /函数功能：获得空按键资源信息：主要对数据信息进行赋值，字符串默认为空
@@ -104,76 +62,6 @@ QString getKeyType(kType type)
     return str;
 }
 
-/*************************************************************
-/函数功能：根据枚举类型获得字符串显示
-/函数参数：枚举类型
-/函数返回：字符串
-*************************************************************/
-QString getRangeJudge(range_type_e judge)
-{
-    QString str;
-    switch(judge)
-    {
-    case GE:str=">=";break;//>=
-    case GT:str=">";break;//>
-    case LE:str="<=";break;//<=
-    case LT:str="<";break;//<
-    case EQ:str="==";break;//==
-    case NE:str="!=";break;// !=
-    case GELE:str=">= && <=";break;//>= && <=
-    }
-    return str;
-}
-
-/*************************************************************
-/函数功能：根据枚举类型获得字符串显示
-/函数参数：枚举类型
-/函数返回：字符串
-*************************************************************/
-QString getSoundJudge(sound_type_e judge)
-{
-    QString str;
-    switch(judge)
-    {
-    case HaveSound:str="存在有声音值";break;
-    case NOSound:str="存在无声音值";break;
-    case noHSoundCount:str="声音值全为无";break;
-    case noNSoundCount:str="声音值全为有";break;
-    case HCountthanNCount:str="有声音次数大于等于无声音次数";break;
-    case HCountlessNCount:str="有声音次数小于等于无声音次数";break;
-
-    }
-    return str;
-}
-
-QString getCheckType(chk_type_e chk)
-{
-    QString str;
-    switch(chk)
-    {
-        case CHKCurrent:str = "检测电流";break;
-        case CHKVlot:str = "检测电压";break;
-        case CHKSound:str = "检测声音";break;
-        case CHKScript:str = "检测脚本LOG";break;
-        case CHKInterface:str = "检测界面";break;
-        case CHKADBPIC:str = "检测图片";break;
-        case CHKRES:str = "检测保留";break;
-    }
-    return str;
-}
-
-QString getCompareType(compare_type_e compare)
-{
-    QString str;
-    switch(compare)
-    {
-        case NoCompare:str = "不比较";break;
-        case MemoryCompare:str = "记忆检测";break;
-        case SelfCompare:str = "自身校验";break;
-        case LocalCompare:str = "本地校验";break;
-    }
-    return str;
-}
 
 /*************************************************************
 /函数功能：保存文件
@@ -373,22 +261,6 @@ bool NumberListIsSingle()
 }
 
 
-/*************************************************************
-/函数功能：初始化检测参数
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void initNullChkParam(checkParam *chkParam)
-{
-    chkParam->check =CHKRES;
-    chkParam->range=GE;
-    chkParam->max=0;
-    chkParam->min=0;
-    chkParam->hReault=0;
-    chkParam->sound=HaveSound;
-    chkParam->infoCompare=NoCompare;
-    chkParam->logContains.clear();
-}
 
 int getKeyNumber(QString key)
 {

@@ -79,7 +79,6 @@ SOURCES += \
     Models/model_string.cpp \
     Models/model_uart.cpp \
     Models/model_delay.cpp \
-    Models/model_tflow.cpp \
     Models/model_process.cpp \
     Models/model_inisetting.cpp \
     Models/model_include.cpp \
@@ -91,22 +90,23 @@ SOURCES += \
     Rewrite/retreewidget.cpp \
     SubWidget/chartwidget.cpp \
     Models/model_winapi.cpp \
-    Models/model_tunit.cpp \
-    Models/model_taction.cpp \
     SubWidget/diareport.cpp \
     SubWidget/toolconfig.cpp \
     Models/model_piccompare.cpp \
     SubWidget/deftheunit.cpp \
     Models/model_threadlog.cpp \
     dialoglogin.cpp \
-    Rewrite/recheckcombobox.cpp
+    Rewrite/recheckcombobox.cpp \
+    UnitDeal/model_taction.cpp \
+    UnitDeal/model_tflow.cpp \
+    UnitDeal/model_tunit.cpp \
+    UnitDeal/testunit.cpp
 
 HEADERS += \
         mainwindow.h \
     Models/model_string.h \
     Models/model_uart.h \
     Models/model_delay.h \
-    Models/model_tflow.h \
     Models/model_process.h \
     Models/model_include.h \
     Models/model_inisetting.h \
@@ -118,15 +118,17 @@ HEADERS += \
     Rewrite/retreewidget.h \
     SubWidget/chartwidget.h \
     Models/model_winapi.h \
-    Models/model_tunit.h \
-    Models/model_taction.h \
     SubWidget/diareport.h \
     SubWidget/toolconfig.h \
     Models/model_piccompare.h \
     SubWidget/deftheunit.h \
     Models/model_threadlog.h \
     dialoglogin.h \
-    Rewrite/recheckcombobox.h
+    Rewrite/recheckcombobox.h \
+    UnitDeal/model_taction.h \
+    UnitDeal/model_tflow.h \
+    UnitDeal/model_tunit.h \
+    UnitDeal/testunit.h
 
 FORMS += \
         mainwindow.ui \

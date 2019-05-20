@@ -137,7 +137,7 @@
             <enum>QTabWidget::West</enum>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>3</number>
            </property>
            <widget class="QWidget" name="tabAct">
             <attribute name="title">
@@ -832,6 +832,13 @@
                </property>
                <property name="checked">
                 <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QRadioButton" name="radioButtonchkErrorDeal">
+               <property name="text">
+                <string>检测失败暂停</string>
                </property>
               </widget>
              </item>

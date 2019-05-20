@@ -10,7 +10,7 @@
 #include "Models/model_include.h"
 #include "Models/model_xmlfile.h"
 #include "cfglookunit.h"
-
+#include "UnitDeal/testunit.h"
 
 namespace Ui {
 class defTheUnit;
@@ -25,15 +25,7 @@ public:
     ~defTheUnit();
 
 private slots:
-    void ACCONActionSlot();
-    void ACCOFFActionSlot();
-    void BATONActionSlot();
-    void BATOFFActionSlot();
-    void CCDONActionSlot();
-    void CCDOFFActionSlot();
-    void keyActionSlot();
-    void scriptActionSlot();
-    void BatVoltActionSlot();
+    void ActionAppendSlot();
     void deleteActionSlot();
     void downActionSlot();
     void upActionSlot();
@@ -90,6 +82,7 @@ private slots:
 private:
     Ui::defTheUnit *ui;
     QList <keyControl> keyList;
+    testUnit *unitH;
 
     tUnit unitDeal;
     QList <tUnit> unitList; //文件中存储的测试单元序列

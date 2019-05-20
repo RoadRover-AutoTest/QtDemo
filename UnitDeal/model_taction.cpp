@@ -1,13 +1,17 @@
 #include "model_taction.h"
 
 
-QList <storageInfo_type_s> fixedInfo;       //固定界面信息：随测试序列刷新：即每次开始测试启动时清空，测试过程中首次测试某一项，添加到列表中，之后的测试单元测试时将于其相对应数据比较
 
-QList <storageInfo_type_s> tempFaceInfo;        //临时界面信息：随测试单元刷新：即测试单元开始可填写数据，结束即清空
-QList <storageInfo_type_s> tempPicInfo;         //临时图片信息
 
-QList <bool> tempSoundInfo;                        //定义临时声音信息：用来处理声音临时数据存储
+typedef struct
+{
+    int Current;
+    int volt;
 
+    QList <bool> tempSoundInfo;                        //定义临时声音信息：用来处理声音临时数据存储
+}colInfoDat_s;
+
+colInfoDat_s colInfoDat;
 
 /* this is Action Deal
  * ：测试流程改为：关ACC--开ACC--脚本（优点，测试单元执行结束机器仍为正常工作状态，无需恢复；测试记忆功能也可在一个测试单元中处理）
@@ -17,6 +21,7 @@ QList <bool> tempSoundInfo;                        //定义临时声音信息：
 */
 Model_tAction::Model_tAction(int loop,tAction *Action)
 {
+    unitDeal =new testUnit();
     iniLoop = loop;
     actionDeal = Action;
     timeState = start;
@@ -26,6 +31,7 @@ Model_tAction::Model_tAction(int loop,tAction *Action)
 
 Model_tAction::~Model_tAction()
 {
+    delete unitDeal;
     deleteProcessDeal();
 }
 
@@ -53,7 +59,11 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             TimeDelay1S=0;
             soundTimer=0;
 
-            tempSoundInfo.clear();
+            IsReRunning=0;
+
+            colInfoDat.tempSoundInfo.clear();
+            colInfoDat.Current=0;
+            colInfoDat.volt=0;
 
             //显示执行且保存到结果文件：
             ShowList <<"【"+ QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss")+"  INILoop:"+toStr(iniLoop+1)+"】 evaluateTheAction:"+actionDeal->actName;
@@ -123,6 +133,8 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         {
             //clearAction();//在结果处理时有对记忆进行赋值，若开始判断结果时将清除数据，避免对后续操作影响
             theActionCheckReault(actionDeal->checkDeal);//检测
+
+            //是否继续等待:
             if((actionDeal->timeDeal.check)&&(actionDeal->timeDeal.check<actionDeal->timeDeal.wait))
             {
                 ShowList<<tr("继续等待！");
@@ -130,6 +142,15 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             }
             else
                 timeState = actover;
+
+            //检测失败处理:
+            if((testResult==false)&&(actionDeal->errorDeal == CHKERROR))
+            {
+                ShowList<<tr("Error:检测结果失败。");
+                lastState = timeState;
+                timeState = pauseState;
+                PauseState = true;
+            }
             break;
         }
         case collectInfo:
@@ -237,7 +258,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
 /函数参数：当前位置
 /函数返回：是否采集信息
 *************************************************************/
-bool Model_tAction::judgeIsCollectInfo(bool site)
+uint16_t Model_tAction::judgeIsCollectInfo(bool site)
 {
     if(actionDeal->colInfoList.isEmpty())
         return false;
@@ -274,41 +295,11 @@ bool Model_tAction::judgeIsCollectInfo(bool site)
                 actInfoFlag|=SIZE_Sound;
         }
     }
-    if(actInfoFlag)
+    return actInfoFlag;
+    /*if(actInfoFlag)
         return true;
     else
-        return false;
-}
-
-QString Model_tAction::getCollectInfo(bool size,QString info)
-{
-    QString infoStr;
-    for(int i=0;i<actionDeal->colInfoList.length();i++)
-    {
-        if(actionDeal->colInfoList.at(i).contains(info))
-        {
-            if((size == ACT_Front)&&(actionDeal->colInfoList.at(i).endsWith(":Front")))
-                infoStr = actionDeal->colInfoList.at(i);
-            else if((size == ACT_Back)&&(actionDeal->colInfoList.at(i).endsWith(":Back")))
-                infoStr = actionDeal->colInfoList.at(i);
-        }
-    }
-    return infoStr;
-}
-
-QString Model_tAction::findCollectInfo(QString name,QList <storageInfo_type_s> infoDat)
-{
-    QString findStr;
-    /*获取信息*/
-    for(int i=0;i<infoDat.length();i++)
-    {
-        if(infoDat.at(i).name == name)
-        {
-            findStr = infoDat.at(i).information.toString();
-            break;
-        }
-    }
-    return findStr;
+        return false;*/
 }
 
 /*************************************************************
@@ -331,7 +322,8 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
                 if(chkDeal.check == CHKCurrent)
                 {
                     ShowList << tr("采集信息：电流");
-                    if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,Current)==false)
+                    colInfoDat.Current = Current;
+                    if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,colInfoDat.Current)==false)
                         return ;
 
                     colInfoFlag |= SIZE_Current;      //电流采集完成
@@ -354,7 +346,8 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
                 if(chkDeal.check == CHKVlot)
                 {
                     ShowList << tr("采集信息：电压");
-                    if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,Volt)==false)
+                    colInfoDat.volt = Volt;
+                    if(rangeJudgeTheParam(chkDeal.range,chkDeal.min,chkDeal.max,colInfoDat.volt)==false)
                         return ;
 
                     colInfoFlag |= SIZE_Volt;      //电流采集完成
@@ -372,7 +365,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
         {
             ShowList << tr("采集信息：界面");
 
-            QString infoStr = getCollectInfo(colSize,"Interface");
+            QString infoStr = unitDeal->ActColInfo_Read(colSize,"Interface",actionDeal->colInfoList);
 
             if(infoStr.isEmpty()==false)
                 onProcessEXECmd(infoStr);
@@ -388,7 +381,7 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
         {
             ShowList << tr("采集信息：图片");
 
-            QString infoStr = getCollectInfo(colSize,"Picture");
+            QString infoStr = unitDeal->ActColInfo_Read(colSize,"Picture",actionDeal->colInfoList);
 
             if(infoStr.isEmpty()==false)
                 onProcessEXECmd(infoStr);
@@ -401,10 +394,10 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     if((!(colInfoFlag & SIZE_Sound))&&(infoFlag & SIZE_Sound))
     {
         ShowList << tr("采集信息：声音");
-        tempSoundInfo.append(SoundV);
+        colInfoDat.tempSoundInfo.append(SoundV);
         if(++soundTimer >= ColSOUNDTimer)
         {
-            //cout <<tempSoundInfo.length();
+            //cout <<colInfoDat.tempSoundInfo.length();
             colInfoFlag |= SIZE_Sound;
         }
     }
@@ -412,42 +405,6 @@ void Model_tAction::collectInfoDeal(uint16_t infoFlag)
     //信息采集完成,执行下一步：
     if(colInfoFlag == infoFlag)
         timeState=nextState;
-}
-
-/*************************************************************
-/函数功能：信息存储
-/函数参数：信息类型  数据
-/函数返回：无
-*************************************************************/
-void Model_tAction::infoAppendDeal(uint16_t infoflag,storageInfo_type_s infoDat)
-{
-    /*查找界面处理的判断条件*/
-    for(int i=0;i<actionDeal->checkDeal.length();i++)
-    {
-        if(((infoflag == SIZE_Interface)&&(actionDeal->checkDeal.at(i).check == CHKInterface))
-                ||((infoflag == SIZE_Picture)&&(actionDeal->checkDeal.at(i).check == CHKADBPIC)))
-        {
-            if(actionDeal->checkDeal.at(i).infoCompare == SelfCompare)
-            {
-                for(int j=0;j<fixedInfo.length();j++)
-                {
-                    /*自身比较界面：固定信息中存在该信息，添加为临时信息用来和固定信息进行比较*/
-                    if(fixedInfo.at(j).name == infoDat.name)
-                        goto AddTempInfo;
-                }
-                /*自身比较界面：固定信息中不存在该信息，添加为固定信息*/
-                fixedInfo.append(infoDat);
-            }
-            else
-                goto AddTempInfo;
-        }
-    }
-
-    AddTempInfo:
-    if(infoflag == SIZE_Picture)
-        tempPicInfo.append(infoDat);
-    else if(infoflag == SIZE_Interface)
-        tempFaceInfo.append(infoDat);
 }
 
 /*************************************************************
@@ -551,356 +508,51 @@ void Model_tAction::theActionCheckReault(QList <checkParam> testChk)
         switch(testChk.at(i).check)
         {
         case CHKCurrent:
-        result &= chkCurrent(testChk.at(i));
+        result &= unitDeal->chkCurrent(colInfoDat.Current,testChk.at(i));
         break;
         case CHKVlot:
-        result &= chkVolt(testChk.at(i));
+        result &= unitDeal->chkVolt(colInfoDat.volt,testChk.at(i));
         break;
         case CHKSound:
-        result &= chkSound(testChk.at(i));
+        result &= unitDeal->chkSound(colInfoDat.tempSoundInfo,testChk.at(i));
         break;
         case CHKScript:
-        result &= chkScript(testChk.at(i));
+        result &= unitDeal->chkScript(savePath+"\\"+toStr(iniLoop)+"\\case.log",testChk.at(i));//any--检测脚本路径
         break;
         case CHKInterface:
-        result &= chkInterface(testChk.at(i));
-        break;
+        {
+            QString infoStr = unitDeal->ActColInfo_Read(ACT_Back,"Interface",actionDeal->colInfoList);
+            if(infoStr.isEmpty()==false)
+                result &= unitDeal->chkInterface(infoStr,testChk.at(i));
+            else
+            {
+                result &=false;
+                cout <<tr("未或许到相关需要采集的信息标志");//未取到采集信息字符串，将退出采集
+            }
+            break;
+        }
         case CHKRES:
-        result &= chkRes(testChk.at(i));
+        result &= unitDeal->chkRes(testChk.at(i));
         break;
         case CHKADBPIC:
-        result &= chkADBPic(testChk.at(i));
-        break;
+        {
+            QString infoStr = unitDeal->ActColInfo_Read(ACT_Back,"Picture",actionDeal->colInfoList);
+            if(infoStr.isEmpty()==false)
+                result &= unitDeal->chkADBPic(infoStr,testChk.at(i));
+            else
+            {
+                result &=false;
+                cout <<tr("未或许到相关需要采集的信息标志");//未取到采集信息字符串，将退出采集
+            }
+            break;
+        }
+        default:break;
         }
     }
     testResult = result;
 }
 
-/*************************************************************
-/函数功能：检测电流
-/函数参数：范围检测参数
-/函数返回：wu
-*************************************************************/
-bool Model_tAction::chkCurrent(checkParam range)
-{
-    int value = Current;
-    ShowList << tr("checkTheAction:检测电流...")+toStr(value);
-    bool result = rangeJudgeTheParam(range.range,range.min,range.max,value);
 
-    if(range.range != GELE)
-        appendTheResultToFile("Judge:Current:"+getRangeJudge(range.range)+toStr(range.min));
-    else
-        appendTheResultToFile("Judge:Current:>="+toStr(range.min)+"  <="+toStr(range.max));
-    appendTheResultToFile("Check:Current:"+toStr(value));
-    appendTheResultToFile("Result:Current:"+toStr(result));
-    return result;
-}
-
-/*************************************************************
-/函数功能：检测电压
-/函数参数：范围检测参数
-/函数返回：wu
-*************************************************************/
-bool Model_tAction::chkVolt(checkParam range)
-{
-    int value = Volt;
-    ShowList << tr("checkTheAction:检测电压...")+toStr(value);
-    bool result = rangeJudgeTheParam(range.range,range.min,range.max,value);
-
-    if(range.range != GELE)
-        appendTheResultToFile("Judge:Volt:"+getRangeJudge(range.range)+toStr(range.min));
-    else
-        appendTheResultToFile("Judge:Vlot:>="+toStr(range.min)+"  <="+toStr(range.max));
-    appendTheResultToFile("Check:Volt:"+toStr(value));
-    appendTheResultToFile("Result:Volt:"+toStr(result));
-    return result;
-}
-
-/*************************************************************
-/函数功能：检测声音
-/函数参数：声音检测参数
-/函数返回：wu
-*************************************************************/
-bool Model_tAction::chkSound(checkParam sound)
-{
-    ShowList<< tr("checkTheAction:检测声音...");
-    bool result=false;
-    switch(sound.sound)
-    {
-    case HaveSound:
-    {
-        for(int i=0;i<tempSoundInfo.length();i++)
-        {
-            if(tempSoundInfo.at(i)==true)
-            {
-                result=true;
-                break;
-            }
-        }
-        break;
-    }
-    case NOSound:
-    {
-        for(int i=0;i<tempSoundInfo.length();i++)
-        {
-            if(tempSoundInfo.at(i)==false)
-            {
-                result=true;
-                break;
-            }
-        }
-        break;
-    }
-    case HCountthanNCount:
-    {
-        int timer=0;
-        for(int i=0;i<tempSoundInfo.length();i++)
-        {
-            if(tempSoundInfo.at(i)==true)
-                timer++;
-        }
-        if(timer>ColSOUNDTimer/2)
-            result=true;
-        break;
-    }
-    case HCountlessNCount:
-    {
-        int timer=0;
-        for(int i=0;i<tempSoundInfo.length();i++)
-        {
-            if(tempSoundInfo.at(i)==false)
-                timer++;
-        }
-        if(timer>ColSOUNDTimer/2)
-            result=true;
-        break;
-    }
-    case noHSoundCount:
-    {
-        int i;
-        for(i=0;i<tempSoundInfo.length();i++)
-        {
-            if(tempSoundInfo.at(i)==true)
-                break;
-        }
-
-        if(i==tempSoundInfo.length())
-            result=true;
-        break;
-    }
-
-    case noNSoundCount:
-    {
-        int i;
-        for(i=0;i<tempSoundInfo.length();i++)
-        {
-            if(tempSoundInfo.at(i)==false)
-                break;
-        }
-
-        if(i==tempSoundInfo.length())
-            result=true;
-        break;
-    }
-    }
-    QString souStr;
-    for(int i=0;i<tempSoundInfo.length();i++)
-    {
-        souStr+= " "+toStr(tempSoundInfo.at(i));
-    }
-
-    appendTheResultToFile("Judge:Sound:"+getSoundJudge(sound.sound));
-    appendTheResultToFile("Check:Sound:"+souStr);
-    appendTheResultToFile("Result:Sound:"+toStr(result));
-
-    return result;
-}
-
-/*************************************************************
-/函数功能：获取log运行结果
-/函数参数：log文件路径
-/函数返回：检测结果：0-失败  1-成功
-*************************************************************/
-bool Model_tAction::chkScript(checkParam script)
-{
-    ShowList<<tr("checkTheAction:检测脚本...")+script.logContains;
-    bool result = false;
-    QString filePath = savePath+"\\"+toStr(iniLoop)+"\\case.log";            //any--检测脚本路径
-    QFile readfile(filePath);
-
-    if(readfile.open((QIODevice::ReadOnly|QIODevice::Text)))                           //打开
-    {
-        QTextStream in(&readfile);                                                     //定义传输流
-
-        while(!in.atEnd())                                                             //文件内循环
-        {
-            if(in.readLine().contains(script.logContains))//"OK (1 test)"  //行判断
-            {
-               result = true;                                                          //查找到需要字符串
-               break;
-            }
-        }
-    }
-    readfile.close();                                                                  //文件关闭
-
-    appendTheResultToFile("Judge:Script: "+script.logContains);
-    appendTheResultToFile("Check:Script:"+filePath);
-    appendTheResultToFile("Result:Script:"+toStr(result));
-
-    return result;
-}
-
-/*************************************************************
-/函数功能：检测记忆
-/函数参数：记忆检测参数
-/函数返回：wu
-*************************************************************/
-bool Model_tAction::chkInterface(checkParam memory)
-{
-    QString curFaceInfo,lastFaceInfo;
-    bool result = false;
-
-    QString infoStr = getCollectInfo(ACT_Back,"Interface");
-
-    if(infoStr.isEmpty()==false)
-    {
-        /*获取当前界面信息*/
-        curFaceInfo = findCollectInfo(infoStr,tempFaceInfo);
-
-        ShowList<< tr("checkTheAction:检测界面...")+curFaceInfo;
-
-        /*根据比较添加进行界面检验*/
-        if(curFaceInfo.isEmpty() == false)
-        {
-            if(memory.infoCompare == MemoryCompare)
-            {
-                lastFaceInfo = findCollectInfo(memory.comTarget,tempFaceInfo);
-
-                if(lastFaceInfo.isEmpty()==false)
-                {
-                    if(lastFaceInfo == curFaceInfo)
-                        result = true;
-                }
-                else
-                    ShowList <<tr("Warn:未采集到动作执行前界面，检测失败！");
-            }
-            else if(memory.infoCompare == NoCompare)
-            {
-                result = true;//界面开启即为真
-                lastFaceInfo = "Is Interface Start?";
-            }
-            else if(memory.infoCompare == SelfCompare)
-            {
-
-            }
-            else
-            {
-
-            }
-        }
-        else
-        {
-            ShowList <<tr("Warn:未查询到当前界面，检测失败！");
-        }
-    }
-    else
-        cout <<tr("未或许到相关需要采集的信息标志");//未取到采集信息字符串，将退出采集
-
-    appendTheResultToFile("Judge:Interface:"+lastFaceInfo);
-    appendTheResultToFile("Check:Interface:"+curFaceInfo);
-    appendTheResultToFile("Result:Interface:"+toStr(result));
-    return result;
-}
-
-/*************************************************************
-/函数功能：检测ADB命令下获取图片
-/函数参数：动作定义
-/函数返回：wu
-/any：添加图片校验：类界面校验
-*************************************************************/
-bool Model_tAction::chkADBPic(checkParam adbpic)
-{
-    QString curPicInfo,lastPicInfo;
-    bool result = false;
-
-    QString infoStr = getCollectInfo(ACT_Back,"Picture");
-    if(infoStr.isEmpty()==false)
-    {
-        ShowList<< tr("checkTheAction:检测Picture...");
-
-        /*获取当前界面信息*/
-        curPicInfo = findCollectInfo(infoStr,tempPicInfo);
-
-        QFileInfo file(curPicInfo);
-
-        /*根据比较添加进行界面检验*/
-        if((curPicInfo.isEmpty() == false)&&(file.exists()))
-        {                    
-            Model_PicCompare picDeal;
-            if(adbpic.infoCompare == MemoryCompare)
-            {
-                //查询之前对比界面，并比较
-                lastPicInfo = findCollectInfo(adbpic.comTarget,tempPicInfo);
-
-                QFileInfo filel(lastPicInfo);
-
-                if((lastPicInfo.isEmpty()==false)&&(filel.exists()))
-                    result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
-                else
-                    ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
-            }
-            else if(adbpic.infoCompare == NoCompare)
-            {
-                result = true;//界面开启即为真
-                lastPicInfo = "Is Face Start?";
-            }
-            else if(adbpic.infoCompare == SelfCompare)
-            {
-                for(int i=0;i<fixedInfo.length();i++)
-                {
-                    //查找同动作下采集的固定信息数据
-                    if(fixedInfo.at(i).name == infoStr)
-                    {
-                        lastPicInfo = fixedInfo.at(i).information.toString();
-
-                        QFileInfo filel(lastPicInfo);
-                        if((lastPicInfo.isEmpty()==false)&&(filel.exists()))
-                            result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
-                        else
-                            ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
-
-                        break;
-                    }
-                }
-            }
-        }
-        else
-        {
-            ShowList <<tr("Warn:未查询到当前图片，检测失败！");
-            curPicInfo = "Warn:未查询到当前图片，检测失败！";
-        }
-
-    }
-    else
-        cout <<tr("未或许到相关需要采集的信息标志");//未取到采集信息字符串，将退出采集
-
-    appendTheResultToFile("Judge:Picture:"+lastPicInfo);
-    appendTheResultToFile("Check:Picture:"+curPicInfo);
-    appendTheResultToFile("Result:Picture:"+toStr(result));
-
-    return result;
-}
-
-/*************************************************************
-/函数功能：检测，，
-/函数参数：动作定义
-/函数返回：wu
-*************************************************************/
-bool Model_tAction::chkRes(checkParam res)
-{
-    Q_UNUSED(res);
-    return false;
-}
 
 
 /*---------------------------------------this is Process option-----------------------------------------*/
@@ -1010,6 +662,16 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
         }
         else
         {
+            if((String.contains("adb: error: connect failed:"))||
+               (String.contains("error: no devices/emulators found")))
+            {
+                //提示：重新处理，并限制次数
+                if(!IsReRunning)
+                    IsReRunning=3;//重新运行3次
+                else
+                    IsReRunning--;
+            }
+
             if(proItemString == "Act:Script")
             {
                 //any:Error:执行脚本时获取部分显示错误的信息，用于处理，以及后期显示执行按键的信息；
@@ -1027,7 +689,7 @@ void Model_tAction::onProcessOutputSlot(int pNum,QString String)
                     infoStorage.name = proItemString;
                     infoStorage.information = strDeal.StringDeal_Middle(String,"com."," ");//faceStr.mid(startIndex).remove("}\r\r\n");
 
-                    infoAppendDeal(SIZE_Interface,infoStorage);
+                    unitDeal->ColInfo_Append(SIZE_Interface,infoStorage,actionDeal->checkDeal);
 
                     IsOKCMDRunned=true;
                 }
@@ -1083,6 +745,19 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                 }
             }
         }
+       /* else if(IsReRunning)
+        {
+            cout << IsReRunning;
+            if(IsReRunning)
+                onProcessEXECmd(proItemString);
+            else
+            {
+                ShowList<<tr("Error:设备掉线。");
+                lastState = start;//重新连接后，重新执行从动作开始时执行
+                timeState = pauseState;
+                PauseState = true;
+            }
+        }*/
         else
         {
             if(proItemString == "Act:Script")
@@ -1123,7 +798,7 @@ void Model_tAction::onProcessOverSlot(uint8_t pNum)
                     storageInfo_type_s infoStorage;
                     infoStorage.name = proItemString;
                     infoStorage.information = picPath.replace("/","\\");
-                    infoAppendDeal(SIZE_Picture,infoStorage);
+                    unitDeal->ColInfo_Append(SIZE_Picture,infoStorage,actionDeal->checkDeal);
                     goto ToEndProcess;//跳转到进程结束处理，因为该多命令组合未完全执行结束，因此proCMD不清空
                 }
                 else if(currentCMDString.contains("pull"))

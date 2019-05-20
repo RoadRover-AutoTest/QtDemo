@@ -9,6 +9,7 @@
 #include <QTextStream> //文件流
 
 #include "model_include.h"
+#include "UnitDeal/testunit.h"
 
 
 class Model_XMLFile
