@@ -151,7 +151,8 @@ typedef enum
 {
     NODealERROR,            //不进行错误处理
     OVERTIMEERR,        //超时处理
-    CHKERROR,
+    CHKERROR,           //检测失败停止
+    CHKPASS,            //检测成功停止
 
 }error_type_e;
 
@@ -266,6 +267,7 @@ public:
     bool chkRes(checkParam res);
 
     QString ActColInfo_Read(bool size,QString info,QStringList colInfoList);
+    uint16_t ActColInfo_Analy(bool site,QStringList colInfoList);
 
     void ColInfo_Append(uint16_t infoflag,storageInfo_type_s infoDat,QList <checkParam> checkDeal);
     QString ColInfo_find(QString name,QList <storageInfo_type_s> infoDat);

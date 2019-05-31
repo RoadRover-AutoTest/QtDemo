@@ -38,6 +38,7 @@
         <file>report.png</file>
         <file>download.png</file>
         <file>upload.png</file>
+        <file>saveas.png</file>
     </qresource>
     <qresource prefix="/flow">
         <file>offScriptFlow.png</file>

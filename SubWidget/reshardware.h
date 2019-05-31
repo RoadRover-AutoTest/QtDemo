@@ -86,7 +86,6 @@ private slots:
     void EditKeyClicked();
     void on_cellChanged(int row, int column);
     void customContextMenuUpload_clicked();
-    void uploadKeysDeal();
     void customContextMenuDownload_clicked();
     void customContextMenuReset_clicked();
     void itemNameSlot(const QString &arg1);
@@ -102,8 +101,7 @@ private slots:
 
     void on_checkBoxENCAN1_clicked(bool checked);
     void on_checkBoxENCAN2_clicked(bool checked);
-    void on_horizontalSliderBAT_valueChanged(int value);
-    void on_horizontalSliderCCD_valueChanged(int value);
+    void on_dialCCDPowerValue_valueChanged(int value);
     void on_radioBtn15V_clicked();
     void on_radioBtn24V_clicked();
 
@@ -121,10 +119,18 @@ private slots:
 
     void on_pushBtnHelp_clicked();
 
+    void on_dialSpeedValue_valueChanged(int value);
+
+    void on_dialBATValue_valueChanged(int value);
+
+
+    void on_groupBox_SpeedEnable_clicked(bool checked);
+
+    void on_groupBox_CCDPowerEnable_clicked(bool checked);
+
 signals:
     void itemNameChange(QString name);
     void windowClose();
-    void keysUploadOver();
 };
 
 #endif // RESHARDWARE_H

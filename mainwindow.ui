@@ -96,6 +96,7 @@
    <addaction name="open"/>
    <addaction name="newTest"/>
    <addaction name="save"/>
+   <addaction name="saveAs"/>
    <addaction name="separator"/>
    <addaction name="actHard"/>
    <addaction name="actReport"/>
@@ -332,43 +333,6 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidgetSequence">
-   <property name="windowTitle">
-    <string>定义序列</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="reTableWidget" name="tableSequence">
-       <attribute name="horizontalHeaderCascadingSectionResizes">
-        <bool>true</bool>
-       </attribute>
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>true</bool>
-       </attribute>
-       <column>
-        <property name="text">
-         <string>测试单元名</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>循环次数</string>
-        </property>
-       </column>
-       <column>
-        <property name="text">
-         <string>描述</string>
-        </property>
-       </column>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
   <widget class="QDockWidget" name="dockWidgetRuning">
    <property name="windowTitle">
     <string>运行序列</string>
@@ -550,6 +514,43 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="dockWidgetSequence">
+   <property name="windowTitle">
+    <string>定义序列</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="reTableWidget" name="tableSequence">
+       <attribute name="horizontalHeaderCascadingSectionResizes">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="horizontalHeaderStretchLastSection">
+        <bool>true</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string>测试单元名</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>循环次数</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>描述</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="newTest">
    <property name="icon">
     <iconset resource="Images/images.qrc">
@@ -645,6 +646,10 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="saveAs">
+   <property name="icon">
+    <iconset resource="Images/images.qrc">
+     <normaloff>:/Title/saveas.png</normaloff>:/Title/saveas.png</iconset>
+   </property>
    <property name="text">
     <string>另存为</string>
    </property>
@@ -960,38 +965,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actDefSequence</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>dockWidgetSequence</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1013</x>
-     <y>174</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>dockWidgetSequence</sender>
-   <signal>visibilityChanged(bool)</signal>
-   <receiver>actDefSequence</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1013</x>
-     <y>174</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actConfig</sender>
    <signal>triggered(bool)</signal>
    <receiver>dockWidgetLeft</receiver>
@@ -1016,6 +989,38 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>129</x>
      <y>313</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actDefSequence</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>dockWidgetSequence</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1013</x>
+     <y>174</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dockWidgetSequence</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>actDefSequence</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1013</x>
+     <y>174</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

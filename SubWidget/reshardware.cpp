@@ -1,7 +1,6 @@
 #include "reshardware.h"
 #include "ui_reshardware.h"
 
-QStringList upKeysInfo;
 
 ResHardware::ResHardware(Model_UART *uart, QWidget *parent) :
     QDialog(parent),
@@ -43,8 +42,6 @@ ResHardware::ResHardware(Model_UART *uart, QWidget *parent) :
     //添加链接
     connect(ui->comboBox_itemName,SIGNAL(activated(QString)),this,SLOT(itemNameSlot(QString)));
     connect(ui->comboBox_itemName,SIGNAL(currentTextChanged(QString)),this,SLOT(itemNameSlot(QString)));
-
-    connect(this,SIGNAL(keysUploadOver()),this,SLOT(uploadKeysDeal()));
 
     uartReadCANParamDeal();
 
@@ -556,19 +553,20 @@ void ResHardware::on_tableWidget_customContextMenuRequested(const QPoint &pos)
 *************************************************************/
 void ResHardware::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
 {
-    if(cmd == CMDItemRead)
+    switch(cmd)
+    {
+    case CMDItemRead:
     {
         QString item(dat);
+        QStringList itemList;
+        Model_XMLFile xmlRead;
+        xmlRead.readKeyItemXML(&itemList);
 
-        if(QMessageBox::information(NULL, tr("提示"), tr("获取到项目：")+item+tr("\n是否应用，且继续获取按键信息？？"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::Yes)
+        if(itemList.contains(item))
+            ui->comboBox_itemName->setCurrentText(item);
+
+        if(QMessageBox::information(NULL, tr("提示"), tr("获取到项目：")+item+tr("\n是否继续获取按键信息？？"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)==QMessageBox::Yes)
         {
-            QStringList itemList;
-            Model_XMLFile xmlRead;
-            xmlRead.readKeyItemXML(&itemList);
-
-            if(itemList.contains(item))
-                ui->comboBox_itemName->setCurrentText(item);
-
             char read=0;
             keyUart->appendTxList(CMDUploadKey,&read,1,CMD_NEEDNACK);
             ui->label_Show->setText(tr("读取：按键信息"));
@@ -576,24 +574,74 @@ void ResHardware::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
         }
 
         ui->label_Show->setText(tr("项目：")+item);
+        break;
     }
-    else if(cmd == CMDUploadKey)
+    case CMDUploadKey:
     {
         uint8_t keyIndex = dat[0];
-        QString keyInfo = QString::fromUtf8(&dat[1],dLen-1);
-        if(keyIndex == 0)
-            upKeysInfo.clear();
-
-        upKeysInfo.append(keyInfo);
-        //cout <<keyIndex<<keyInfo;
-
-        //最后一帧按键时处理显示
-        if(keyIndex == (MaxKey-1))
+        if(keyIndex<MaxKey)
         {
-            keysUploadOver();
+            int index;
+            keyControl keyDInfo;
+            getkeyControlNull(&keyDInfo);
+            for(index=1;index<dLen-1;index++)
+            {
+                if(dat[index]!='*')
+                    keyDInfo.name.append(dat[index]);
+                else
+                {
+                    index++;
+                    break;
+                }
+
+            }
+            keyDInfo.isUse = dat[index++];
+            keyDInfo.type = (kType)dat[index++];
+            if(keyDInfo.isUse)
+            {
+                keyDInfo.des = "name : "+keyDInfo.name;
+                keyDInfo.des +="\ntype : "+getKeyType(keyDInfo.type);
+            }
+            //any：处理延时任务，照成接收失误，换地方处理
+            if((keyDInfo.type == Can1_1)||(keyDInfo.type == Can1_2)||(keyDInfo.type == Can2_1)||(keyDInfo.type == Can2_2))
+            {
+                keyDInfo.CANID=strDeal->hexToString((unsigned char *)&dat[index],4);
+                index+=4;
+
+                keyDInfo.CANDat1=strDeal->hexToString((unsigned char *)&dat[index],8);
+                index+=8;
+                keyDInfo.des +="\nCANID : "+keyDInfo.CANID+"\nCANDatOn : "+keyDInfo.CANDat1;
+
+
+                if((keyDInfo.type==Can1_2)||(keyDInfo.type==Can2_2))
+                {
+                    keyDInfo.CANDat2=strDeal->hexToString((unsigned char *)&dat[index],8);
+                    keyDInfo.des +="\nCANDatOff : "+keyDInfo.CANDat2;
+                }
+            }
+            keyList.replace(keyIndex,keyDInfo);
+
+            ui->tableWidget->item(keyIndex,colDes)->setText(keyList.at(keyIndex).des);
+
+            if(keyList.at(keyIndex).isUse)
+                ui->tableWidget->item (keyIndex,colKey)->setCheckState(Qt::Checked);
+            else
+                ui->tableWidget->item (keyIndex,colKey)->setCheckState(Qt::Unchecked);
+            //cout <<keyDInfo.name<<keyDInfo.isUse <<keyDInfo.type<<keyDInfo.CANID<<keyDInfo.CANDat1<<keyDInfo.CANDat2;
+
+            //最后一帧按键时处理显示
+            if(keyIndex == (MaxKey-1))
+            {
+                //初始化点击按键列表
+                initkeyList();
+
+                //保存
+                saveKeysInfoToXML(g_ItemReadString);
+            }
         }
+        break;
     }
-    else if(cmd == CMDUploadBatVal)
+    case CMDUploadBatVal:
     {
         unsigned int tempDat=0;
         for(int i=0;i<dLen;i++)
@@ -601,19 +649,21 @@ void ResHardware::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
             tempDat=((uint8_t)dat[i]<<(i*8))|tempDat;//低位在前，高位在后
         }
         ui->lineEditShowVB->setText(toStr(tempDat/100.0)+"V");
+        break;
     }
-    else if(cmd == CMD_MEDIA_INFO)//媒体信息
+    case CMD_MEDIA_INFO://媒体信息
     {
         DispBufClear();
-
         strDeal->MediaInfoAnalyze(dLen,dat,g_DisplayBuf);//,strDeal->Uni2UTF8_LittleEndian);
+        break;
     }
-    else if(cmd == CMD_MEDIA_INFO2)//媒体信息2
+    case CMD_MEDIA_INFO2://媒体信息2
     {
         DispBufClear();
         strDeal->MediaInfo2Analyze(dLen,dat,g_DisplayBuf);//,strDeal->Uni2UTF8_LittleEndian);
+        break;
     }
-    else if(cmd == CMD_LINK_STATUS)//连接状态信息
+    case CMD_LINK_STATUS://连接状态信息
     {
         if(dat[0] == 0x01)
         {
@@ -625,8 +675,9 @@ void ResHardware::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
             ui->linkStatusRadioButton->setText("设备未连接！");
             ui->linkStatusRadioButton->setChecked(false);
         }
+        break;
     }
-    else if(cmd == CMDUploadCAN)//CAN 参数
+    case CMDUploadCAN://CAN 参数
     {
         //帧结构：Byte0：开/关   Byte1：CAN类型    Byte2~3：CAN波特率
         if((dat[0]==1) ||(dat[0]==0))//避免其他数据结果乱入（从测试板内存中读取数据出错的情况，或初始情况）
@@ -678,8 +729,18 @@ void ResHardware::UartRxDealSlot(char cmd,uint8_t dLen,char *dat)
             }
 
         }
-
+        break;
     }
+    case CMD_TIME_SYN:
+    {
+        QString timeStr;
+        timeStr=QString("%1: %2").arg(strDeal->hexToString((unsigned char *)&dat[1],1)).arg(strDeal->hexToString((unsigned char *)&dat[2],1));
+        ui->lcdNumber_TimeDisplay->display(timeStr);
+        break;
+    }
+    default:break;
+    }
+
 }
 
 /*************************************************************
@@ -758,6 +819,8 @@ void ResHardware::UpdateScreenSlot(unsigned char line)
             g_DisplayBuf[i] = g_DisplayBuf[i].left(64);
         ui->mainTextEdit->append(g_DisplayBuf[i]);
     }
+    if(ui->linkStatusRadioButton->isChecked()==false)
+        ui->linkStatusRadioButton->setChecked(true);
 }
 
 /*************************************************************
@@ -789,86 +852,6 @@ void ResHardware::customContextMenuUpload_clicked()
     char read=0;
     keyUart->appendTxList(CMDItemRead,&read,1,CMD_NEEDNACK);
     ui->label_Show->setText(tr("读取：项目型号"));
-}
-
-/*************************************************************
-/函数功能：上传数据信息解析
-/函数参数：无
-/函数返回：无
-*************************************************************/
-void ResHardware::uploadKeysDeal()
-{
-    if(upKeysInfo.length()==MaxKey)
-    {
-        //解析
-        for(int count=0;count < MaxKey;count++)
-        {
-            int index;
-            char *dat;
-            QByteArray bt = upKeysInfo.at(count).toLatin1();
-            dat = bt.data();
-
-            keyControl keyInfo;
-            getkeyControlNull(&keyInfo);
-
-            for(index=0;index<bt.length();index++)
-            {
-                if(dat[index]!='*')
-                    keyInfo.name.append(dat[index]);
-                else
-                {
-                    index++;
-                    break;
-                }
-
-            }
-            keyInfo.isUse = dat[index++];
-            keyInfo.type = (kType)dat[index++];
-            if(keyInfo.isUse)
-            {
-                keyInfo.des = "name : "+keyInfo.name;
-                keyInfo.des +="\ntype : "+getKeyType(keyInfo.type);
-            }
-
-            //any：处理延时任务，照成接收失误，换地方处理
-            if((keyInfo.type == Can1_1)||(keyInfo.type == Can1_2)||(keyInfo.type == Can2_1)||(keyInfo.type == Can2_2))
-            {
-                keyInfo.CANID=strDeal->hexToString((unsigned char *)&dat[index],4);
-                index+=4;
-
-                keyInfo.CANDat1=strDeal->hexToString((unsigned char *)&dat[index],8);
-                index+=8;
-                keyInfo.des +="\nCANID : "+keyInfo.CANID+"\nCANDat : "+keyInfo.CANDat1;
-
-
-                if((keyInfo.type==Can1_2)||(keyInfo.type==Can2_2))
-                {
-                    keyInfo.CANDat2=strDeal->hexToString((unsigned char *)&dat[index],8);
-                    keyInfo.des +="\nCANDatOff : "+keyInfo.CANDat2;
-                }
-            }
-            keyList.replace(count,keyInfo);
-            cout <<keyInfo.name<<keyInfo.isUse <<keyInfo.type<<keyInfo.CANID<<keyInfo.CANDat1<<keyInfo.CANDat2;
-        }
-
-        //显示
-        int row=ui->tableWidget->rowCount();
-
-        for(int i=0;i<row;i++)
-        {
-            ui->tableWidget->item(i,colDes)->setText(keyList.at(i).des);
-
-            if(keyList.at(i).isUse)
-                ui->tableWidget->item (i,colKey)->setCheckState(Qt::Checked);
-            else
-                ui->tableWidget->item (i,colKey)->setCheckState(Qt::Unchecked);
-        }
-
-        initkeyList();                      //初始化点击按键列表
-
-        //保存
-        saveKeysInfoToXML(g_ItemReadString);
-    }
 }
 
 /*************************************************************
@@ -1154,7 +1137,7 @@ void ResHardware::uartReadCANParamDeal()
 /函数返回：无
 /帧结构：Byte0：电压值
 *************************************************************/
-void ResHardware::on_horizontalSliderBAT_valueChanged(int value)
+void ResHardware::on_dialBATValue_valueChanged(int value)
 {
     ui->label_ShowBATVal->setText(toStr(value));
     if(keyUart->isOpenCurrentUart()==false)
@@ -1176,7 +1159,7 @@ void ResHardware::on_horizontalSliderBAT_valueChanged(int value)
 /函数返回：无
 /帧结构：Byte0：电压值
 *************************************************************/
-void ResHardware::on_horizontalSliderCCD_valueChanged(int value)
+void ResHardware::on_dialCCDPowerValue_valueChanged(int value)
 {
     ui->label_ShowCCDVal->setText(toStr(value));
     if(keyUart->isOpenCurrentUart()==false)
@@ -1190,6 +1173,57 @@ void ResHardware::on_horizontalSliderCCD_valueChanged(int value)
     buf[0] = value;
     keyUart->appendTxList(CMDCCDPower,buf,1,CMD_NEEDACK);
     ui->label_Show->setText(tr("下载:摄像头电压值")+toStr(value));
+}
+
+
+void ResHardware::on_groupBox_CCDPowerEnable_clicked(bool checked)
+{
+    if(checked)
+    {
+         ui->groupBox_SpeedEnable->setChecked(false);
+         char buf[BUFSIZ]={0};
+
+         buf[0] = true;
+         keyUart->appendTxList(CMDTempReverse,buf,1,CMD_NEEDACK);
+         ui->label_Show->setText(tr("切换:CCDPower可调"));
+    }
+
+}
+
+/*************************************************************
+/函数功能：调节速度
+/函数参数：值
+/函数返回：无
+/帧结构：Byte0：电压值
+*************************************************************/
+void ResHardware::on_dialSpeedValue_valueChanged(int value)
+{
+    ui->label_showSpeedVal->setText(toStr(value));
+    //if(keyUart->isOpenCurrentUart()==false)
+    //{
+    //    QMessageBox::warning(NULL, tr("提示"), tr("未打开串口，无法进行下载操作！"));
+    //    return ;
+    //}
+
+    char buf[BUFSIZ]={0};
+
+    buf[0] = value;
+    keyUart->appendTxList(CMDSpeedVal,buf,1,CMD_NEEDACK);
+    ui->label_Show->setText(tr("下载:速度")+toStr(value));
+}
+
+
+void ResHardware::on_groupBox_SpeedEnable_clicked(bool checked)
+{
+    if(checked)
+    {
+        ui->groupBox_CCDPowerEnable->setChecked(false);
+        char buf[BUFSIZ]={0};
+
+        buf[0] = false;
+        keyUart->appendTxList(CMDTempReverse,buf,1,CMD_NEEDACK);
+        ui->label_Show->setText(tr("切换:速度可调"));
+    }
 }
 
 /*************************************************************
@@ -1213,8 +1247,8 @@ void ResHardware::on_radioBtn15V_clicked()
     keyUart->appendTxList(CMDBATMaxVal,buf,1,CMD_NEEDACK);
     ui->label_Show->setText(tr("下载:Bat最大工作电压"));
 
-    ui->horizontalSliderBAT->setMaximum(15);
-    ui->horizontalSliderCCD->setMaximum(15);
+    ui->dialBATValue->setMaximum(15);
+    ui->dialCCDPowerValue->setMaximum(15);
 }
 
 /*************************************************************
@@ -1238,8 +1272,8 @@ void ResHardware::on_radioBtn24V_clicked()
     keyUart->appendTxList(CMDBATMaxVal,buf,1,CMD_NEEDACK);
     ui->label_Show->setText(tr("下载:Bat最大工作电压"));
 
-    ui->horizontalSliderBAT->setMaximum(24);
-    ui->horizontalSliderCCD->setMaximum(24);
+    ui->dialBATValue->setMaximum(24);
+    ui->dialCCDPowerValue->setMaximum(24);
 }
 
 /*************************************************************
@@ -1296,3 +1330,7 @@ void ResHardware::on_pushBtnHelp_clicked()
         }
     }
 }
+
+
+
+

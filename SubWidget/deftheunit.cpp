@@ -102,6 +102,7 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     connect(ui->radioBtnNODeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
     connect(ui->radioBtnOverTimeDeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
     connect(ui->radioButtonchkErrorDeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
+    connect(ui->radioButtonchkPassDeal,SIGNAL(clicked()),this,SLOT(editErrorDealSlot()));
 
     if(userLogin.Permissions == OnlyUser)
     {
@@ -1257,6 +1258,8 @@ void defTheUnit::refreshErrorDeal(uint8_t errorFlag)
         ui->radioBtnOverTimeDeal->setChecked(true);
     else if(errorFlag == CHKERROR)
         ui->radioButtonchkErrorDeal->setChecked(true);
+    else if(errorFlag == CHKPASS)
+        ui->radioButtonchkPassDeal->setChecked(true);
 }
 
 void defTheUnit::editErrorDealSlot()
@@ -1279,6 +1282,10 @@ void defTheUnit::editErrorDealSlot()
     else if(sender == ui->radioButtonchkErrorDeal)
     {
         curAct.errorDeal = CHKERROR;
+    }
+    else if(sender == ui->radioButtonchkPassDeal)
+    {
+        curAct.errorDeal = CHKPASS;
     }
     unitDeal.actTest.replace(selRow,curAct);
 }

@@ -370,8 +370,8 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.07.01\n"
-                                            "日期：2019.05.10\n"
+    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.07.04\n"
+                                            "日期：2019.05.27\n"
                                             "版权：roadrover\n"
                                             "反馈邮箱：lishuhui@roadrover.cn"));
 
@@ -542,7 +542,8 @@ void MainWindow::timerTestIDDeal()
         setIsRunInterface(true);
 
         ui->textBrowser_EXEShow->append(tr("启动测试:"));
-        appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");//添加时间
+        QString propertiesPath = ResultPath(ui->tableSequence->getSequenceFileName()+"/"+testTime.toString("yyyyMMddhhmmss"));
+        appendThePropertiesToFile(propertiesPath,"start_time:"+testTime.toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");//添加时间
 
         testState=waitnull;
         break;
@@ -563,7 +564,8 @@ void MainWindow::timerTestIDDeal()
             isHadProp=false;
             //机器版本信息:
             ui->textBrowser_EXEShow->append(tr("获取机器版本信息，请稍后... ..."));
-            appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"clear");
+            QString propertiesPath = ResultPath(ui->tableSequence->getSequenceFileName()+"/"+testTime.toString("yyyyMMddhhmmss"));
+            appendThePropertiesToFile(propertiesPath,"clear");
 
             if(getDevNumber().isEmpty())
             {
@@ -620,7 +622,8 @@ void MainWindow::testProcessOutputDeal(QString String)
         if(String.contains("Out>>"))
         {
             isHadProp=true;
-            appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),String.remove("Out>>"));
+            QString propertiesPath = ResultPath(ui->tableSequence->getSequenceFileName()+"/"+testTime.toString("yyyyMMddhhmmss"));
+            appendThePropertiesToFile(propertiesPath,String.remove("Out>>"));
         }
     }
     else if(testState == report)
@@ -702,7 +705,8 @@ void MainWindow::endTheFlow()
 void MainWindow::onEndTestSlot()
 {
     ui->textBrowser_EXEShow->append(tr("结束测试！"));
-    appendThePropertiesToFile(ResultPath(ui->tableSequence->getSequenceFileName()),"end_time:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
+    QString propertiesPath = ResultPath(ui->tableSequence->getSequenceFileName()+"/"+testTime.toString("yyyyMMddhhmmss"));
+    appendThePropertiesToFile(propertiesPath,"end_time:"+QDateTime::currentDateTime().toString("yyyy.MM.dd-hh.mm.ss")+"\r\n");
 
     if(ReportCreat)
         testState = report;

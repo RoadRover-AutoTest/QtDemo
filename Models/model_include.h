@@ -76,6 +76,7 @@
 #define CmdReSendTimer 3   //定义命令重复发送次数
 //CMD
 #define CMD_LINK_STATUS    0x01     //小屏连接状态
+#define CMD_TIME_SYN		0x02	//时钟同步
 #define CMD_MEDIA_INFO2    0x03     //媒体2
 #define CMD_MEDIA_INFO     0x0A     //媒体
 
@@ -92,6 +93,8 @@
 #define CMDCCDPower         0x27        //CCD电压
 #define CMDUploadCCDVal     0x28
 #define CMDBATMaxVal        0x29
+#define CMDSpeedVal        	0x2A		//调试速度
+
 //CMD Control:0x50起
 #define CMDClickedKey       0x50    //点击按键操作：Dat：KeyNum（1~36）+ON/OFF
 
@@ -107,6 +110,10 @@
 #define Upload_SingleVB        		0x36
 #define Upload_CircularVB       	0x37
 #define CMDOverVBUp			0x38
+
+//temp:因CCDpower不能和预留IO做速度的接口同时操作，因此做一个切换
+#define CMDTempReverse			0xFA
+
 
 //////////////////////////////////////////////
 #define MaxKey              36

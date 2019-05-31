@@ -137,7 +137,7 @@
             <enum>QTabWidget::West</enum>
            </property>
            <property name="currentIndex">
-            <number>3</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="tabAct">
             <attribute name="title">
@@ -388,7 +388,7 @@
              <item row="0" column="0">
               <widget class="QTabWidget" name="tabChkParam">
                <property name="currentIndex">
-                <number>3</number>
+                <number>5</number>
                </property>
                <property name="documentMode">
                 <bool>true</bool>
@@ -792,9 +792,6 @@
                       <property name="text">
                        <string>OK (1 test)</string>
                       </property>
-                      <property name="readOnly">
-                       <bool>true</bool>
-                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -839,6 +836,13 @@
               <widget class="QRadioButton" name="radioButtonchkErrorDeal">
                <property name="text">
                 <string>检测失败暂停</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QRadioButton" name="radioButtonchkPassDeal">
+               <property name="text">
+                <string>检测成功暂停</string>
                </property>
               </widget>
              </item>

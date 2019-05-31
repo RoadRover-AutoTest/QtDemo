@@ -265,7 +265,18 @@ void Model_UART::timerEvent(QTimerEvent *event)
     }
     else if(event->timerId()==timerCheckState)
     {
-        timerUartIDDeal();
+        if((txList.isEmpty() == false) && (!isWaitACK))
+        {
+            uartFrame uartDat=txList.at(0);
+
+            cout << "txList:" <<txList.length();
+            UartTxCmdDeal(uartDat.cmd,uartDat.dat,uartDat.len,uartDat.ack);
+            txList.removeFirst();
+        }
+        else if(isWaitACK)
+        {
+            cout<<"reSendCount:"<<reSendCount;
+        }
 
 
         if(PortCompare(openCom) == false)
@@ -332,9 +343,14 @@ void Model_UART::UartTxCmdDeal(char cmd,char* dat,char len,uint8_t ack)
     switch(ack)
     {
     case CMD_NEEDACK:
-        commond[1]=0xAA;break;
+        commond[1]=0xAA;
+        isWaitACK=1;            //设置等待响应
+        reSendCount = 1;        //启动重复发送
+        break;
     case CMD_NEEDNACK:
-        commond[1] = 0xBB;break;
+        commond[1] = 0xBB;
+        reSendCount = 0;        //重复发送次数清空
+        break;
     case CMD_ISACK:
         commond[1] = 0x55;
         commond[2] = cmd;
@@ -360,13 +376,6 @@ void Model_UART::UartTxCmdDeal(char cmd,char* dat,char len,uint8_t ack)
     len=len+5;
 
 SENDDat:
-
-    //需要响应的指令，设定重复发送
-    if(ack==CMD_NEEDACK)
-        reSendCount = 1;
-    else
-        reSendCount = 0;
-
     sendDatas = QByteArray(commond,len);
     PortSend(sendDatas);
 }
@@ -390,6 +399,7 @@ void Model_UART::UartRxCmdDeal(QByteArray Frame,uint8_t fLen)
         {
             chkResult=0x7F;
             UartTxCmdDeal(Frame[2],&chkResult,0,CMD_ISACK);
+            cout<<"发送错误帧...";
         }
         else
         {
@@ -397,6 +407,7 @@ void Model_UART::UartRxCmdDeal(QByteArray Frame,uint8_t fLen)
             {
                 chkResult=0x01;
                 UartTxCmdDeal(Frame[2],&chkResult,0,CMD_ISACK);
+                cout<<"发送响应帧...";
             }
             char dat[BUFSIZ] = {0};
             for(int i=0;i<Frame[3];i++)
@@ -413,8 +424,6 @@ void Model_UART::UartRxCmdDeal(QByteArray Frame,uint8_t fLen)
         //处理0x55响应
         UartRxAckResault((uint8_t)Frame[3]);
     }
-
-
 }
 
 /*************************************************************
@@ -473,29 +482,4 @@ bool Model_UART::appendTxList(char cmd,char* dat,char len,uint8_t ack)
     return status;
 }
 
-/*************************************************************
-/函数功能：处理定时串口ID数据
-/函数参数：无
-/函数返回：无
-*************************************************************/
-void Model_UART::timerUartIDDeal()
-{
-    if((txList.isEmpty() == false) && (!isWaitACK))
-    {
-        uartFrame uartDat=txList.at(0);
-
-        if(uartDat.ack == CMD_NEEDACK)
-        {
-            isWaitACK=1;
-        }
-
-        cout << "txList:" <<txList.length();
-        UartTxCmdDeal(uartDat.cmd,uartDat.dat,uartDat.len,uartDat.ack);
-        txList.removeFirst();
-    }
-    else if(isWaitACK)
-    {
-        cout<<"reSendCount:"<<reSendCount;
-    }
-}
 

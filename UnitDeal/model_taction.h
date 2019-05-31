@@ -46,9 +46,6 @@ private:
     uint64_t overtimeAct;
     uint64_t TimeDelay1S;
     uint8_t soundTimer;//
-
-
-
     uint16_t colInfoFlag;       // sizeColInfo_e 用来标记已完成的信息采集
     uint16_t actInfoFlag;
     bool colSize;
@@ -58,21 +55,13 @@ private:
 
     bool IsFirstMemory;
 
-    uint16_t judgeIsCollectInfo(bool site);
-    void collectInfoDeal(uint16_t infoFlag);
-    void evaluateTheAction(QString actStr);
+    void theActionInitParam();
+    void theActionStartDeal();
+    void theActionCollectInfoDeal(bool curSize,uint16_t infoFlag);
+    void theActionExecuateDeal();
     void theActionChangedDeal(QList <changedParam>testChanged);
     void theActionCheckReault(QList <checkParam> testChk);
-
-    bool chkCurrent(checkParam range);
-    bool chkVolt(checkParam range);
-    bool chkSound(checkParam sound);
-    bool chkScript(checkParam script);
-    bool chkInterface(checkParam memory);
-    bool chkADBPic(checkParam adbpic);
-    bool chkRes(checkParam res);
-
-
+    void theActionPauseDeal();
 
     Model_Process *PRODeal;
     bool isPRORunning;
@@ -82,15 +71,6 @@ private:
     QStringList deviceList;
     bool IsOKCMDRunned;         //  命令运行完成标志，用来标记取字符串OK
     uint8_t IsReRunning;//重新运行次数
-    /*typedef enum
-    {
-        CMD_NULL,
-        CMD_script,
-        CMD_ListDev,
-        CMD_FACE,
-        CMD_ADBPic
-    }cmd_type_e;
-    cmd_type_e proCMD;*/
     QString proItemString;
     QString proCMDString;
 
@@ -102,10 +82,6 @@ private:
     bool proSysIsRunning();
     void timerProIDDeal();
     void onProcessEXECmd(QString cmdType);
-    void infoAppendDeal(uint16_t infoflag,storageInfo_type_s infoDat);
-
-    QString getCollectInfo(bool size,QString info);
-    QString findCollectInfo(QString name,QList <storageInfo_type_s> infoDat);
 
 private slots:
     void onProcessOutputSlot(int pNum,QString String);

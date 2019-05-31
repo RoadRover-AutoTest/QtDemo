@@ -7,8 +7,8 @@
 */
 Model_tUnit::Model_tUnit(tUnit *testUnit)
 {
-    UnitDeal = *testUnit;
-    testState = start;
+    dat_theUnit = *testUnit;
+    sta_tUnitRunning = start;
 
     timeID_U = startTimer(100,Qt::PreciseTimer);
 }
@@ -32,50 +32,37 @@ void Model_tUnit::timerEvent(QTimerEvent *event)
 {
     if(event->timerId() == timeID_U)
     {
-        switch (testState)
+        switch (sta_tUnitRunning)
         {
         case start:
         {
-            cycleCount = 0;
+            cnt_theUnitCycle = 0;
             isActionDeal=false;
-            testState = initUnit;
-            break;
-        }
-        case initUnit:
-        {
-            actIndex = 0;
-            arrayResult.clear();
-            testState = dealAction;
-
-            //清临时数据存储
-            tempFaceInfo.clear();
-            tempPicInfo.clear();
-
-            theUnitStart();
+            theUnitInitParam();
             break;
         }
         case dealAction:
         {
-            curAction = UnitDeal.actTest.at(actIndex);
-            ActDeal = new Model_tAction(cycleCount,&curAction);
+            curAction = dat_theUnit.actTest.at(inx_theActDat);
+            ActDeal = new Model_tAction(cnt_theUnitCycle,&curAction);
             isActionDeal=true;
 
             connect(ActDeal,SIGNAL(theActionOverTest(bool)),this,SLOT(ontheActionResultSlot(bool)));
-            testState = wait;
+            sta_tUnitRunning = wait;
             break;
         }
         case overAction:
         {
-            UnitDeal.actTest.replace(actIndex,curAction);
+            dat_theUnit.actTest.replace(inx_theActDat,curAction);
             delete ActDeal;
             isActionDeal=false;
 
             //动作判断
-            actIndex++;
-            if(actIndex < UnitDeal.actTest.length())
-                testState = dealAction;
+            inx_theActDat++;
+            if(inx_theActDat < dat_theUnit.actTest.length())
+                sta_tUnitRunning = dealAction;
             else
-                testState = overUnit;
+                sta_tUnitRunning = overUnit;
             break;
         }
         case overUnit:
@@ -94,12 +81,12 @@ void Model_tUnit::timerEvent(QTimerEvent *event)
             }
             theUnitResult(exeResult);
 
-            cycleCount++;
+            cnt_theUnitCycle++;
             //循环判断
-            if(cycleCount < UnitDeal.cycleCount)
-                testState = initUnit;
+            if(cnt_theUnitCycle < dat_theUnit.cycleCount)
+                theUnitInitParam();
             else
-                testState = over;            
+                sta_tUnitRunning = over;
             break;
         }
         case over:
@@ -113,6 +100,19 @@ void Model_tUnit::timerEvent(QTimerEvent *event)
     }
 }
 
+void Model_tUnit::theUnitInitParam()
+{
+    inx_theActDat = 0;
+    arrayResult.clear();
+    sta_tUnitRunning = dealAction;
+
+    //清临时数据存储
+    tempFaceInfo.clear();
+    tempPicInfo.clear();
+
+    theUnitStart();
+}
+
 
 /*************************************************************
 /函数功能：结束动作测试结果
@@ -122,7 +122,7 @@ void Model_tUnit::timerEvent(QTimerEvent *event)
 void Model_tUnit::ontheActionResultSlot(bool result)
 {
     arrayResult.append(result);
-    testState = overAction;
+    sta_tUnitRunning = overAction;
     //cout << result;
 }
 
@@ -133,6 +133,6 @@ void Model_tUnit::ontheActionResultSlot(bool result)
 *************************************************************/
 int Model_tUnit::getTheUnitLoop()
 {
-    return cycleCount;
+    return cnt_theUnitCycle;
 }
 

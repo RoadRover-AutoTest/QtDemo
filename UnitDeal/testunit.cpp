@@ -485,6 +485,53 @@ QString testUnit::ActColInfo_Read(bool size,QString info,QStringList colInfoList
 }
 
 /*************************************************************
+/函数功能：根据执行位置判断采集信息是否进行
+/函数参数：当前位置
+/函数返回：是否采集信息
+*************************************************************/
+uint16_t testUnit::ActColInfo_Analy(bool site,QStringList colInfoList)
+{
+    uint16_t actInfoFlag=0;
+
+    if(colInfoList.isEmpty())
+        return actInfoFlag;
+
+    //colSize = site;
+    //actInfoFlag = 0x00;
+    //colInfoFlag=0x00;
+
+    if(site == ACT_Front)
+    {
+        for(int i=0;i<colInfoList.length();i++)
+        {
+            QString infoStr = colInfoList.at(i);
+            if(infoStr.contains("Interface:Front"))
+                actInfoFlag|=SIZE_Interface;
+            else if(infoStr.contains("Picture:Front"))
+                actInfoFlag|=SIZE_Picture;
+        }
+    }
+    else
+    {
+        for(int i=0;i<colInfoList.length();i++)
+        {
+            QString infoStr = colInfoList.at(i);
+            if(infoStr.contains("Interface:Back"))
+                actInfoFlag|=SIZE_Interface;
+            else if(infoStr.contains("Picture:Back"))
+                actInfoFlag|=SIZE_Picture;
+            else if(infoStr.endsWith("Current"))
+                actInfoFlag|=SIZE_Current;
+            else if(infoStr.endsWith("Volt"))
+                actInfoFlag|=SIZE_Volt;
+            else if(infoStr.endsWith("Sound"))
+                actInfoFlag|=SIZE_Sound;
+        }
+    }
+    return actInfoFlag;
+}
+
+/*************************************************************
 /函数功能：信息存储
 /函数参数：信息类型  数据
 /函数返回：无

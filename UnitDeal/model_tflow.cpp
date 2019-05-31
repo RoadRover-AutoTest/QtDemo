@@ -1,17 +1,30 @@
 #include "model_tflow.h"
 
-/* this is tFlow Deal*/
+/* this is tFlow Deal
+Model_tFlow::Model_tFlow()
+{
+
+    sta_tflowRunning = none;
+
+    initProcessDeal();
+
+
+
+}
+*/
+
 Model_tFlow::Model_tFlow(QList <tUnit> *testflow)
 {
-    theFlow = testflow;
-
-    flowState = start;
-    timeID_UF=startTimer(1000,Qt::PreciseTimer);//单元测试执行定时器：动作与动作直接执行可间隔1S
+    dat_theTestFlow = testflow;
+    sta_tflowRunning = start;
+    //initProcessDeal();
+    timer_theFlowID=startTimer(1000,Qt::PreciseTimer);//单元测试执行定时器：动作与动作直接执行可间隔1S
 }
+
 
 Model_tFlow::~Model_tFlow()
 {
-
+    //deleteProcessDeal();
 }
 /*************************************************************
 /函数功能：定时器事件，处理测试
@@ -21,27 +34,16 @@ Model_tFlow::~Model_tFlow()
 *************************************************************/
 void Model_tFlow::timerEvent(QTimerEvent *event)
 {
-    if(event->timerId()==timeID_UF)
+    if(event->timerId()==timer_theFlowID)
     {
-        switch(flowState)
+        switch(sta_tflowRunning)
         {
         case start:
         {
-            unitIndex = 0;
-            cycleCount = 0;
-            reTime = 0;
+            cnt_theFlowCycle = 0;
             isUnitDeal=false;
             fixedInfo.clear();
-
-
-            if(chkWorkState())
-                flowState = dealunit;
-            else
-            {
-                lastState = dealunit;
-                flowState = waitrecover;
-            }
-
+            theFlowReturnUnitDeal();
             break;
         }
         case waitrecover:
@@ -57,27 +59,27 @@ void Model_tFlow::timerEvent(QTimerEvent *event)
                 }
                 //恢复工作失败，结束测试10S处理
                 else if(reTime>10)
-                    flowState = endflow;
+                    sta_tflowRunning = endflow;
 
                 reTime++;
             }
             else
-                flowState = lastState;
+                sta_tflowRunning = lastState;
             break;
         }
         case dealunit:
         {
-            if(unitIndex<theFlow->length())
+            if(unitIndex<dat_theTestFlow->length())
             {
-                curUnit = theFlow->at(unitIndex);//此处不可使用局部变量，因进入Model_tUnit函数的是指针，局部变量函数运行结束会被释放，将找不到该指针
-                unitDeal = new Model_tUnit(&curUnit);
+                dat_theUnit = dat_theTestFlow->at(unitIndex);//此处不可使用局部变量，因进入Model_tUnit函数的是指针，局部变量函数运行结束会被释放，将找不到该指针
+                unitDeal = new Model_tUnit(&dat_theUnit);
                 isUnitDeal = true;
 
                 connect(unitDeal,SIGNAL(theUnitStart()),this,SLOT(onStartTheUnitSlot()));
                 connect(unitDeal,SIGNAL(theUnitEnd()),this,SLOT(onEndTheUnitSlot()));
                 connect(unitDeal,SIGNAL(theUnitResult(bool)),this,SLOT(onUnitResultSlot(bool)));
 
-                flowState = waitnull;
+                sta_tflowRunning = waitnull;
             }
             else
             {
@@ -92,51 +94,44 @@ void Model_tFlow::timerEvent(QTimerEvent *event)
             isUnitDeal = false;
 
             unitIndex++;
-            if(unitIndex<theFlow->length())
+            if(unitIndex<dat_theTestFlow->length())
             {
-                flowState = dealunit;
+                sta_tflowRunning = dealunit;
             }
             else
             {
-                cycleCount++;
-                if(cycleCount < WorkFrequency)
-                {
-                    unitIndex = 0;
-                    reTime = 0;
-
-                    if(chkWorkState())
-                        flowState = dealunit;
-                    else
-                    {
-                        lastState = dealunit;
-                        flowState = waitrecover;
-                    }
-                }
+                cnt_theFlowCycle++;
+                if(cnt_theFlowCycle < WorkFrequency)
+                    theFlowReturnUnitDeal();
                 else
-                    flowState = endflow;
+                    sta_tflowRunning = endflow;
             }
             break;
         }
         case over://any：不使用此状态，不在测试结束时进行检测并恢复机器
         {//any:Error:若设置的工作电流较大，关闭时不符合范围将无法关闭
             if(chkWorkState())
-                flowState = endflow;
+                sta_tflowRunning = endflow;
             else
             {
                 lastState = endflow;
-                flowState = waitrecover;
+                sta_tflowRunning = waitrecover;
             }
             break;
         }
         case endflow:
         {
             flowEndTest();
-            killTimer(timeID_UF);
+            killTimer(timer_theFlowID);
             break;
         }
         case waitnull:break;
-
+        default:break;
         }
+    }
+    else if(event->timerId()==timer_ProID)
+    {
+        //timerProIDDeal();
     }
 }
 
@@ -151,6 +146,20 @@ bool Model_tFlow::chkWorkState()
     return (Current > WorkCurrent);
 }
 
+void Model_tFlow::theFlowReturnUnitDeal()
+{
+    unitIndex = 0;
+    reTime = 0;
+
+    if(chkWorkState())
+        sta_tflowRunning = dealunit;
+    else
+    {
+        lastState = dealunit;
+        sta_tflowRunning = waitrecover;
+    }
+}
+
 /*************************************************************
 /函数功能：处理Unit开始测试槽函数：将该测试单元上传到主函数，用来显示
 /函数参数：无
@@ -158,7 +167,7 @@ bool Model_tFlow::chkWorkState()
 *************************************************************/
 void Model_tFlow::onStartTheUnitSlot()
 {
-    unitStartExe(curUnit);
+    unitStartExe(dat_theUnit);
 }
 
 /*************************************************************
@@ -180,7 +189,7 @@ void Model_tFlow::onUnitResultSlot(bool result)
 *************************************************************/
 void Model_tFlow::onEndTheUnitSlot()
 {
-    flowState = unitover;
+    sta_tflowRunning = unitover;
 }
 
 /*************************************************************
@@ -194,7 +203,7 @@ void Model_tFlow::endTheTest()
     {
         delete unitDeal;
     }
-    flowState = endflow;
+    sta_tflowRunning = endflow;
 }
 
 /*************************************************************
@@ -204,7 +213,7 @@ void Model_tFlow::endTheTest()
 *************************************************************/
 int Model_tFlow::getTheFlowLoop()
 {
-    return cycleCount;
+    return cnt_theFlowCycle;
 }
 
 /*************************************************************
@@ -216,4 +225,188 @@ int Model_tFlow::getTheUnitLoop()
 {
     return unitDeal->getTheUnitLoop();
 }
+
+
+
+
+
+#if 0
+
+/*---------------------------------------this is Process option-----------------------------------------*/
+/*************************************************************
+/函数功能：初始化进程处理
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tFlow::initProcessDeal()
+{
+    mdl_PRODeal = new Model_Process;
+
+    connect(mdl_PRODeal,SIGNAL(ProcessisOver(uint8_t)),this,SLOT(onProcessOverSlot(uint8_t)));
+    connect(mdl_PRODeal,SIGNAL(ProcessOutDeal(int,QString)),this,SLOT(onProcessOutputSlot(int,QString)));
+
+    mdl_PRODeal->ProcessPathJump(QCoreApplication::applicationDirPath());
+
+    timer_ProID = startTimer(1,Qt::PreciseTimer);
+
+    is_PRORunning=false;
+    str_ProCMDDat.clear();
+}
+
+/*************************************************************
+/函数功能：释放进程处理
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tFlow::deleteProcessDeal()
+{
+    killTimer(timer_ProID);
+    delete mdl_PRODeal;
+}
+
+void Model_tFlow::proAppendSysCMD(QString str_ProCmd)
+{
+    lst_ProCMDDat.append(str_ProCmd);
+}
+
+/*************************************************************
+/函数功能：进程执行处理
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tFlow::timerProIDDeal()
+{
+    if((lst_ProCMDDat.isEmpty()==false)&&(!proSysIsRunning()))
+    {
+        //cout << lst_ProCMDDat.length();
+        mdl_PRODeal->ProcessStart(PROSYS,lst_ProCMDDat.first());
+
+        str_ProCMDDat = lst_ProCMDDat.first();
+        is_PRORunning=true;
+        lst_ProCMDDat.removeFirst();
+    }
+}
+
+/*************************************************************
+/函数功能：进程输出槽函数处理
+/函数参数：进程号  字符串
+/函数返回：无
+*************************************************************/
+void Model_tFlow::onProcessOutputSlot(int pNum,QString String)
+{
+    //进程处理
+    if((pNum==PROSYS)&&(String.isEmpty()==false))
+    {
+        if(String.contains("Error>>"))
+            ShowList.append(String);
+        else
+        {
+            if((!getTestRunState())&&(str_ProCMDDat == ADBDevs))
+            {//处理设备扫描进程:显示设备列表
+                QStringList devList = String.split("\r\n");
+
+                if(devList.isEmpty()==false)
+                    devList.removeFirst();
+
+                if(devList.isEmpty()==false)
+                {
+                    for(int i=0;i<devList.length();)
+                    {
+                        QString tempString=devList.at(i);
+                        if(tempString.contains("\tdevice"))
+                        {
+                            devList.replace(i,tempString.remove("\tdevice"));
+                            if(devList.at(i).isEmpty())
+                                devList.removeAt(i);
+                            else
+                                i++;
+                        }
+                        else
+                            devList.removeAt(i);
+                    }
+                    ui->treeWidget->refreshDevNum1(devList);
+                }
+            }
+            else
+            {
+                //测试进程输出处理
+                testProcessOutputDeal(String);
+                //cout<< String;
+            }
+        }
+    }
+
+}
+
+/*************************************************************
+/函数功能：进程结束处理
+/函数参数：进程号
+/函数返回：无
+*************************************************************/
+void Model_tFlow::onProcessOverSlot(uint8_t pNum)
+{
+    if(pNum==PROSYS)
+    {
+        //测试进程结束处理
+        testProcessOverDeal();
+
+        //恢复状态
+        str_ProCMDDat.clear();
+        is_PRORunning=false;
+    }
+}
+
+/*************************************************************
+/函数功能：停止系统进程执行logcat
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tFlow::proStopSysLogcat()
+{
+    mdl_PRODeal->stopProcess(getDevNumber(),"logcat");
+}
+
+/*************************************************************
+/函数功能：停止系统进程执行uiautomator
+/函数参数：无
+/函数返回：无
+*************************************************************/
+void Model_tFlow::proStopSysUiautomator()
+{
+    mdl_PRODeal->stopProcess(getDevNumber(),"uiautomator");
+}
+
+/*************************************************************
+/函数功能：判断系统进程是否正在执行
+/函数参数：无
+/函数返回：无
+/备注：判断的只是bat中某一条指令是否执行并不能判断bat执行是否正在运行
+*************************************************************/
+bool Model_tFlow::proSysIsRunning()
+{
+    if(mdl_PRODeal->GetProcessRunStatus(PROSYS) != noRun)
+        return true;
+    else
+        return false;
+}
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

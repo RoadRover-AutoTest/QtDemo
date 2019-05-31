@@ -96,7 +96,6 @@ private:
     void PortSend(QByteArray g_SendDat);        //串口发送函数
     void UartRxCmdDeal(QByteArray Frame,uint8_t fLen);
     bool UartFrameCHK(QByteArray frame,uint8_t fLen);
-    void timerUartIDDeal();
 
 private slots:
     void ReadAllSlot();                         //接收槽函数
