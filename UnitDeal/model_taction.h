@@ -39,7 +39,8 @@ private:
     time_deal_e timeState;
     time_deal_e nextState;
     time_deal_e lastState;
-    uint64_t timeCount;
+    QTime tim_WaitStart;
+    uint64_t tim_WaitLast;
 
     bool testResult;
     uint64_t reChkCount;     //重复监测计数

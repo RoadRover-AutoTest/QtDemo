@@ -67,7 +67,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             TimeDelay1S++;
 
             //添加超时处理机制：
-            if(reChkCount >= (actionDeal->timeDeal.end/2 ))/// 1000
+            if(reChkCount >= (actionDeal->timeDeal.end ))/// 1000
             {
                 ShowList <<tr("Error:采集信息超时；");
                 if(actionDeal->errorDeal == OVERTIMEERR)
@@ -85,13 +85,12 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         }
         case wait://计数并判断时间
         {
-            timeCount++;
+            uint64_t elapsed = tim_WaitStart.msecsTo(QTime::currentTime());
 
-            /*未结束等待前检测到应该检测数据，判断数据的结果
-             * 因定时器误差，这里/2处理，避免时间过长
-            */
-            if(timeCount == (actionDeal->timeDeal.check/2))
+            /*未结束等待前检测到应该检测数据，判断数据的结果*/
+            if((actionDeal->timeDeal.check)&&(tim_WaitLast >= actionDeal->timeDeal.check)&&(elapsed <= actionDeal->timeDeal.check))
             {
+                qDebug()<<"QTime.currentTime ="<<elapsed<<"ms";
                 colSize=ACT_Back;
                 colInfoFlag=0x00;
                 actInfoFlag = unitDeal->ActColInfo_Analy(ACT_Back,actionDeal->colInfoList);
@@ -104,9 +103,10 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                 else
                     timeState = chkAction;
             }
-            else if(timeCount == (actionDeal->timeDeal.wait/2))
+            else if(elapsed >= (actionDeal->timeDeal.wait))
             {/* 结束等待时，若检测时间不存在将默认进入等待结束，
              * 若存在上述语句已经执行，因此直接进入actover操作*/
+                qDebug()<<"QTime.currentTime ="<<elapsed<<"ms";
                 if(!actionDeal->timeDeal.check)//无检测时间
                     timeState = waitover;
                 else
@@ -116,6 +116,7 @@ void Model_tAction::timerEvent(QTimerEvent *event)
                     timeState = actover;
                 }
             }
+            tim_WaitLast = elapsed;
             break;
         }
         case waitover:
@@ -159,7 +160,6 @@ void Model_tAction::theActionInitParam()
 {
     //初始化变量：
     testResult = false;     //:通常超时为测试失败,因此模式测试失败
-    timeCount=0;
     reChkCount=0;
     overtimeAct=0;
     IsFirstMemory=true;
@@ -172,6 +172,9 @@ void Model_tAction::theActionInitParam()
     colInfoDat.tempSoundInfo.clear();
     colInfoDat.Current=0;
     colInfoDat.volt=0;
+
+    tim_WaitStart = QTime::currentTime();
+    tim_WaitLast = 0;
 
     timeState = start;
 }
@@ -333,13 +336,15 @@ void Model_tAction::theActionExecuateDeal()
             {
                 ShowList << (tr("等待，时间：")+toStr(actionDeal->timeDeal.wait)+"mS");
                 timeState = wait;
+                tim_WaitStart = QTime::currentTime();
+                tim_WaitLast = 0;
             }
             else
                 timeState = waitover;
         }
         else
         {
-            if(overtimeAct++ >= (actionDeal->timeDeal.end/2))//60000
+            if(overtimeAct++ >= (actionDeal->timeDeal.end))//60000
             {
                 ShowList << tr("Error:动作执行超时;");
                 timeState = actover;//动作执行超时

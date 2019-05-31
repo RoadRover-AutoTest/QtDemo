@@ -100,10 +100,10 @@
    <addaction name="separator"/>
    <addaction name="actHard"/>
    <addaction name="actReport"/>
-   <addaction name="separator"/>
    <addaction name="actATtool"/>
    <addaction name="acttest"/>
    <addaction name="actPause"/>
+   <addaction name="separator"/>
    <addaction name="exit"/>
   </widget>
   <widget class="QDockWidget" name="dockWidgetLeft">

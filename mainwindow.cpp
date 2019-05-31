@@ -244,6 +244,8 @@ void MainWindow::timerEvent(QTimerEvent *event)
             ui->actPause->setIcon(QIcon(":/Title/actRunning.png"));
             ui->actPause->setChecked(true);
         }
+
+
     }
 }
 
@@ -370,8 +372,8 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.07.04\n"
-                                            "日期：2019.05.27\n"
+    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.07.05\n"
+                                            "日期：2019.05.31\n"
                                             "版权：roadrover\n"
                                             "反馈邮箱：lishuhui@roadrover.cn"));
 
