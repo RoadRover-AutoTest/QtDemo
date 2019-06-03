@@ -87,8 +87,10 @@ void Model_tAction::timerEvent(QTimerEvent *event)
         {
             uint64_t elapsed = tim_WaitStart.msecsTo(QTime::currentTime());
 
+            //cout<< tim_WaitLast << elapsed;
+
             /*未结束等待前检测到应该检测数据，判断数据的结果*/
-            if((actionDeal->timeDeal.check)&&(tim_WaitLast >= actionDeal->timeDeal.check)&&(elapsed <= actionDeal->timeDeal.check))
+            if((actionDeal->timeDeal.check)&&(tim_WaitLast < actionDeal->timeDeal.check)&&(elapsed >= actionDeal->timeDeal.check))
             {
                 qDebug()<<"QTime.currentTime ="<<elapsed<<"ms";
                 colSize=ACT_Back;

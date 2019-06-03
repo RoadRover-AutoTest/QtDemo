@@ -343,6 +343,14 @@ font: 75 14pt &quot;Angsana New&quot;;</string>
         </layout>
        </widget>
        <widget class="QWidget" name="page_3">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>233</width>
+          <height>544</height>
+         </rect>
+        </property>
         <attribute name="label">
          <string>BAT POWER</string>
         </attribute>
@@ -436,6 +444,14 @@ font: 75 14pt &quot;Angsana New&quot;;</string>
         </layout>
        </widget>
        <widget class="QWidget" name="page_4">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>233</width>
+          <height>544</height>
+         </rect>
+        </property>
         <attribute name="label">
          <string>CCD POWER</string>
         </attribute>
@@ -497,6 +513,14 @@ font: 75 14pt &quot;Angsana New&quot;;</string>
         </layout>
        </widget>
        <widget class="QWidget" name="page_5">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>233</width>
+          <height>544</height>
+         </rect>
+        </property>
         <attribute name="label">
          <string>Speed</string>
         </attribute>
@@ -612,7 +636,7 @@ font: 75 14pt &quot;Angsana New&quot;;</string>
          </widget>
          <widget class="QWidget" name="tabConsole">
           <attribute name="title">
-           <string>控制台</string>
+           <string>小屏显示</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="0" column="3">

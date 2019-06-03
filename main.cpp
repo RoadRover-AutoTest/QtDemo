@@ -13,7 +13,22 @@
 //作者：李书会
 //日期：20190425更新
 //*************************************************************************************************
-
+#include <windows.h>
+bool checkOnly()
+{
+    //  创建互斥量
+    HANDLE m_hMutex  =  CreateMutex(NULL, FALSE,  L"fortest_abc123" );
+    //  检查错误代码
+    if  (GetLastError()  ==  ERROR_ALREADY_EXISTS)  {
+      //  如果已有互斥量存在则释放句柄并复位互斥量
+     CloseHandle(m_hMutex);
+     m_hMutex  =  NULL;
+      //  程序退出
+      return  false;
+    }
+    else
+        return true;
+}
 
 void customMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -51,6 +66,10 @@ void customMessageHandler(QtMsgType type, const QMessageLogContext &context, con
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    //程序已经启动，退出:若使用，将会在同一台电脑只能开一个该软件，不符合应用
+    //if(checkOnly()==false)
+    //    return 0;
 
     qInstallMessageHandler(customMessageHandler); //注册MsgHandler回调函数
 
