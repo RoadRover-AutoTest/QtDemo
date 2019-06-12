@@ -481,13 +481,7 @@ void Model_tAction::theActionCheckReault(QList <checkParam> testChk)
         case CHKInterface:
         {
             QString infoStr = unitDeal->ActColInfo_Read(ACT_Back,"Interface",actionDeal->colInfoList);
-            if(infoStr.isEmpty()==false)
-                result &= unitDeal->chkInterface(infoStr,testChk.at(i));
-            else
-            {
-                result &=false;
-                cout <<tr("未或许到相关需要采集的信息标志");//未取到采集信息字符串，将退出采集
-            }
+            result &= unitDeal->chkInterface(infoStr,testChk.at(i));
             break;
         }
         case CHKRES:
@@ -496,13 +490,7 @@ void Model_tAction::theActionCheckReault(QList <checkParam> testChk)
         case CHKADBPIC:
         {
             QString infoStr = unitDeal->ActColInfo_Read(ACT_Back,"Picture",actionDeal->colInfoList);
-            if(infoStr.isEmpty()==false)
-                result &= unitDeal->chkADBPic(infoStr,testChk.at(i));
-            else
-            {
-                result &=false;
-                cout <<tr("未或许到相关需要采集的信息标志");//未取到采集信息字符串，将退出采集
-            }
+            result &= unitDeal->chkADBPic(infoStr,testChk.at(i));
             break;
         }
         default:break;

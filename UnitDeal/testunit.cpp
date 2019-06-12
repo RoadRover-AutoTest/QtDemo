@@ -326,46 +326,52 @@ bool testUnit::chkInterface(QString infoStr,checkParam memory)
     QString curFaceInfo,lastFaceInfo;
     bool result = false;
 
-    /*获取当前界面信息*/
-    curFaceInfo = ColInfo_find(infoStr,tempFaceInfo);
-
-    ShowList<< tr("checkTheAction:检测界面...")+curFaceInfo;
-
-    /*根据比较添加进行界面检验*/
-    if(curFaceInfo.isEmpty() == false)
+    if(infoStr.isEmpty()==false)
     {
-        if(memory.infoCompare == MemoryCompare)
-        {
-            lastFaceInfo = ColInfo_find(memory.comTarget,tempFaceInfo);
+        /*获取当前界面信息*/
+        curFaceInfo = ColInfo_find(infoStr,tempFaceInfo);
 
-            if(lastFaceInfo.isEmpty()==false)
+        ShowList<< tr("checkTheAction:检测界面...")+curFaceInfo;
+
+        /*根据比较添加进行界面检验*/
+        if(curFaceInfo.isEmpty() == false)
+        {
+            if(memory.infoCompare == MemoryCompare)
             {
-                if(lastFaceInfo == curFaceInfo)
-                    result = true;
+                lastFaceInfo = ColInfo_find(memory.comTarget,tempFaceInfo);
+
+                if(lastFaceInfo.isEmpty()==false)
+                {
+                    if(lastFaceInfo == curFaceInfo)
+                        result = true;
+                }
+                else
+                    ShowList <<tr("Warn:未采集到动作执行前界面，检测失败！");
+            }
+            else if(memory.infoCompare == NoCompare)
+            {
+                result = true;//界面开启即为真
+                lastFaceInfo = "Is Interface Start?";
+            }
+            else if(memory.infoCompare == SelfCompare)
+            {
+
             }
             else
-                ShowList <<tr("Warn:未采集到动作执行前界面，检测失败！");
-        }
-        else if(memory.infoCompare == NoCompare)
-        {
-            result = true;//界面开启即为真
-            lastFaceInfo = "Is Interface Start?";
-        }
-        else if(memory.infoCompare == SelfCompare)
-        {
+            {
 
+            }
         }
         else
         {
-
+            ShowList <<tr("Warn:未查询到当前界面，检测失败！");
         }
     }
     else
     {
-        ShowList <<tr("Warn:未查询到当前界面，检测失败！");
+        ShowList <<tr("Warn:未添加该检测的界面采集，请检查测试单元配置！");
+        curFaceInfo = "未添加采集界面信息！";
     }
-
-
 
     appendTheResultToFile("Judge:Interface:"+lastFaceInfo);
     appendTheResultToFile("Check:Interface:"+curFaceInfo);
@@ -384,65 +390,71 @@ bool testUnit::chkADBPic(QString infoStr, checkParam adbpic)
     QString curPicInfo,lastPicInfo;
     bool result = false;
 
-    /*获取当前界面信息*/
-    curPicInfo = ColInfo_find(infoStr,tempPicInfo);
-
-    ShowList<< tr("checkTheAction:检测Picture...")+curPicInfo;
-
-    QFileInfo file(curPicInfo);
-
-    /*根据比较添加进行界面检验*/
-    if((curPicInfo.isEmpty() == false)&&(file.exists()))
+    if(infoStr.isEmpty()==false)
     {
-        Model_PicCompare picDeal;
-        if(adbpic.infoCompare == MemoryCompare)
+        /*获取当前界面信息*/
+        curPicInfo = ColInfo_find(infoStr,tempPicInfo);
+
+        ShowList<< tr("checkTheAction:检测Picture...")+curPicInfo;
+
+        QFileInfo file(curPicInfo);
+
+        /*根据比较添加进行界面检验*/
+        if((curPicInfo.isEmpty() == false)&&(file.exists()))
         {
-            //查询之前对比界面，并比较
-            lastPicInfo = ColInfo_find(adbpic.comTarget,tempPicInfo);
-
-            QFileInfo filel(lastPicInfo);
-
-            if((lastPicInfo.isEmpty()==false)&&(filel.exists()))
-                result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
-            else
+            Model_PicCompare picDeal;
+            if(adbpic.infoCompare == MemoryCompare)
             {
-                lastPicInfo = "Warn:未采集到动作执行前图片！";
-                ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
-            }
+                //查询之前对比界面，并比较
+                lastPicInfo = ColInfo_find(adbpic.comTarget,tempPicInfo);
 
-        }
-        else if(adbpic.infoCompare == NoCompare)
-        {
-            result = true;//界面开启即为真
-            lastPicInfo = "Is Face Start?";
-        }
-        else if(adbpic.infoCompare == SelfCompare)
-        {
-            for(int i=0;i<fixedInfo.length();i++)
-            {
-                //查找同动作下采集的固定信息数据
-                if(fixedInfo.at(i).name == infoStr)
+                QFileInfo filel(lastPicInfo);
+
+                if((lastPicInfo.isEmpty()==false)&&(filel.exists()))
+                    result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
+                else
                 {
-                    lastPicInfo = fixedInfo.at(i).information.toString();
+                    lastPicInfo = "Warn:未采集到动作执行前图片！";
+                    ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
+                }
 
-                    QFileInfo filel(lastPicInfo);
-                    if((lastPicInfo.isEmpty()==false)&&(filel.exists()))
-                        result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
-                    else
-                        ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
+            }
+            else if(adbpic.infoCompare == NoCompare)
+            {
+                result = true;//界面开启即为真
+                lastPicInfo = "Is Face Start?";
+            }
+            else if(adbpic.infoCompare == SelfCompare)
+            {
+                for(int i=0;i<fixedInfo.length();i++)
+                {
+                    //查找同动作下采集的固定信息数据
+                    if(fixedInfo.at(i).name == infoStr)
+                    {
+                        lastPicInfo = fixedInfo.at(i).information.toString();
 
-                    break;
+                        QFileInfo filel(lastPicInfo);
+                        if((lastPicInfo.isEmpty()==false)&&(filel.exists()))
+                            result = picDeal.Cameracompare(curPicInfo,lastPicInfo);//any:比较2图片的相似度
+                        else
+                            ShowList <<tr("Warn:未采集到动作执行前图片，检测失败！");
+
+                        break;
+                    }
                 }
             }
+        }
+        else
+        {
+            ShowList <<tr("Warn:未查询到当前图片，检测失败！");
+            curPicInfo = "Warn:未查询到当前图片，检测失败！";
         }
     }
     else
     {
-        ShowList <<tr("Warn:未查询到当前图片，检测失败！");
-        curPicInfo = "Warn:未查询到当前图片，检测失败！";
+        ShowList <<tr("Warn:未添加该检测的图片采集，请检查测试单元配置！");
+        curPicInfo = "未添加采集图片信息！";
     }
-
-
 
     appendTheResultToFile("Judge:Picture:"+lastPicInfo);
     appendTheResultToFile("Check:Picture:"+curPicInfo);
