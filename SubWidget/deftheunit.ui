@@ -33,7 +33,7 @@
     <item row="0" column="1">
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
-       <string>测试单元：</string>
+       <string/>
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
@@ -137,7 +137,7 @@
             <enum>QTabWidget::West</enum>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tabAct">
             <attribute name="title">
@@ -170,14 +170,24 @@
              <item row="0" column="0" colspan="5">
               <widget class="QStackedWidget" name="stackedWidget">
                <property name="currentIndex">
-                <number>0</number>
+                <number>3</number>
                </property>
                <widget class="QWidget" name="pageScript">
-                <layout class="QGridLayout" name="gridLayout_19">
+                <layout class="QGridLayout" name="gridLayout_18">
                  <item row="0" column="0">
-                  <widget class="QLabel" name="label_14">
+                  <widget class="QLabel" name="labelfileShow">
                    <property name="text">
-                    <string>动作名：</string>
+                    <string>文件：</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="editFilePath"/>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QToolButton" name="toolButtonSelFile">
+                   <property name="text">
+                    <string>...</string>
                    </property>
                   </widget>
                  </item>
@@ -191,37 +201,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1" colspan="2">
-                  <widget class="QLineEdit" name="editFilePath"/>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="labelfileShow">
-                   <property name="text">
-                    <string>文件：</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="2">
-                  <widget class="QLabel" name="label_18">
-                   <property name="styleSheet">
-                    <string notr="true">color: rgb(255, 0, 0);</string>
-                   </property>
-                   <property name="text">
-                    <string>注：尽量避免带空格、汉子等。</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QLineEdit" name="editActName"/>
-                 </item>
-                 <item row="2" column="3">
-                  <widget class="QToolButton" name="toolButtonSelFile">
-                   <property name="text">
-                    <string>...</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="1">
+                 <item row="1" column="1">
                   <spacer name="verticalSpacer_2">
                    <property name="orientation">
                     <enum>Qt::Vertical</enum>
@@ -326,6 +306,46 @@
                  </item>
                 </layout>
                </widget>
+               <widget class="QWidget" name="pageDelay">
+                <layout class="QGridLayout" name="gridLayout_19">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_20">
+                   <property name="text">
+                    <string>时间(mS):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="editDelayMin"/>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QLineEdit" name="editDelayMax"/>
+                 </item>
+                 <item row="0" column="3">
+                  <widget class="QLabel" name="label_18">
+                   <property name="text">
+                    <string>步进(mS):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="4">
+                  <widget class="QLineEdit" name="editDelayStep"/>
+                 </item>
+                 <item row="1" column="1">
+                  <spacer name="verticalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>57</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
               </widget>
              </item>
             </layout>
@@ -378,6 +398,13 @@
              <item row="1" column="1">
               <widget class="QLineEdit" name="editChkTime"/>
              </item>
+             <item row="2" column="2" colspan="3">
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>注：动作或检测超时判断；</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
            <widget class="QWidget" name="tabCheck">
@@ -388,7 +415,7 @@
              <item row="0" column="0">
               <widget class="QTabWidget" name="tabChkParam">
                <property name="currentIndex">
-                <number>5</number>
+                <number>0</number>
                </property>
                <property name="documentMode">
                 <bool>true</bool>

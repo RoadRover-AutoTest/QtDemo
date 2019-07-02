@@ -53,32 +53,8 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     else
     {
         this->setWindowTitle("Edit-Unit");
-        unitDeal = *unit;
-
-        ui->editUnitName->setText(unitDeal.name);
-        ui->spinUnitCycle->setValue(unitDeal.cycleCount);
-        ui->editUnitDes->setText(unitDeal.unitDes);
-
+        refreshUnitShow(*unit);
         ui->editUnitName->setEnabled(false);
-
-        //clear
-        for(uint16_t i=ui->tableAction->rowCount();i>0;i--)
-        {
-            ui->tableAction->removeRow(i-1);
-        }
-
-        //append
-        for(int i=0;i<unitDeal.actTest.length();i++)
-        {
-            int row=ui->tableAction->rowCount();
-            ui->tableAction->setRowCount(row+1);
-
-            ui->tableAction->selectRow(row);
-            ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(unitDeal.actTest.at(i).actName));
-            ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(unitDeal.actTest.at(i).actStr));
-
-            refreshPropertiesParam(i,unitDeal.actTest.at(i));
-        }
     }
 
     //创建窗口组件信号槽函数
@@ -91,6 +67,10 @@ defTheUnit::defTheUnit(tUnit *unit,QWidget *parent) :
     connect(ui->lineEditMixVolt,SIGNAL(textChanged(QString)),this,SLOT(editBatVoltDealSlot(QString)));
     connect(ui->lineEditMaxVolt,SIGNAL(textChanged(QString)),this,SLOT(editBatVoltDealSlot(QString)));
     connect(ui->lineEditStepVolt,SIGNAL(textChanged(QString)),this,SLOT(editBatVoltDealSlot(QString)));
+
+    connect(ui->editDelayMin,SIGNAL(textChanged(QString)),this,SLOT(editDelayTimeDealSlot(QString)));
+    connect(ui->editDelayMax,SIGNAL(textChanged(QString)),this,SLOT(editDelayTimeDealSlot(QString)));
+    connect(ui->editDelayStep,SIGNAL(textChanged(QString)),this,SLOT(editDelayTimeDealSlot(QString)));
 
     connect(ui->checkSetCurrent,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
     connect(ui->checkSetVolt,SIGNAL(clicked(bool)),this,SLOT(editCheckDealSlot(bool)));
@@ -117,8 +97,6 @@ defTheUnit::~defTheUnit()
     delete unitH;
     delete ui;
 }
-
-
 
 /*************************************************************
 /函数功能：测试单元名修改
@@ -164,6 +142,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     QAction *downAct = new QAction(tr("下移"), this);
     QAction *ScriptAction = new QAction(tr("Add Script"), this);
     QAction *BatVoltAction = new QAction(tr("Add BatControl"), this);
+    QAction *DelayAction = new QAction(tr("Add WaitTime"), this);
 
     QMenu *keyMenu = new QMenu("Add Key");
     //定制硬件操作：固定的处理模式，单独处理槽函数
@@ -200,6 +179,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
         popMenu->addMenu(keyMenu);
         popMenu->addAction(ScriptAction);
         popMenu->addAction(BatVoltAction);
+        popMenu->addAction(DelayAction);
         popMenu->addSeparator();
         popMenu->addAction(upAct);
         popMenu->addAction(downAct);
@@ -214,6 +194,7 @@ void defTheUnit::on_tableAction_customContextMenuRequested(const QPoint &pos)
     connect( CCDOFFAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
     connect( ScriptAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
     connect( BatVoltAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
+    connect( DelayAction,        SIGNAL(triggered() ), this, SLOT( ActionAppendSlot()) );
 
     connect( deleteAct,        SIGNAL(triggered() ), this, SLOT( deleteActionSlot()) );
     connect( upAct,        SIGNAL(triggered() ), this, SLOT( upActionSlot()) );
@@ -271,7 +252,7 @@ void defTheUnit::moveRow(int nFrom, int nTo )
         return;
     if( nFrom < 0 || nTo < 0 )
         return;
-    int nRowCount = ui->tableAction->rowCount();
+    int nRowCount = tableAction_RowCount();
     if( nFrom >= nRowCount  || nTo > nRowCount )
         return;
     if( nFrom >= unitDeal.actTest.length()  || nTo > unitDeal.actTest.length() )
@@ -368,7 +349,7 @@ void defTheUnit::ActionAppendSlot()
     QString editorName = editor->text();
 
     tAction addAct;
-    int row=ui->tableAction->rowCount();
+    int row=tableAction_RowCount();
 
     if(editorName == "ACCON")       unitH->actAppend_ACCON(row+1,&addAct,keyList);
     else if(editorName == "ACCOFF") unitH->actAppend_ACCOFF(row+1,&addAct,keyList);
@@ -378,12 +359,37 @@ void defTheUnit::ActionAppendSlot()
     else if(editorName == "CCDOFF") unitH->actAppend_CCDOFF(row+1,&addAct,keyList);
     else if(editorName == "Add Script")unitH->actAppend_script(&addAct);
     else if(editorName == "Add BatControl")unitH->actAppend_batVolt(&addAct);
+    else if(editorName == "Add WaitTime")unitH->actAppend_DelayTime(&addAct);
     else
     {
         unitH->actAppend_key(editorName,&addAct,keyList);
     }
 
-    appendTableAction(addAct);
+    unitDeal.actTest.append(addAct);
+    tableAction_Append(addAct);
+}
+
+/*************************************************************
+/函数功能：行数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+int defTheUnit::tableAction_RowCount()
+{
+    return ui->tableAction->rowCount();
+}
+
+/*************************************************************
+/函数功能：清空
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::tableAction_Clear()
+{
+    for(uint16_t i=ui->tableAction->rowCount();i>0;i--)
+    {
+        ui->tableAction->removeRow(i-1);
+    }
 }
 
 /*************************************************************
@@ -391,7 +397,7 @@ void defTheUnit::ActionAppendSlot()
 /函数参数：无
 /函数返回：wu
 *************************************************************/
-void defTheUnit::appendTableAction(tAction act)
+void defTheUnit::tableAction_Append(tAction act)
 {
     int row=ui->tableAction->rowCount();
     ui->tableAction->setRowCount(row+1);
@@ -400,8 +406,19 @@ void defTheUnit::appendTableAction(tAction act)
     ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(act.actStr));
     ui->tableAction->selectRow(row);
 
-    unitDeal.actTest.append(act);
     refreshPropertiesParam(row,act);
+}
+
+/*************************************************************
+/函数功能：将动作替换
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::tableAction_ActReplace(int row,tAction repAct)
+{
+    unitDeal.actTest.replace(row,repAct);
+    ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(repAct.actName));
+    ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(repAct.actStr));
 }
 
 /*************************************************************
@@ -425,7 +442,7 @@ void defTheUnit::on_tableAction_clicked(const QModelIndex &index)
 /函数参数：无
 /函数返回：wu
 *************************************************************/
-int defTheUnit::getTableActionSelRanges()
+int defTheUnit::tableAction_SelRanges()
 {
     int selrow = 0xFFFF;
     //因设置了单选，因此只取一个参数即可
@@ -437,13 +454,34 @@ int defTheUnit::getTableActionSelRanges()
 }
 
 /*************************************************************
+/函数功能：刷新测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::refreshUnitShow(tUnit unit)
+{
+    unitDeal = unit;
+
+    ui->editUnitName->setText(unitDeal.name);
+    ui->spinUnitCycle->setValue(unitDeal.cycleCount);
+    ui->editUnitDes->setText(unitDeal.unitDes);
+
+    tableAction_Clear();//clear
+
+    for(int i=0;i<unitDeal.actTest.length();i++)
+    {
+        tableAction_Append(unitDeal.actTest.at(i));//append
+    }
+}
+
+/*************************************************************
 /函数功能：刷新属性信息
 /函数参数：无
 /函数返回：wu
 *************************************************************/
 void defTheUnit::refreshPropertiesParam(int index,tAction act)
 {
-    ui->editActName->setText(act.actName);
+    //ui->editActName->setText(act.actName);
     refreshColInfo(act.colInfoList);
 
     //刷新动作属性
@@ -461,6 +499,25 @@ void defTheUnit::refreshPropertiesParam(int index,tAction act)
             ui->checkfileMore->setChecked(false);
         else
             ui->checkfileMore->setChecked(true);
+    }
+    else if(act.actFlag == ACT_DELAYTime)
+    {
+        ui->stackedWidget->setCurrentWidget(ui->pageDelay);
+        ui->editDelayMin->setText(act.actStr);
+        if(act.changedDeal.isEmpty()==false)
+        {
+            for(int i=0;i<act.changedDeal.length();i++)
+            {
+                changedParam cngParam = act.changedDeal.at(i);
+                if(cngParam.changed==BatVolt)
+                {
+                    ui->editDelayMin->setText(toStr(cngParam.min));
+                    ui->editDelayMax->setText(toStr(cngParam.max));
+                    ui->editDelayStep->setText(toStr(cngParam.step));
+                    break;
+                }
+            }
+        }
     }
     else if(act.actFlag == ACT_BATVolt)
     {
@@ -504,6 +561,7 @@ void defTheUnit::refreshPropertiesParam(int index,tAction act)
     refreshErrorDeal(act.errorDeal);
 
 }
+
 #if 0  //列表不可编辑
 /*************************************************************
 /函数功能：表格内编辑动作
@@ -553,7 +611,7 @@ void defTheUnit::on_tableAction_itemChanged(QTableWidgetItem *item)
         }
     }
 }
-#endif
+
 
 /*************************************************************
 /函数功能：名字编辑完成
@@ -562,18 +620,17 @@ void defTheUnit::on_tableAction_itemChanged(QTableWidgetItem *item)
 *************************************************************/
 void defTheUnit::on_editActName_textChanged(const QString &arg1)
 {
-    int selRow = getTableActionSelRanges();
-    if(selRow>=unitDeal.actTest.length())
+    int selRow = tableAction_SelRanges();
+    if((selRow>=unitDeal.actTest.length())||(selRow<0))
         return ;
 
     //修改列表信息
     tAction curAct = unitDeal.actTest.at(selRow);
     curAct.actName = arg1;
-    unitDeal.actTest.replace(selRow,curAct);
 
-    ui->tableAction->setItem(selRow,Col_Name,new QTableWidgetItem(curAct.actName));
+    tableAction_ActReplace(selRow,curAct);
 }
-
+#endif
 /*************************************************************
 /函数功能：刷新采集信息列表
 /函数参数：采集列表
@@ -617,7 +674,7 @@ void defTheUnit::refreshColInfo(QStringList infoDeal)
 *************************************************************/
 void defTheUnit::on_comboBoxActColInfo_checkedStateChange(int index, bool checked)
 {
-    int selRow = getTableActionSelRanges();
+    int selRow = tableAction_SelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
 
@@ -689,7 +746,7 @@ void defTheUnit::refreshKeyList(QString actStr)
 *************************************************************/
 void defTheUnit::on_comboKeyList_activated(const QString &arg1)
 {
-    int selRow = getTableActionSelRanges();
+    int selRow = tableAction_SelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
 
@@ -716,13 +773,8 @@ void defTheUnit::on_comboKeyList_activated(const QString &arg1)
             curAct.actStr +=":off";
             curAct.actName +="-OFF";
         }
-
     }
-
-    unitDeal.actTest.replace(selRow,curAct);
-
-    ui->tableAction->setItem(selRow,Col_Name,new QTableWidgetItem(curAct.actName));
-    ui->tableAction->setItem(selRow,Col_Str,new QTableWidgetItem(curAct.actStr));
+    tableAction_ActReplace(selRow,curAct);
 }
 
 /*************************************************************
@@ -732,7 +784,7 @@ void defTheUnit::on_comboKeyList_activated(const QString &arg1)
 *************************************************************/
 void defTheUnit::on_groupKeyONOFF_clicked(bool checked)
 {
-    int selRow = getTableActionSelRanges();
+    int selRow = tableAction_SelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
 
@@ -768,10 +820,7 @@ void defTheUnit::on_groupKeyONOFF_clicked(bool checked)
             //    curAct.actName += "-OFF";
         }
     }
-    unitDeal.actTest.replace(selRow,curAct);
-
-    ui->tableAction->setItem(selRow,Col_Name,new QTableWidgetItem(curAct.actName));
-    ui->tableAction->setItem(selRow,Col_Str,new QTableWidgetItem(curAct.actStr));
+    tableAction_ActReplace(selRow,curAct);
 }
 
 /*************************************************************
@@ -810,22 +859,25 @@ void defTheUnit::on_checkfileMore_clicked(bool checked)
 *************************************************************/
 void defTheUnit::on_editFilePath_textChanged(const QString &arg1)
 {
-    int selRow = getTableActionSelRanges();
+    int selRow = tableAction_SelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
 
     //修改列表信息
     tAction curAct = unitDeal.actTest.at(selRow);
     curAct.actStr = arg1;
-    unitDeal.actTest.replace(selRow,curAct);
-
-    ui->tableAction->setItem(selRow,Col_Str,new QTableWidgetItem(curAct.actStr));
+    tableAction_ActReplace(selRow,curAct);
 }
 
+/*************************************************************
+/函数功能：电压调节编辑
+/函数参数：无
+/函数返回：wu
+*************************************************************/
 void defTheUnit::editBatVoltDealSlot(QString volt)
 {
     Q_UNUSED(volt)
-    int selRow = getTableActionSelRanges();
+    int selRow = tableAction_SelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
 
@@ -873,9 +925,61 @@ void defTheUnit::editBatVoltDealSlot(QString volt)
         }
     }
     curAct.actStr = "BAT:Volt:"+toStr(cngParam.min);
+    tableAction_ActReplace(selRow,curAct);
+}
 
-    unitDeal.actTest.replace(selRow,curAct);
-    ui->tableAction->setItem(selRow,Col_Str,new QTableWidgetItem(curAct.actStr));
+void defTheUnit::editDelayTimeDealSlot(QString time)
+{
+    Q_UNUSED(time)
+    int selRow = tableAction_SelRanges();
+    if(selRow>=unitDeal.actTest.length())
+        return ;
+
+    //修改列表信息
+    tAction curAct = unitDeal.actTest.at(selRow);
+    changedParam cngParam;
+
+    cngParam.changed = BatVolt;
+
+    cngParam.min = ui->editDelayMin->text().toUInt();
+    cngParam.max = ui->editDelayMax->text().toUInt();
+    cngParam.step = ui->editDelayStep->text().toUInt();
+
+    if((cngParam.step!=0)&&(cngParam.min != cngParam.max))
+    {
+        int i;
+
+        if(cngParam.max > cngParam.min)
+            cngParam.dir = true;
+        else
+            cngParam.dir = false;
+
+        for(i=0;i<curAct.changedDeal.length();i++)
+        {
+            if(curAct.changedDeal.at(i).changed == BatVolt)
+            {
+                curAct.changedDeal.replace(i,cngParam);//替换现有参数
+                break;
+            }
+        }
+        //添加变动处理
+        if(i==curAct.changedDeal.length())
+            curAct.changedDeal.append(cngParam);
+    }
+    else
+    {
+        //删除变动处理
+        for(int i=0;i<curAct.changedDeal.length();i++)
+        {
+            if(curAct.changedDeal.at(i).changed == BatVolt)
+            {
+                curAct.changedDeal.removeAt(i);
+                break;
+            }
+        }
+    }
+    curAct.actStr = toStr(cngParam.min);
+    tableAction_ActReplace(selRow,curAct);
 }
 
 /*************************************************************
@@ -923,7 +1027,7 @@ void defTheUnit::refreshTimeDeal(tAction act)
 *************************************************************/
 void defTheUnit::editTimeDealSlot(QString arg1)
 {
-    int selRow = getTableActionSelRanges();
+    int selRow = tableAction_SelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
     QObject *sender = QObject::sender();
@@ -1098,7 +1202,7 @@ void defTheUnit::refreshCheckDeal(QList<checkParam> chkDeal)
 *************************************************************/
 void defTheUnit::editCheckDealSlot(bool checked)
 {
-    int selRow = getTableActionSelRanges();
+    int selRow = tableAction_SelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
     QObject *sender = QObject::sender();
@@ -1250,6 +1354,11 @@ void defTheUnit::editCheckDealSlot(bool checked)
     unitDeal.actTest.replace(selRow,curAct);
 }
 
+/*************************************************************
+/函数功能：刷新错误处理标志
+/函数参数：无
+/函数返回：wu
+*************************************************************/
 void defTheUnit::refreshErrorDeal(uint8_t errorFlag)
 {
     if(errorFlag == NODealERROR)
@@ -1262,9 +1371,14 @@ void defTheUnit::refreshErrorDeal(uint8_t errorFlag)
         ui->radioButtonchkPassDeal->setChecked(true);
 }
 
+/*************************************************************
+/函数功能：编辑错误处理槽函数
+/函数参数：无
+/函数返回：wu
+*************************************************************/
 void defTheUnit::editErrorDealSlot()
 {
-    int selRow = getTableActionSelRanges();
+    int selRow = tableAction_SelRanges();
     if(selRow>=unitDeal.actTest.length())
         return ;
     QObject *sender = QObject::sender();
@@ -1291,87 +1405,6 @@ void defTheUnit::editErrorDealSlot()
 }
 
 /*************************************************************
-/函数功能：修改INFO信息采集标志
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::changedInfoFlagDeal()
-{
-
-
-#if 0
-    for(int j=0;j<unitDeal.actTest.length();j++)
-    {
-        tAction act = unitDeal.actTest.at(j);
-        act.infoFlag = 0;
-        for(int i=0;i<act.checkDeal.length();i++)
-        {
-            checkParam chkDat=act.checkDeal.at(i);
-            switch(chkDat.check)
-            {
-            case CHKCurrent:
-            act.infoFlag |= COLCURRENT;
-            break;
-            case CHKSound:
-            act.infoFlag |= COLSOUND;
-            break;
-            //记忆检测：界面检测
-            case CHKInterface:
-            {
-                act.infoFlag |= COLFACE;
-                act.infoFlag |= COLFACESITE;//动作执行后采集
-                goto ADDINFODAT;
-                break;
-            }
-            //图片检测：
-            case CHKADBPIC:
-            {
-                act.infoFlag |= COLPICTURE;
-                act.infoFlag |= COLPICTURESITE;//动作执行后采集
-
-                if(chkDat.infoCompare != MemoryCompare)
-                    break;//非记忆比较，均无需对应动作获取信息
-
-                //非比较首次图片，即与测试过程中其他图片比较
-                ADDINFODAT:
-                bool curStatus ;
-
-                if(act.actStr.contains(":on"))
-                    curStatus=true;
-                else
-                    curStatus=false;
-
-                //同时查找该动作之前测试单元中前一个状态下 添加上动作执行前采集当前界面信息
-                for(int front=0;front<unitDeal.actTest.length();front++)
-                {
-                    QString actStr=act.actStr;
-                    QString unitfindStr = unitDeal.actTest.at(front).actStr;
-
-                    if(((curStatus)&&((unitfindStr.contains(":off"))&&(unitfindStr.contains(actStr.remove(":on")))))
-                     ||((!curStatus)&&((unitfindStr.contains(":on"))&&(unitfindStr.contains(actStr.remove(":off"))))))
-                    {
-                        tAction findAction = unitDeal.actTest.at(front);
-
-                        findAction.infoFlag |= COLFACE;
-                        if(chkDat.check == CHKInterface)
-                            findAction.infoFlag &= ~(1<<5);//COLFACESITE
-                        else if(chkDat.check == CHKADBPIC)
-                            findAction.infoFlag &= ~(1<<7);//COLPICTURESITE
-
-                        unitDeal.actTest.replace(front,findAction);
-                    }
-                }
-                break;
-            }
-            default:break;
-            }
-            unitDeal.actTest.replace(j,act);
-        }
-    }
-#endif
-}
-
-/*************************************************************
 /函数功能：预览
 /函数参数：无
 /函数返回：wu
@@ -1383,10 +1416,12 @@ void defTheUnit::on_actLook_triggered()
         QMessageBox::warning(NULL, tr("提示"), tr("请输入测试单元名/检测测试动作是否为空！"));
         return ;
     }
-    changedInfoFlagDeal();
-    CfgLookUnit lookUnit(&unitDeal);
+    else
+    {
+        CfgLookUnit lookUnit(&unitDeal);
 
-    lookUnit.exec();//不可修改,该窗口即为配置窗口，无需再修改
+        lookUnit.exec();//不可修改,该窗口即为配置窗口，无需再修改
+    }
 }
 
 /*************************************************************
@@ -1401,8 +1436,6 @@ void defTheUnit::on_actSave_triggered()
         QMessageBox::warning(NULL, tr("提示"), tr("请输入测试单元名/检测测试动作是否为空！"));
         return ;
     }
-
-    changedInfoFlagDeal();
 
     QFile file(configPath("unitDefined.xml")); //关联文件名字
     Model_XMLFile xmlSave;
@@ -1455,9 +1488,46 @@ void defTheUnit::on_actApply_triggered()
         QMessageBox::warning(NULL, tr("提示"), tr("请输入测试单元名/检测测试动作是否为空！"));
         return ;
     }
+    else
+        applyTheUnit(unitDeal);
+}
 
-    changedInfoFlagDeal();
-    applyTheUnit(unitDeal);
+/*************************************************************
+/函数功能：新建测试单元
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_actnew_triggered()
+{
+    if(tableAction_RowCount())
+    {
+        int selKey = QMessageBox::warning(NULL, tr("提示"),tr("是否已经保存当前测试单元?"),QMessageBox::Save | QMessageBox::Yes | QMessageBox::Cancel,QMessageBox::Yes);
+        if (selKey == QMessageBox::Cancel )
+            return ;
+        else if (selKey == QMessageBox::Save )
+            on_actSave_triggered();
+    }
+
+    //初始化测试单元基本信息
+    unitDeal.name = "";
+    unitDeal.cycleCount = 2;
+    unitDeal.unitDes = "";
+    unitDeal.actTest.clear();
+    refreshUnitShow(unitDeal);
+}
+
+/*************************************************************
+/函数功能：打开帮助文档
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void defTheUnit::on_actHelp_triggered()
+{
+    QString pdfPath=QDir::currentPath()+"/Unit编辑窗口使用说明.pdf";
+    if(QDesktopServices::openUrl(QUrl::fromLocalFile(pdfPath))==false)
+    {
+        QMessageBox::warning(NULL, tr("提示"), tr("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
+    }
 }
 
 /*************************************************************
@@ -1468,33 +1538,9 @@ void defTheUnit::on_actApply_triggered()
 void defTheUnit::on_listUnit_clicked(const QModelIndex &index)
 {
     int listIndex = index.row();
+
     if(listIndex<unitList.length())
-    {
-        unitDeal = unitList.at(listIndex);
-
-        ui->editUnitName->setText(unitDeal.name);
-        ui->spinUnitCycle->setValue(unitDeal.cycleCount);
-        ui->editUnitDes->setText(unitDeal.unitDes);
-
-        //clear
-        for(uint16_t i=ui->tableAction->rowCount();i>0;i--)
-        {
-            ui->tableAction->removeRow(i-1);
-        }
-
-        //append
-        for(int i=0;i<unitDeal.actTest.length();i++)
-        {
-            int row=ui->tableAction->rowCount();
-            ui->tableAction->setRowCount(row+1);
-
-            ui->tableAction->selectRow(row);
-            ui->tableAction->setItem(row,Col_Name,new QTableWidgetItem(unitDeal.actTest.at(i).actName));
-            ui->tableAction->setItem(row,Col_Str,new QTableWidgetItem(unitDeal.actTest.at(i).actStr));
-
-            refreshPropertiesParam(i,unitDeal.actTest.at(i));
-        }
-    }
+        refreshUnitShow(unitList.at(listIndex));
 }
 
 /*************************************************************
@@ -1517,11 +1563,9 @@ void defTheUnit::on_listUnit_customContextMenuRequested(const QPoint &pos)
 
     connect( deleteAct,        SIGNAL(triggered() ), this, SLOT( unitDeleteSlot()) );
     connect( clearAct,        SIGNAL(triggered() ), this, SLOT( unitClearSlot()) );
-
     popMenu->exec( QCursor::pos() );
 
     delete popMenu;
-
 }
 
 /*************************************************************
@@ -1574,70 +1618,4 @@ void defTheUnit::unitClearSlot()
     unitList.clear();
 }
 
-/*************************************************************
-/函数功能：新建测试单元
-/函数参数：无
-/函数返回：wu
-*************************************************************/
-void defTheUnit::on_actnew_triggered()
-{
-    int row=ui->tableAction->rowCount();
 
-    if(row)
-    {
-        int selKey = QMessageBox::warning(NULL, tr("提示"),tr("是否已经保存当前测试单元?"),QMessageBox::Save | QMessageBox::Yes | QMessageBox::Cancel,QMessageBox::Yes);
-        if (selKey == QMessageBox::Cancel )
-            return ;
-        else if (selKey == QMessageBox::Save )
-            on_actSave_triggered();
-    }
-
-    //主窗口涉及清楚任务，因此放置上层处理
-    for(uint16_t i=row;i>0;i--)
-    {
-        ui->tableAction->removeRow(i-1);
-    }
-
-    //初始化测试单元基本信息
-    unitDeal.actTest.clear();
-    unitDeal.name = "";
-    unitDeal.cycleCount = 2;
-    unitDeal.unitDes = "";
-    ui->editUnitName->setText(unitDeal.name);
-    ui->spinUnitCycle->setValue(unitDeal.cycleCount);
-    ui->editUnitDes->setText(unitDeal.unitDes);
-}
-
-void defTheUnit::on_actHelp_triggered()
-{
-    QString pdfPath=QDir::currentPath()+"/Unit编辑窗口使用说明.pdf";
-    if(QDesktopServices::openUrl(QUrl::fromLocalFile(pdfPath))==false)
-    {
-        QMessageBox::warning(NULL, tr("提示"), tr("该运行目录下无《Unit编辑窗口使用说明.pdf》文档！"));
-    }
-}
-
-
-// 鼠标悬停的时候，显示当前用户简要信息
-bool defTheUnit::event(QEvent *e) {
-
-#if 0
-    if(e->type()==QEvent::ToolTip){
-        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);	//Tooptip弹出事件，帮助
-        QPoint p_Top=helpEvent->globalPos();	//Tooptip的显示位置，全局坐标
-        QPoint p_View=ui->tableAction->mapFromGlobal(p_Top);	//将鼠标的全局坐标转换为treeview中的坐标
-        p_View.setY(p_View.y()+25);
-        QModelIndex currentIndex=ui->tableAction->indexAt(p_View);	//获取鼠标所指向的Index-1
-        QString InfoString;//=currentIndex.data(Qt::DisplayRole).toString();
-        if(currentIndex.row()<unitDeal.actTest.length())
-        {
-            //tAction curAct = unitDeal.actTest.at(currentIndex.row());
-            InfoString = "gfudsgfjh\nfsdahgfdhsfd\ngfshfsahfgfsh\n"+ toStr(currentIndex.row());
-
-            QToolTip::showText(p_Top, InfoString);	//显示ToolTip
-        }
-        return true;
-    }
-#endif
-    return QWidget::event(e);
-}

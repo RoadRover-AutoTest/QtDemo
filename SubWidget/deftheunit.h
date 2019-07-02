@@ -41,7 +41,7 @@ private slots:
 
     void on_tableAction_clicked(const QModelIndex &index);
 
-    void on_editActName_textChanged(const QString &arg1);
+    //void on_editActName_textChanged(const QString &arg1);
 
     void on_comboKeyList_activated(const QString &arg1);
 
@@ -54,6 +54,8 @@ private slots:
     void on_editFilePath_textChanged(const QString &arg1);
 
     void editBatVoltDealSlot(QString volt);
+
+    void editDelayTimeDealSlot(QString time);
 
     //void on_tableAction_itemChanged(QTableWidgetItem *item);
 
@@ -103,7 +105,13 @@ private:
     }colInfo_e;
 
     void inittActionParam(tAction *tact);
-    void appendTableAction(tAction act);
+    int  tableAction_RowCount();
+    void tableAction_Clear();
+    void tableAction_Append(tAction act);
+    int  tableAction_SelRanges();
+    void tableAction_ActReplace(int row,tAction repAct);
+
+    void refreshUnitShow(tUnit unit);
     void refreshPropertiesParam(int index,tAction act);
     void refreshColInfo(QStringList infoDeal);
     void refreshKeyList(QString actStr);
@@ -111,17 +119,10 @@ private:
     void refreshCheckDeal(QList<checkParam> chkDeal);
     void refreshErrorDeal(uint8_t errorFlag);
 
-    void changedInfoFlagDeal();
-    int getTableActionSelRanges();
-
     void moveRow(int nFrom, int nTo );
 
 signals:
     void applyTheUnit(tUnit unit);
-
-protected:
-    bool event(QEvent *e);
-
 };
 
 #endif // DEFTHEUNIT_H

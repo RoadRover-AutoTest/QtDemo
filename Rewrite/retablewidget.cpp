@@ -558,51 +558,52 @@ continueAppendList:
     for(int i=0;i<unit.actTest.length();i++)
     {
         tAction actDeal = unit.actTest.at(i);
-
-        if((actDeal.actFlag == ACT_KEY)||(actDeal.actFlag == ACT_BATVolt)
-                ||((actDeal.actFlag == ACT_SCRIPT)&&((actDeal.actStr.endsWith(".bat"))||(actDeal.actStr.endsWith(".BAT")))))
+        if(actDeal.actFlag != ACT_NULL)
         {
-            curUnit.actTest.append(actDeal);
-        }
-        else
-        {
-            QString dirPath = actDeal.actStr;
-            //判断路径是否存在
-            QDir dir(dirPath);
-            if((!dir.exists())||(dirPath.isEmpty()))
+            if((actDeal.actFlag != ACT_SCRIPT) || ((actDeal.actFlag == ACT_SCRIPT)&&((actDeal.actStr.endsWith(".bat"))||(actDeal.actStr.endsWith(".BAT")))))
             {
-                QMessageBox::warning(NULL, tr("提示"), tr("未选择脚本文件或不存在该路径！"));
-                return;
+                curUnit.actTest.append(actDeal);
             }
             else
-                dir.setFilter(QDir::Files | QDir::NoSymLinks);
-
-            QFileInfoList list = dir.entryInfoList();
-
-            if(fileIndex<list.length())
             {
-                QString filename=list.at(fileIndex).absoluteFilePath();//.baseName();//QFileInfo
-                QString Script = filename.split('/').last().remove(".bat");
-
-                //只取bat文件
-                if(filename.contains(".bat") || filename.contains(".BAT"))
+                QString dirPath = actDeal.actStr;
+                //判断路径是否存在
+                QDir dir(dirPath);
+                if((!dir.exists())||(dirPath.isEmpty()))
                 {
-                curUnit.name =unit.name + "_"+Script;
-                actDeal.actName = Script;
-                actDeal.actStr += "\\"+Script+".bat";
-                curUnit.actTest.append(actDeal);
+                    QMessageBox::warning(NULL, tr("提示"), tr("未选择脚本文件或不存在该路径！"));
+                    return;
                 }
                 else
+                    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+
+                QFileInfoList list = dir.entryInfoList();
+
+                if(fileIndex<list.length())
                 {
-                    //非bat文件，跳过
-                    if(++fileIndex<list.length())
-                        goto continueAppendList;
+                    QString filename=list.at(fileIndex).absoluteFilePath();//.baseName();//QFileInfo
+                    QString Script = filename.split('/').last().remove(".bat");
+
+                    //只取bat文件
+                    if(filename.contains(".bat") || filename.contains(".BAT"))
+                    {
+                    curUnit.name =unit.name + "_"+Script;
+                    actDeal.actName = Script;
+                    actDeal.actStr += "\\"+Script+".bat";
+                    curUnit.actTest.append(actDeal);
+                    }
                     else
-                        return;
+                    {
+                        //非bat文件，跳过
+                        if(++fileIndex<list.length())
+                            goto continueAppendList;
+                        else
+                            return;
+                    }
                 }
+                if(++fileIndex>=list.length())
+                    isOver=true;
             }
-            if(++fileIndex>=list.length())
-                isOver=true;
         }
     }
 

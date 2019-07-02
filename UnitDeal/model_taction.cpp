@@ -88,37 +88,50 @@ void Model_tAction::timerEvent(QTimerEvent *event)
             uint64_t elapsed = tim_WaitStart.msecsTo(QTime::currentTime());
 
             //cout<< tim_WaitLast << elapsed;
-
-            /*未结束等待前检测到应该检测数据，判断数据的结果*/
-            if((actionDeal->timeDeal.check)&&(tim_WaitLast < actionDeal->timeDeal.check)&&(elapsed >= actionDeal->timeDeal.check))
+            if(actionDeal->actFlag == ACT_DELAYTime)
             {
-                qDebug()<<"QTime.currentTime ="<<elapsed<<"ms";
-                colSize=ACT_Back;
-                colInfoFlag=0x00;
-                actInfoFlag = unitDeal->ActColInfo_Analy(ACT_Back,actionDeal->colInfoList);
-                if(actInfoFlag)//判断动作执行后是否采集信息：
+                uint64_t delayTime = actionDeal->actStr.toInt();
+
+                if(elapsed >= delayTime)
                 {
-                    timeState = collectInfo;
-                    nextState = chkAction;//采集结束后，跳转到检测处理
-                    TimeDelay1S=0;
-                }
-                else
-                    timeState = chkAction;
-            }
-            else if(elapsed >= (actionDeal->timeDeal.wait))
-            {/* 结束等待时，若检测时间不存在将默认进入等待结束，
-             * 若存在上述语句已经执行，因此直接进入actover操作*/
-                qDebug()<<"QTime.currentTime ="<<elapsed<<"ms";
-                if(!actionDeal->timeDeal.check)//无检测时间
-                    timeState = waitover;
-                else
-                {
-                    if(actionDeal->timeDeal.check>actionDeal->timeDeal.wait)//检测时间未在等待时间范围内，不进行检测，直接判断为测试通过
-                        testResult =true;
+                    // cout << delayTime;
+                    testResult =true;
                     timeState = actover;
                 }
             }
-            tim_WaitLast = elapsed;
+            else
+            {
+                /*未结束等待前检测到应该检测数据，判断数据的结果*/
+                if((actionDeal->timeDeal.check)&&(tim_WaitLast < actionDeal->timeDeal.check)&&(elapsed >= actionDeal->timeDeal.check))
+                {
+                    qDebug()<<"QTime.currentTime ="<<elapsed<<"ms";
+                    colSize=ACT_Back;
+                    colInfoFlag=0x00;
+                    actInfoFlag = unitDeal->ActColInfo_Analy(ACT_Back,actionDeal->colInfoList);
+                    if(actInfoFlag)//判断动作执行后是否采集信息：
+                    {
+                        timeState = collectInfo;
+                        nextState = chkAction;//采集结束后，跳转到检测处理
+                        TimeDelay1S=0;
+                    }
+                    else
+                        timeState = chkAction;
+                }
+                else if(elapsed >= (actionDeal->timeDeal.wait))
+                {/* 结束等待时，若检测时间不存在将默认进入等待结束，
+                 * 若存在上述语句已经执行，因此直接进入actover操作*/
+                    qDebug()<<"QTime.currentTime ="<<elapsed<<"ms";
+                    if(!actionDeal->timeDeal.check)//无检测时间
+                        timeState = waitover;
+                    else
+                    {
+                        if(actionDeal->timeDeal.check>actionDeal->timeDeal.wait)//检测时间未在等待时间范围内，不进行检测，直接判断为测试通过
+                            testResult =true;
+                        timeState = actover;
+                    }
+                }
+                tim_WaitLast = elapsed;
+            }
             break;
         }
         case waitover:
@@ -321,6 +334,10 @@ void Model_tAction::theActionExecuateDeal()
         ShowList << tr("~执行动作~")+actionDeal->actStr;
         if((actionDeal->actFlag == ACT_KEY)||(actionDeal->actFlag == ACT_BATVolt))
             startAction(actionDeal->actStr);//执行按键动作
+        else if(actionDeal->actFlag == ACT_DELAYTime)
+        {
+            timeState = wait;
+        }
         else
         {
             if((!isPRORunning)&&(proList.isEmpty()))

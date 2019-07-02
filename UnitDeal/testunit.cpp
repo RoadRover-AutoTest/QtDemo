@@ -630,7 +630,7 @@ void testUnit::actAppend_ACCON(int actNum,tAction *kAction,QList <keyControl> ke
 {
     //tAction kAction;
     inittActionParam(kAction);
-    kAction->actName = "ACCON";
+    kAction->actName = "ACC-ON";
     kAction->actFlag = ACT_KEY;
 
     for(int i=0;i<keyList.length();i++)
@@ -679,7 +679,7 @@ void testUnit::actAppend_ACCON(int actNum,tAction *kAction,QList <keyControl> ke
 void testUnit::actAppend_ACCOFF(int actNum,tAction *kAction,QList <keyControl> keyList)
 {
     inittActionParam(kAction);
-    kAction->actName = "ACCOFF";
+    kAction->actName = "ACC-OFF";
     kAction->actFlag = ACT_KEY;
 
     for(int i=0;i<keyList.length();i++)
@@ -722,7 +722,7 @@ void testUnit::actAppend_ACCOFF(int actNum,tAction *kAction,QList <keyControl> k
 void testUnit::actAppend_BATON(int actNum,tAction *kAction,QList <keyControl> keyList)
 {
     inittActionParam(kAction);
-    kAction->actName = "BATON";
+    kAction->actName = "BAT-ON";
     kAction->actFlag = ACT_KEY;
 
     for(int i=0;i<keyList.length();i++)
@@ -771,7 +771,7 @@ void testUnit::actAppend_BATON(int actNum,tAction *kAction,QList <keyControl> ke
 void testUnit::actAppend_BATOFF(int actNum,tAction *kAction,QList <keyControl> keyList)
 {
     inittActionParam(kAction);
-    kAction->actName = "BATOFF";
+    kAction->actName = "BAT-OFF";
     kAction->actFlag = ACT_KEY;
 
     for(int i=0;i<keyList.length();i++)
@@ -806,7 +806,7 @@ void testUnit::actAppend_BATOFF(int actNum,tAction *kAction,QList <keyControl> k
 void testUnit::actAppend_CCDON(int actNum,tAction *kAction,QList <keyControl> keyList)
 {
     inittActionParam(kAction);
-    kAction->actName = "CCDON";
+    kAction->actName = "CCD-ON";
     kAction->actFlag = ACT_KEY;
 
     for(int i=0;i<keyList.length();i++)
@@ -848,7 +848,7 @@ void testUnit::actAppend_CCDON(int actNum,tAction *kAction,QList <keyControl> ke
 void testUnit::actAppend_CCDOFF(int actNum,tAction *kAction,QList <keyControl> keyList)
 {
     inittActionParam(kAction);
-    kAction->actName = "CCDOFF";
+    kAction->actName = "CCD-OFF";
     kAction->actFlag = ACT_KEY;
 
     for(int i=0;i<keyList.length();i++)
@@ -958,4 +958,27 @@ void testUnit::actAppend_batVolt(tAction *bAction)
     changevolt.step = 1;
     bAction->changedDeal.append(changevolt);
 }
+
+/*************************************************************
+/函数功能：动作添加延时
+/函数参数：无
+/函数返回：wu
+*************************************************************/
+void testUnit::actAppend_DelayTime(tAction *tAction)
+{
+    inittActionParam(tAction);
+
+    tAction->actName="WaitTime(ms)";
+    tAction->actFlag = ACT_DELAYTime;
+    tAction->actStr = "5000";
+
+    changedParam changevolt;
+    changevolt.changed = BatVolt;
+    changevolt.dir = true;
+    changevolt.min  = 5000;
+    changevolt.max  = 10000;//any:暂时使用
+    changevolt.step = 1000;
+    tAction->changedDeal.append(changevolt);
+}
+
 

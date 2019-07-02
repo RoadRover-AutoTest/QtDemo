@@ -142,9 +142,10 @@ typedef struct
 typedef enum
 {
     ACT_NULL,
-    ACT_KEY,
-    ACT_SCRIPT,
-    ACT_BATVolt
+    ACT_KEY,            //按键动作
+    ACT_SCRIPT,         //脚本动作
+    ACT_BATVolt,        //调节BAT电压
+    ACT_DELAYTime,      //延时
 }ActType_e;
 
 typedef enum
@@ -175,7 +176,7 @@ typedef struct
 
     //action Deal:
     QString actStr;
-    uint8_t actFlag;//动作类型：0-空 1-KEY 2-Script
+    uint8_t actFlag;//动作类型：0-空 1-KEY 2-Script  3-BAT电压  4-延时时间
 
     uint8_t errorDeal;  //错误处理机制：默认暂停 详见：error_type_e
 
@@ -283,6 +284,7 @@ public:
     void actAppend_key(QString keyName,tAction *kAction,QList <keyControl> keyList);
     void actAppend_script(tAction *sAction);
     void actAppend_batVolt(tAction *bAction);
+    void actAppend_DelayTime(tAction *tAction);
 
 };
 

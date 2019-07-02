@@ -372,8 +372,8 @@ void MainWindow::on_actHelp_triggered()
 *************************************************************/
 void MainWindow::on_about_triggered()
 {
-    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.08.01\n"
-                                            "日期：2019.06.11\n"
+    QMessageBox::information(NULL, tr("关于"), tr("自动化测试系统 V1.08.02\n"
+                                            "日期：2019.07.02\n"
                                             "版权：roadrover\n"
                                             "反馈邮箱：lishuhui@roadrover.cn"));
 
